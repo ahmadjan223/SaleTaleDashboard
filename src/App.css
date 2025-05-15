@@ -1,42 +1,552 @@
+:root {
+  --background-dark: #272727;
+  --text-light: #fbfbfb;
+  --accent-green: #31C58D;
+  --hover-green: #2aa876; /* Darker green for hover */
+  --card-bg: #333333; /* Slightly lighter than main bg for cards */
+  --border-color: #444444;
+  --modal-overlay-bg: rgba(0, 0, 0, 0.75); /* Slightly darker overlay */
+  --danger-red: #e74c3c;
+  --hover-red: #c0392b;
+  --table-header-bg: #3a3a3a; /* Adjusted table header */
+  --table-row-hover: #424242; /* Adjusted row hover */
+  --scrollbar-thumb-bg: var(--accent-green);
+  --scrollbar-track-bg: var(--card-bg);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  margin: 0;
+  background-color: var(--background-dark);
+  color: var(--text-light);
+  display: flex;
+  flex-direction: column; /* Changed to column for top-bar layout */
+  min-height: 100vh;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  display: flex;
+  flex-direction: column; /* Ensure root also follows column layout */
+  flex-grow: 1;
+  width: 100%;
+}
+
+.top-bar {
+  background-color: var(--background-dark);
+  color: var(--text-light);
+  padding: 0 30px; /* Adjusted padding */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  position: fixed; /* Fixed position */
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 65px; /* Slightly taller top bar */
+  border-bottom: 1px solid var(--border-color);
+}
+
+.top-bar-title-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center title and subline */
+  cursor: pointer;
+  padding: 5px 0; /* Add some padding */
+  flex-grow: 1; /* Allow it to take space and center */
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.top-bar h1 {
+  margin: 0;
+  font-size: 2.2em; /* Bigger title */
+  font-weight: 700;
+  color: var(--accent-green);
+  line-height: 1.1;
 }
 
-@keyframes logo-spin {
+.top-bar .subline {
+  margin: 0;
+  font-size: 0.85em;
+  color: var(--text-light);
+  opacity: 0.8;
+  font-weight: 300;
+}
+
+.logout-btn-icon {
+  font-size: 1.5em; /* Adjusted for emoji combination */
+  padding: 8px;
+  color: var(--text-light);
+  background-color: transparent;
+  line-height: 1; /* Helps align emoji characters */
+}
+
+.logout-btn-icon span {
+    display: inline-block; /* Allows transform */
+    transform: translateY(-1px); /* Fine-tune arrow position */
+}
+
+.logout-btn-icon:hover {
+  color: var(--accent-green);
+  background-color: rgba(251, 251, 251, 0.05);
+}
+
+.dashboard-layout {
+  display: flex;
+  flex-grow: 1;
+  width: 100%;
+  margin-top: 65px; /* Offset for new top-bar height */
+}
+
+.sidebar {
+  width: 250px;
+  background-color: var(--background-dark);
+  color: var(--text-light);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  box-shadow: none; /* Removed as border is enough */
+  height: calc(100vh - 65px); /* Full height minus top-bar */
+  position: fixed; /* Fixed position */
+  left: 0;
+  padding-top: 15px; /* Space at the top of sidebar content */
+  border-right: 1px solid var(--border-color);
+}
+
+.sidebar-header {
+  /* padding: 15px 20px; */ /* No longer needed if title is removed/minimal */
+  /* border-bottom: 1px solid var(--border-color); */
+  /* text-align: center; */
+  min-height: 40px; /* Placeholder if content is removed */
+}
+
+/* .sidebar-header h2 - Can be removed if not used */
+
+.sidebar ul {
+  list-style: none;
+  padding: 10px 15px;
+  margin: 0;
+  flex-grow: 1;
+  overflow-y: auto; /* Scroll if too many items */
+}
+
+.sidebar-item {
+  padding: 13px 20px;
+  cursor: pointer;
+  border-radius: 8px; /* Rounded corners */
+  margin-bottom: 8px;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  font-size: 1.05em;
+  display: flex;
+  align-items: center;
+  color: var(--text-light);
+}
+
+.sidebar-item:hover {
+  background-color: var(--card-bg);
+  transform: translateX(4px);
+}
+
+.sidebar-item.active {
+  background-color: var(--accent-green);
+  color: var(--background-dark); /* Dark text on green bg */
+  font-weight: 600;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+}
+
+.sidebar-divider {
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 10px 15px;
+  border-radius: 1px;
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 25px 30px;
+  overflow-y: auto;
+  background-color: var(--background-dark); /* Main bg dark */
+  margin-left: 250px; /* Offset for fixed sidebar */
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.section-header h2 {
+  font-size: 1.9em;
+  color: var(--text-light);
+  margin: 0;
+  font-weight: 600;
+}
+
+.section-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Space between action buttons in header */
+}
+
+.content-area {
+  background-color: var(--card-bg);
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  color: var(--text-light);
+}
+
+.home-content h1 {
+  font-size: 2.6em;
+  color: var(--accent-green);
+  margin-bottom: 15px;
+}
+
+.home-content .tagline {
+  font-size: 1.2em;
+  color: var(--text-light);
+  opacity: 0.9;
+  margin-bottom: 30px;
+  font-style: italic;
+}
+
+.home-content .features-overview h3 {
+  font-size: 1.4em;
+  color: var(--accent-green);
+  margin-top: 25px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 5px;
+}
+
+.home-content .features-overview ul {
+  list-style: disc;
+  margin-left: 20px;
+  padding-left: 0;
+}
+.home-content .features-overview ul li {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+/* Table Styles */
+.table-container {
+  max-height: 60vh; /* Adjust as needed, e.g., 500px or 60vh */
+  overflow-y: auto;
+  border-radius: 8px; /* Rounded corners for the scrollable container */
+  border: 1px solid var(--border-color);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse; 
+  table-layout: fixed; /* For ellipsis to work effectively */
+}
+
+th, td {
+  border-bottom: 1px solid var(--border-color); /* Only bottom border for cleaner look */
+  border-left: none;
+  border-right: none;
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 0.95em;
+  vertical-align: middle;
+  overflow: hidden; /* Required for text-overflow */
+  text-overflow: ellipsis; /* Add ellipsis for overflow */
+  white-space: nowrap; /* Prevent wrapping for ellipsis */
+}
+th:first-child, td:first-child {
+  padding-left: 20px; /* More padding for first cell */
+}
+th:last-child, td:last-child {
+  padding-right: 20px; /* More padding for last cell */
+  width: 80px; /* Fixed width for actions column, adjust as needed */
+  text-align: center;
+}
+
+th {
+  background-color: var(--table-header-bg);
+  font-weight: 600;
+  color: var(--text-light);
+  text-transform: uppercase;
+  font-size: 0.8em;
+  position: sticky; /* Sticky table headers */
+  top: 0; /* Required for sticky */
+  z-index: 10;
+}
+
+tr {
+  transition: background-color 0.1s ease-out;
+}
+
+tr:last-child td {
+    border-bottom: none; /* Remove bottom border for last row in container */
+}
+
+tr:hover {
+  background-color: var(--table-row-hover);
+  cursor: pointer;
+}
+
+/* Action Buttons (General & Icon Specific) */
+.action-btn {
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: 500;
+  transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  background-color: transparent;
+  color: var(--text-light);
+}
+
+.action-btn:hover {
+  transform: translateY(-1px) scale(1.05);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.icon-btn {
+  padding: 6px;
+  font-size: 1.3em;
+  line-height: 1;
+  /* Added title attribute in JSX, so tooltip appears on hover */
+}
+
+.icon-btn:hover {
+   background-color: rgba(251, 251, 251, 0.08);
+}
+
+.add-btn.icon-btn {
+  color: var(--accent-green);
+}
+.add-btn.icon-btn:hover {
+  color: var(--hover-green);
+}
+
+.delete-btn.icon-btn {
+  color: var(--danger-red);
+}
+.delete-btn.icon-btn:hover {
+  color: var(--hover-red);
+}
+
+.logout-btn {
+  /* Styles for textual logout button if ever reverted */
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--modal-overlay-bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+}
+
+.modal-content {
+  background-color: var(--card-bg);
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+  width: 90%;
+  max-width: 480px;
+  color: var(--text-light);
+  border: 1px solid var(--border-color);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 15px;
+  margin-bottom: 15px;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.4em;
+  color: var(--accent-green);
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.7em;
+  color: var(--text-light);
+  cursor: pointer;
+  padding: 0 5px;
+}
+.modal-close-btn:hover {
+  color: var(--accent-green);
+}
+
+.modal-body {
+  margin-bottom: 20px;
+  font-size: 1em;
+  line-height: 1.6;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-footer .action-btn {
+   font-weight: 600;
+   padding: 9px 16px;
+   border-radius: 6px;
+}
+
+.modal-footer .cancel-btn {
+  background-color: #555;
+  color: var(--text-light);
+}
+.modal-footer .cancel-btn:hover {
+  background-color: #666;
+}
+
+.modal-footer .confirm-btn {
+  background-color: var(--accent-green);
+  color: var(--background-dark);
+}
+.modal-footer .confirm-btn:hover {
+  background-color: var(--hover-green);
+}
+
+/* Loading and Error States */
+.loading-message, .error-message {
+  text-align: center;
+  font-size: 1.3em;
+  color: var(--text-light);
+  padding: 40px 0;
+  opacity: 0.8;
+}
+
+/* Custom Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track-bg);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb-bg);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--hover-green);
+}
+
+@media (max-width: 768px) {
+  .top-bar {
+    padding: 0 15px;
+    height: 60px;
+  }
+  .top-bar h1 { font-size: 1.8em; }
+  .top-bar .subline { font-size: 0.75em; }
+  .logout-btn-icon { font-size: 1.5em; }
+  .dashboard-layout { margin-top: 60px; }
+
+  .sidebar {
+    position: static;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+    padding-top: 10px;
+  }
+  .sidebar ul { padding: 5px 10px; }
+  .sidebar-item { padding: 10px 15px; }
+  
+  .main-content {
+    margin-left: 0;
+    padding: 15px;
+  }
+  .section-header h2 { font-size: 1.6em; }
+  .table-container { max-height: 70vh; } /* More height for table on mobile */
+  th, td { padding: 10px 8px; font-size: 0.9em; }
+  th:first-child, td:first-child { padding-left: 10px; }
+  th:last-child, td:last-child { padding-right: 10px; width: 60px; }
+  .icon-btn { font-size: 1.2em; }
+  .modal-content { width: 95%; padding: 20px; }
+  .modal-header h3 { font-size: 1.3em; }
+  .modal-footer .action-btn { padding: 8px 12px; font-size: 0.9em;}
+}
+
+.logo, .logo.react, .card, .read-the-docs { display: none; }
+
+/* Toast Notification Styles */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 20px;
+  border-radius: 8px;
+  color: var(--text-light);
+  font-size: 0.95em;
+  font-weight: 500;
+  z-index: 2000; /* Ensure it's above other content, but below modals if any overlap needed */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  animation: toast-in 0.3s ease-out forwards, toast-out 0.3s ease-in 2.7s forwards; /* 3s total, out starts at 2.7s */
+  border: 1px solid transparent;
+}
+
+.toast-success {
+  background-color: var(--accent-green);
+  color: var(--background-dark); /* Dark text on green for contrast */
+  border-color: var(--hover-green);
+}
+
+.toast-error {
+  background-color: var(--danger-red);
+  color: var(--text-light);
+  border-color: var(--hover-red);
+}
+
+@keyframes toast-in {
   from {
-    transform: rotate(0deg);
+    bottom: -50px;
+    opacity: 0;
   }
   to {
-    transform: rotate(360deg);
+    bottom: 20px;
+    opacity: 1;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+@keyframes toast-out {
+  from {
+    bottom: 20px;
+    opacity: 1;
+  }
+  to {
+    bottom: -50px;
+    opacity: 0;
   }
 }
 
-.card {
-  padding: 2em;
+.refresh-btn {
+    color: var(--text-light); /* Or a specific color if preferred, e.g., a blue */
+    font-size: 1.2em; /* Slightly smaller than add/delete if desired */
 }
 
-.read-the-docs {
-  color: #888;
+.refresh-btn:hover {
+    color: var(--accent-green);
+    background-color: rgba(251, 251, 251, 0.08);
 }

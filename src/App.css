@@ -550,3 +550,14 @@ tr:hover {
     color: var(--accent-green);
     background-color: rgba(251, 251, 251, 0.08);
 }
+
+/* Tooltip base style */
+.tooltip {
+  background-color: #333;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  z-index: 1000; /* Ensure it's on top */
+  /* pointer-events: none; /* Already set in inline style, but good to have in class too */
+}

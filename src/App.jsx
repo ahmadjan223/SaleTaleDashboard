@@ -38,6 +38,40 @@ function App() {
     showConfirm: true, 
     isContentJsx: false 
   })
+  
+  useEffect(() => {
+    const fetchDataForView = async (view) => {
+      if (data[view] !== null && typeof data[view] !== 'undefined') {
+        setLoading(false)
+        return
+      }
+      setLoading(true)
+      setError(null)
+      let fetchFunction
+      switch (view) {
+        case VIEWS.PRODUCTS: fetchFunction = getAllProducts
+          break
+        case VIEWS.RETAILERS: fetchFunction = getAllRetailers
+          break
+        case VIEWS.SALESMEN: fetchFunction = getAllSalesmen
+          break
+        default: setLoading(false)
+          return
+      }
+      try {
+        const fetchedData = await fetchFunction()
+        setData(prevData => ({ ...prevData, [view]: fetchedData.length > 0 ? fetchedData : [] }))
+      } catch (err) { 
+        console.error(`Fetch error for ${view}:`, err)
+        setError(err.message)
+        setData(prevData => ({ ...prevData, [view]: [] }))
+      } finally {
+        setLoading(false)
+      }
+    }
+    if (activeView !== VIEWS.HOME && activeView !== VIEWS.SALES) fetchDataForView(activeView)
+  }, [activeView, data])
+
 
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' })
 
@@ -165,44 +199,6 @@ function App() {
     }
   }, [showToast])
 
-  const handleRefresh = useCallback((viewToRefresh) => {
-    showToast(`Refreshing ${viewToRefresh.toLowerCase()}...`, 'info')
-    setData(prevData => ({ ...prevData, [viewToRefresh]: null }))
-  }, [showToast])
-
-  useEffect(() => {
-    const fetchDataForView = async (view) => {
-      if (data[view] !== null && typeof data[view] !== 'undefined') {
-        setLoading(false)
-        return
-      }
-      setLoading(true)
-      setError(null)
-      let fetchFunction
-      switch (view) {
-        case VIEWS.PRODUCTS: fetchFunction = getAllProducts
-          break
-        case VIEWS.RETAILERS: fetchFunction = getAllRetailers
-          break
-        case VIEWS.SALESMEN: fetchFunction = getAllSalesmen
-          break
-        default: setLoading(false)
-          return
-      }
-      try {
-        const fetchedData = await fetchFunction()
-        setData(prevData => ({ ...prevData, [view]: fetchedData.length > 0 ? fetchedData : [] }))
-      } catch (err) { 
-        console.error(`Fetch error for ${view}:`, err)
-        setError(err.message)
-        setData(prevData => ({ ...prevData, [view]: [] }))
-      } finally {
-        setLoading(false)
-      }
-    }
-    if (activeView !== VIEWS.HOME && activeView !== VIEWS.SALES) fetchDataForView(activeView)
-  }, [activeView, data])
-
   const renderContent = () => {
     if (loading && activeView !== VIEWS.HOME) return <div className="content-area"><h2 className="loading-message">Loading {activeView.toLowerCase()}...</h2></div>
     if (error) return <div className="content-area"><h2 className="error-message">Error loading {activeView.toLowerCase()}: {error}</h2></div>
@@ -230,9 +226,10 @@ function App() {
         )
       case VIEWS.SALES:
         return <SalesTable 
-          onRowCopy={handleRowCopy}
-          onCellMouseEnter={handleCellMouseEnter}
-          onCellMouseLeave={handleCellMouseLeave}
+          sales={data[VIEWS.SALES] || []} 
+          onDelete={handleDelete} 
+          onRowCopy={handleRowCopy} 
+          deletingItemId={deletingItemId} 
         />
       case VIEWS.PRODUCTS:
         return <ProductsTable 
@@ -240,7 +237,6 @@ function App() {
           onAdd={handleAddProduct} 
           onDelete={handleDelete} 
           onRowCopy={handleRowCopy} 
-          onRefresh={() => handleRefresh(VIEWS.PRODUCTS)} 
           deletingItemId={deletingItemId} 
         />
       case VIEWS.RETAILERS:
@@ -248,7 +244,6 @@ function App() {
           retailers={data[VIEWS.RETAILERS] || []} 
           onDelete={handleDelete} 
           onRowCopy={handleRowCopy} 
-          onRefresh={() => handleRefresh(VIEWS.RETAILERS)} 
           deletingItemId={deletingItemId} 
         />
       case VIEWS.SALESMEN:
@@ -256,7 +251,6 @@ function App() {
           salesmen={data[VIEWS.SALESMEN] || []} 
           onDelete={handleDelete} 
           onRowCopy={handleRowCopy} 
-          onRefresh={() => handleRefresh(VIEWS.SALESMEN)} 
           deletingItemId={deletingItemId} 
         />
       default:

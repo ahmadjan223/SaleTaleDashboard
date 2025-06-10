@@ -1,0 +1,7 @@
+export const VIEWS = {
+  HOME: 'HOME',
+  SALES: 'SALES',
+  PRODUCTS: 'PRODUCTS',
+  RETAILERS: 'RETAILERS',
+  SALESMEN: 'SALESMEN'
+}; 

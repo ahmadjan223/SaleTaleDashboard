@@ -4,11 +4,22 @@ import useProductStore from '../../store/productStore';
 import { useEffect } from 'react';
 
 const ProductsTable = ({ onDelete, onRowCopy, deletingItemId }) => {
-  const { products, fetchProducts } = useProductStore();
+  const { products, fetchProducts, loading } = useProductStore();
 
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  if (loading) {
+    return (
+      <section className="content-area">
+        <div className="section-header"><h2>Products</h2><TableActionsHeader/></div>
+        <div className="table-container">
+          <div className="loading-message">Loading products data...</div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="content-area">

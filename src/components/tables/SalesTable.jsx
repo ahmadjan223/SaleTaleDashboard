@@ -7,7 +7,6 @@ const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
     sales, 
     loading, 
     error, 
-    deletingItemId,
     fetchSales,
     deleteSale
   } = useSalesStore();
@@ -81,18 +80,15 @@ const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
                     {s.addedBy?.name || (typeof s.addedBy === 'object' && s.addedBy !== null ? s.addedBy._id : s.addedBy) || 'N/A'}
                   </td>
                   <td>
-                    {deletingItemId === s._id ? 
-                      <div className="loader-small"></div> :
-                      <button 
-                        onClick={(e) => { 
-                          e.stopPropagation(); 
-                          deleteSale(s._id, s.product?.name || s._id);
-                        }} 
-                        className="action-btn icon-btn delete-btn"
-                      >
-                        🗑️
-                      </button>
-                    }
+                    <button 
+                      onClick={(e) => { 
+                        e.stopPropagation(); 
+                        deleteSale(s._id, s.product?.name || s._id);
+                      }} 
+                      className="action-btn icon-btn delete-btn"
+                    >
+                      🗑️
+                    </button>
                   </td>
                 </tr>
               ))}

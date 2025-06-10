@@ -3,8 +3,8 @@ import TableActionsHeader from './TableActionsHeader';
 import useRetailerStore from '../../store/retailerStore';
 import { useEffect } from 'react';
 
-const RetailersTable = ({ onDelete, onRowCopy, deletingItemId }) => {
-  const { retailers, fetchRetailers, loading } = useRetailerStore();
+const RetailersTable = ({ onRowCopy }) => {
+  const { retailers, fetchRetailers, loading, deleteRetailer } = useRetailerStore();
 
   useEffect(() => {
     fetchRetailers();
@@ -49,10 +49,7 @@ const RetailersTable = ({ onDelete, onRowCopy, deletingItemId }) => {
                   <td onClick={(e) => {e.stopPropagation(); onRowCopy(r.location?.coordinates?.join(', ') || 'N/A', 'Location');}}>{r.location?.coordinates?.join(', ') || 'N/A'}</td>
                   <td onClick={(e) => {e.stopPropagation(); onRowCopy(r.addedBy?.name || r.addedBy || 'N/A', 'Added By');}}>{r.addedBy?.name || r.addedBy || 'N/A'}</td>
                   <td>
-                    {deletingItemId === r._id ? 
-                      <div className="loader-small"></div> :
-                      <button onClick={(e) => { e.stopPropagation(); onDelete('RETAILERS', r._id, r.retailerName);}} className="action-btn icon-btn delete-btn">🗑️</button>
-                    }
+                    <button onClick={(e) => { e.stopPropagation(); deleteRetailer('RETAILERS', r._id, r.retailerName);}} className="action-btn icon-btn delete-btn">🗑️</button>
                   </td>
                 </tr>
               ))}

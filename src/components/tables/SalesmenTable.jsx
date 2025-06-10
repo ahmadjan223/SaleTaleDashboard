@@ -3,8 +3,8 @@ import TableActionsHeader from './TableActionsHeader';
 import useSalesmenStore from '../../store/salesmenStore';
 import { useEffect } from 'react';
 
-const SalesmenTable = ({ onDelete, onRowCopy, deletingItemId }) => {
-  const { salesmen, fetchSalesmen, loading } = useSalesmenStore();
+const SalesmenTable = ({ onRowCopy }) => {
+  const { salesmen, fetchSalesmen, loading,deleteSalesman } = useSalesmenStore();
 
   useEffect(() => {
     fetchSalesmen();
@@ -36,10 +36,7 @@ const SalesmenTable = ({ onDelete, onRowCopy, deletingItemId }) => {
                   <td onClick={(e) => {e.stopPropagation(); onRowCopy(sm.phone, 'Phone');}}>{sm.phone}</td>
                   <td onClick={(e) => {e.stopPropagation(); onRowCopy(sm.verified ? 'Yes' : 'No', 'Verified');}}>{sm.verified ? 'Yes' : 'No'}</td>
                   <td>
-                    {deletingItemId === (sm.googleId || sm._id) ? 
-                      <div className="loader-small"></div> :
-                      <button onClick={(e) => { e.stopPropagation(); onDelete('SALESMEN', sm.googleId || sm._id, sm.name);}} className="action-btn icon-btn delete-btn">🗑️</button>
-                    }
+                    <button onClick={(e) => { e.stopPropagation(); deleteSalesman('SALESMEN', sm.googleId || sm._id, sm.name);}} className="action-btn icon-btn delete-btn">🗑️</button>
                   </td>
                 </tr>
               ))}

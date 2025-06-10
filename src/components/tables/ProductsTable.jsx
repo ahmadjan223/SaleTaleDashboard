@@ -3,8 +3,8 @@ import TableActionsHeader from './TableActionsHeader';
 import useProductStore from '../../store/productStore';
 import { useEffect } from 'react';
 
-const ProductsTable = ({ onDelete, onRowCopy, deletingItemId }) => {
-  const { products, fetchProducts, loading } = useProductStore();
+const ProductsTable = ({ onRowCopy }) => {
+  const { products, fetchProducts, loading, deleteProduct } = useProductStore();
 
   useEffect(() => {
     fetchProducts();
@@ -47,10 +47,7 @@ const ProductsTable = ({ onDelete, onRowCopy, deletingItemId }) => {
                   <td onClick={(e) => {e.stopPropagation(); onRowCopy(p.price, 'Price');}}>{p.price}</td>
                   <td onClick={(e) => {e.stopPropagation(); onRowCopy(p.description, 'Description');}}>{p.description}</td>
                   <td>
-                    {deletingItemId === p._id ? 
-                      <div className="loader-small"></div> :
-                      <button onClick={(e) => { e.stopPropagation(); onDelete('PRODUCTS', p._id, p.name);}} className="action-btn icon-btn delete-btn">🗑️</button>
-                    }
+                    <button onClick={(e) => { e.stopPropagation(); deleteProduct('PRODUCTS', p._id, p.name);}} className="action-btn icon-btn delete-btn">🗑️</button>
                   </td>
                 </tr>
               ))}

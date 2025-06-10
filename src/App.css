@@ -561,3 +561,72 @@ tr:hover {
   z-index: 1000; /* Ensure it's on top */
   /* pointer-events: none; /* Already set in inline style, but good to have in class too */
 }
+
+/* Add Product Form Styles */
+.add-form {
+  background-color: var(--card-bg);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border-color);
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--background-dark);
+  color: var(--text-light);
+  font-size: 14px;
+}
+
+.form-group textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.form-actions button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.form-actions .confirm-btn {
+  background-color: var(--accent-green);
+  color: var(--background-dark);
+}
+
+.form-actions .confirm-btn:hover {
+  background-color: var(--hover-green);
+}
+
+.form-actions .cancel-btn {
+  background-color: #555;
+  color: var(--text-light);
+}
+
+.form-actions .cancel-btn:hover {
+  background-color: #666;
+}

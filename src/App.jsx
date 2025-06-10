@@ -6,8 +6,6 @@ import {
   getAllProducts,
   getAllRetailers,
   getAllSalesmen,
-  deleteItemApi,
-  addProductApi,
 } from './utils/api'
 
 // Components
@@ -26,8 +24,6 @@ function App() {
   const [data, setData] = useState({}) // Store all fetched data here, keyed by view
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [deletingItemId, setDeletingItemId] = useState(null)
-  // const { tooltip, handleCellMouseEnter, handleCellMouseLeave } = useTooltip()
   const { tooltip } = useTooltip()
 
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -40,6 +36,8 @@ function App() {
     isContentJsx: false 
   })
   
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' })
+
   useEffect(() => {
     const fetchDataForView = async (view) => {
       if (data[view] !== null && typeof data[view] !== 'undefined') {
@@ -73,9 +71,6 @@ function App() {
     if (activeView !== VIEWS.HOME && activeView !== VIEWS.SALES) fetchDataForView(activeView)
   }, [activeView, data])
 
-
-  const [toast, setToast] = useState({ show: false, message: '', type: 'success' })
-
   const showToast = useCallback((message, type = 'success') => {
     setToast({ show: true, message, type })
   }, [])
@@ -92,101 +87,6 @@ function App() {
   const closeModal = useCallback(() => {
     setIsModalOpen(false)
   }, [])
-
-  // Delete handler using Modal and new API
-  const handleDelete = useCallback(async (view, id, itemName = '') => {
-    const itemType = view.toLowerCase().slice(0, -1)
-    const displayName = itemName || `ID ${id}`
-
-    openModal(
-      `Confirm Deletion`,
-      `Are you sure you want to delete this ${itemType}: ${displayName}? This action cannot be undone.`,
-      async () => {
-        closeModal()
-        setDeletingItemId(id)
-        try {
-          await deleteItemApi(view, id)
-          showToast(`${itemType.charAt(0).toUpperCase() + itemType.slice(1)} "${displayName}" deleted successfully.`, 'success')
-          setData(prevData => ({ ...prevData, [view]: null }))
-        } catch (err) {
-          console.error(`Error deleting ${itemType}:`, err)
-          showToast(`Failed to delete ${itemType}: ${err.message}`, 'error')
-        } finally {
-          setDeletingItemId(null)
-        }
-      },
-      'Delete'
-    )
-  }, [openModal, closeModal, showToast])
-
-  // Add Product handler
-  const handleAddProduct = useCallback(() => {
-    const ProductForm = () => {
-      const [name, setName] = useState('')
-      const [price, setPrice] = useState('')
-      const [description, setDescription] = useState('')
-
-      return (
-        <form onSubmit={(e) => e.preventDefault()} className="modal-form">
-          <label>
-            Name:
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
-          </label>
-          <label>
-            Price:
-            <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} required />
-          </label>
-          <label>
-            Description:
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
-          </label>
-        </form>
-      )
-    }
-
-    openModal(
-      'Add New Product',
-      <ProductForm />,
-      async () => {
-        const form = document.querySelector('.modal-form')
-        if (!form) {
-          showToast('Could not find form data.', 'error')
-          closeModal()
-          return
-        }
-        const nameInput = form.querySelector('input[type="text"]')
-        const priceInput = form.querySelector('input[type="number"]')
-        const descriptionTextarea = form.querySelector('textarea')
-
-        const newProductData = {
-          name: nameInput ? nameInput.value : 'Test Product',
-          price: priceInput ? parseFloat(priceInput.value) : 0,
-          description: descriptionTextarea ? descriptionTextarea.value : 'Test Description'
-        }
-
-        if (!newProductData.name || !newProductData.price) {
-          showToast('Product name and price are required.', 'error')
-          return
-        }
-
-        closeModal()
-        try {
-          setLoading(true)
-          await addProductApi(newProductData)
-          showToast('Product added successfully! Refreshing...', 'success')
-          setData(prevData => ({ ...prevData, [VIEWS.PRODUCTS]: null }))
-        } catch (err) {
-          console.error('Error adding product:', err)
-          showToast(`Failed to add product: ${err.message}`, 'error')
-        } finally {
-          setLoading(false)
-        }
-      },
-      'Add Product',
-      true,
-      true
-    )
-  }, [openModal, closeModal, showToast])
 
   // Updated handleRowCopy for cell-specific copying
   const handleRowCopy = useCallback(async (cellData, columnName) => {
@@ -226,30 +126,13 @@ function App() {
           </div>
         )
       case VIEWS.SALES:
-        return <SalesTable 
-          onDelete={handleDelete} 
-          onRowCopy={handleRowCopy} 
-          deletingItemId={deletingItemId} 
-        />
+        return <SalesTable onRowCopy={handleRowCopy} />
       case VIEWS.PRODUCTS:
-        return <ProductsTable 
-          onAdd={handleAddProduct} 
-          onDelete={handleDelete} 
-          onRowCopy={handleRowCopy} 
-          deletingItemId={deletingItemId} 
-        />
+        return <ProductsTable onRowCopy={handleRowCopy} />
       case VIEWS.RETAILERS:
-        return <RetailersTable 
-          onDelete={handleDelete} 
-          onRowCopy={handleRowCopy} 
-          deletingItemId={deletingItemId} 
-        />
+        return <RetailersTable onRowCopy={handleRowCopy} />
       case VIEWS.SALESMEN:
-        return <SalesmenTable 
-          onDelete={handleDelete} 
-          onRowCopy={handleRowCopy} 
-          deletingItemId={deletingItemId} 
-        />
+        return <SalesmenTable onRowCopy={handleRowCopy} />
       default:
         return <div className="content-area">Select an option from the sidebar.</div>
     }

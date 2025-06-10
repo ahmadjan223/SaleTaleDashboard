@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import TableActionsHeader from './TableActionsHeader';
 import useSalesStore from '../../store/salesStore';
-
 const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
   const { 
     sales, 
@@ -14,7 +13,7 @@ const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
 
   useEffect(() => {
     fetchSales();
-  }, [fetchSales]);
+  }, []);
 
   if (loading) return <div className="content-area"><h2 className="loading-message">Loading sales...</h2></div>;
   if (error) return <div className="content-area"><h2 className="error-message">Error loading sales: {error}</h2></div>;

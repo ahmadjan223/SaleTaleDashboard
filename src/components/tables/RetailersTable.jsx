@@ -1,7 +1,15 @@
 import React from 'react';
 import TableActionsHeader from './TableActionsHeader';
+import useRetailerStore from '../../store/retailerStore';
+import { useEffect } from 'react';
+const RetailersTable = ({ onDelete, onRowCopy, deletingItemId }) => {
+  const { retailers, fetchRetailers } = useRetailerStore();
 
-const RetailersTable = ({ retailers, onDelete, onRowCopy, deletingItemId }) => (
+  useEffect(() => {
+    fetchRetailers();
+  }, []);
+
+  return (
   <section className="content-area">
     <div className="section-header">
       <h2>Retailers</h2>
@@ -42,5 +50,6 @@ const RetailersTable = ({ retailers, onDelete, onRowCopy, deletingItemId }) => (
     </div>
   </section>
 );
+}
 
 export default RetailersTable; 

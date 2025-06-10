@@ -27,7 +27,8 @@ function App() {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
   const [deletingItemId, setDeletingItemId] = useState(null)
-  const { tooltip, handleCellMouseEnter, handleCellMouseLeave } = useTooltip()
+  // const { tooltip, handleCellMouseEnter, handleCellMouseLeave } = useTooltip()
+  const { tooltip } = useTooltip()
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalConfig, setModalConfig] = useState({ 
@@ -226,14 +227,12 @@ function App() {
         )
       case VIEWS.SALES:
         return <SalesTable 
-          sales={data[VIEWS.SALES] || []} 
           onDelete={handleDelete} 
           onRowCopy={handleRowCopy} 
           deletingItemId={deletingItemId} 
         />
       case VIEWS.PRODUCTS:
         return <ProductsTable 
-          products={data[VIEWS.PRODUCTS] || []} 
           onAdd={handleAddProduct} 
           onDelete={handleDelete} 
           onRowCopy={handleRowCopy} 
@@ -241,14 +240,12 @@ function App() {
         />
       case VIEWS.RETAILERS:
         return <RetailersTable 
-          retailers={data[VIEWS.RETAILERS] || []} 
           onDelete={handleDelete} 
           onRowCopy={handleRowCopy} 
           deletingItemId={deletingItemId} 
         />
       case VIEWS.SALESMEN:
         return <SalesmenTable 
-          salesmen={data[VIEWS.SALESMEN] || []} 
           onDelete={handleDelete} 
           onRowCopy={handleRowCopy} 
           deletingItemId={deletingItemId} 

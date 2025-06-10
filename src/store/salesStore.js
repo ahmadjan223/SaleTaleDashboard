@@ -2,79 +2,47 @@ import { create } from 'zustand';
 import { getAllSales, deleteItemApi } from '../utils/api';
 
 const useSalesStore = create((set, get) => ({
-  // State
   sales: [],
   loading: false,
   error: null,
   deletingItemId: null,
 
-  // Actions
-  setSales: (sales) => set({ sales }),
-  setLoading: (loading) => set({ loading }),
-  setError: (error) => set({ error }),
-  setDeletingItemId: (id) => set({ deletingItemId: id }),
-
-  // Async Actions
+  // Fetch sales from API and update store
   fetchSales: async () => {
-    const { setLoading, setError, setSales } = get();
-    setLoading(true);
-    setError(null);
     try {
-      const sales = await getAllSales();
-      setSales(sales.length > 0 ? sales : []);
-    } catch (err) {
-      console.error('Error fetching sales:', err);
-      setError(err.message);
-      setSales([]);
-    } finally {
-      setLoading(false);
+      set({ loading: true, error: null });
+      const data = await getAllSales();
+      set({ sales: data, loading: false });
+    } catch (error) {
+      set({ error: error.message, loading: false });
+      throw error;
     }
   },
 
-  deleteSale: async (id, itemName = '') => {
-    const { setDeletingItemId, fetchSales } = get();
-    setDeletingItemId(id);
-    try {
-      await deleteItemApi('SALES', id);
-      await fetchSales(); // Refresh the sales list
-      return true;
-    } catch (err) {
-      console.error('Error deleting sale:', err);
-      throw err;
-    } finally {
-      setDeletingItemId(null);
-    }
-  },
-
-  // Selectors
+  // Get sale by ID
   getSaleById: (id) => {
-    const { sales } = get();
-    return sales.find(sale => sale._id === id);
+    return get().sales.find(sale => sale._id === id);
   },
 
-  getSalesByRetailer: (retailerId) => {
-    const { sales } = get();
-    return sales.filter(sale => 
-      (typeof sale.retailer === 'object' && sale.retailer?._id === retailerId) || 
-      sale.retailer === retailerId
-    );
+  // Delete sale from store and API
+  deleteSale: async (id) => {
+    try {
+      set({ deletingItemId: id });
+      await deleteItemApi('SALES', id);
+      set((state) => ({
+        sales: state.sales.filter(sale => sale._id !== id),
+        deletingItemId: null
+      }));
+    } catch (error) {
+      set({ error: error.message, deletingItemId: null });
+      throw error;
+    }
   },
 
-  getSalesByProduct: (productId) => {
-    const { sales } = get();
-    return sales.filter(sale => 
-      (typeof sale.product === 'object' && sale.product?._id === productId) || 
-      sale.product === productId
-    );
-  },
-
-  getSalesBySalesman: (salesmanId) => {
-    const { sales } = get();
-    return sales.filter(sale => 
-      (typeof sale.addedBy === 'object' && sale.addedBy?._id === salesmanId) || 
-      sale.addedBy === salesmanId
-    );
+  // Clear store
+  clearSales: () => {
+    set({ sales: [], loading: false, error: null, deletingItemId: null });
   }
 }));
 
-export default useSalesStore; 
+export default useSalesStore;

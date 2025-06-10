@@ -1,9 +1,17 @@
 import React from 'react';
 import TableActionsHeader from './TableActionsHeader';
+import useSalesmenStore from '../../store/salesmenStore';
+import { useEffect } from 'react';
 
-const SalesmenTable = ({ salesmen, onDelete, onRowCopy, onRefresh, deletingItemId }) => (
+const SalesmenTable = ({ onDelete, onRowCopy, deletingItemId }) => {
+  const { salesmen, fetchSalesmen } = useSalesmenStore();
+
+  useEffect(() => {
+    fetchSalesmen();
+  }, []);
+  return (
   <section className="content-area">
-    <div className="section-header"><h2>Salesmen</h2><TableActionsHeader onRefresh={onRefresh} /></div>
+    <div className="section-header"><h2>Salesmen</h2><TableActionsHeader/></div>
     <div className="table-container">
       {salesmen.length > 0 ? (<table>
           <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Verified</th><th>Actions</th></tr></thead>
@@ -29,4 +37,5 @@ const SalesmenTable = ({ salesmen, onDelete, onRowCopy, onRefresh, deletingItemI
   </section>
 );
 
+}
 export default SalesmenTable; 

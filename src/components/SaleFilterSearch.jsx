@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useCallback } from 'react';
-
-const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
+import useSalesmenStore from '../store/salesmenStore'
+import useRetailerStore from '../store/retailerStore'
+import useProductStore from '../store/productStore'
+const SaleFilterSearch = ({ onSearch, onClear }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState({
     salesman: '',
@@ -24,39 +26,39 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
   const [selectedRetailerName, setSelectedRetailerName] = useState('');
 
   // Derive unique options from sales data
+  const {salesmen} = useSalesmenStore();
   const uniqueSalesmen = useMemo(() => {
-    const salesmen = new Set();
-    sales.forEach(s => {
-      if (s.addedBy?.name) {
-        salesmen.add(s.addedBy.name);
-      } else if (typeof s.addedBy === 'string') {
-        salesmen.add(s.addedBy);
-      }
+    const elements = new Set();
+    salesmen.forEach(s => {
+      if (s.name) {
+        elements.add(s.name);
+      } 
     });
-    return Array.from(salesmen).sort();
-  }, [sales]);
+    return Array.from(elements).sort();
+  }, [salesmen]);
 
+  const {products} = useProductStore();
   const uniqueProducts = useMemo(() => {
-    const products = new Set();
-    sales.forEach(s => {
-      if (s.product?.name) {
-        products.add(s.product.name);
-      }
+    const elements = new Set();
+    products.forEach(s => {
+      if (s.name) {
+        elements.add(s.name);
+      } 
     });
-    return Array.from(products).sort();
-  }, [sales]);
+    return Array.from(elements).sort();
+  }, [products]);
 
+  const {retailers} = useRetailerStore();
   const uniqueRetailers = useMemo(() => {
-    const retailers = new Set();
-    sales.forEach(s => {
-      if (s.retailer?.retailerName) {
-        retailers.add(s.retailer.retailerName);
-      } else if (s.retailer?.shopName) {
-        retailers.add(s.retailer.shopName);
-      }
+   console.log(retailers) 
+    const elements = new Set();
+    retailers.forEach(s => {
+      if (s.retailerName) {
+        elements.add(s.retailerName);
+      } 
     });
-    return Array.from(retailers).sort();
-  }, [sales]);
+    return Array.from(elements).sort();
+  }, [retailers]);
 
   const handleFilterChange = useCallback((name, value) => {
     setFilters(prevFilters => ({
@@ -173,7 +175,7 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
               top: '100%',
               left: '0',
               right: '0',
-              zIndex: 10,
+              zIndex: 1000,
               background: 'var(--card-bg)',
               border: '1px solid var(--border-color)',
               borderRadius: '5px',
@@ -187,7 +189,7 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
                 .map(name => (
                   <div
                     key={name}
-                    onClick={() => {
+                    onMouseDown={() => {
                       setSelectedSalesmanName(name);
                       handleFilterChange('salesman', name);
                       setIsSalesmanDropdownOpen(false);
@@ -228,7 +230,7 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
               top: '100%',
               left: '0',
               right: '0',
-              zIndex: 10,
+              zIndex: 1000,
               background: 'var(--card-bg)',
               border: '1px solid var(--border-color)',
               borderRadius: '5px',
@@ -242,7 +244,7 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
                 .map(name => (
                   <div
                     key={name}
-                    onClick={() => {
+                    onMouseDown={() => {
                       setSelectedProductName(name);
                       handleFilterChange('product', name);
                       setIsProductDropdownOpen(false);
@@ -283,7 +285,7 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
               top: '100%',
               left: '0',
               right: '0',
-              zIndex: 10,
+              zIndex: 1000,
               background: 'var(--card-bg)',
               border: '1px solid var(--border-color)',
               borderRadius: '5px',
@@ -297,7 +299,7 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
                 .map(name => (
                   <div
                     key={name}
-                    onClick={() => {
+                    onMouseDown={() => {
                       setSelectedRetailerName(name);
                       handleFilterChange('retailer', name);
                       setIsRetailerDropdownOpen(false);

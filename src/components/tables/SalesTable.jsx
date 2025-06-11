@@ -52,7 +52,7 @@ const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
         <h2>Sales</h2>
         <TableActionsHeader onRefresh={fetchSales} />
       </div> */}
-      <SaleFilterSearch sales={sales} />
+      <SaleFilterSearch />
       <div className="table-container">
         {sales.length > 0 ? (
           <table>

@@ -9,7 +9,9 @@ const SalesmenTable = ({ onRowCopy }) => {
   useEffect(() => {
     fetchSalesmen();
   }, []);
-
+  useEffect(()=>{
+    console.log("salesmen", salesmen)
+  },[salesmen])
   if (loading) {
     return (
       <section className="content-area">

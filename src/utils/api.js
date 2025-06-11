@@ -1,4 +1,5 @@
-const API_BASE_URL = 'https://sale-tale-backend.vercel.app/api';
+// const API_BASE_URL = 'https://sale-tale-backend.vercel.app/api';
+const API_BASE_URL = 'http://localhost:5000/api';
 
 const request = async (endpoint, options = {}) => {
   const { signal, ...restOptions } = options; // Extract signal if present

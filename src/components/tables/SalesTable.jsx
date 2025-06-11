@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import TableActionsHeader from './TableActionsHeader';
 import useSalesStore from '../../store/salesStore';
-
+import useRetailerStore from '../../store/retailerStore';
+import useProductStore from '../../store/productStore';
 const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
   const { 
     sales, 
@@ -14,6 +15,21 @@ const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
   useEffect(() => {
     fetchSales();
   }, []);
+
+  useEffect(()=>{
+    console.log("sales", sales)
+  },[sales])
+  const {getRetailerById} = useRetailerStore();
+
+  const retailerDetails = (id) =>{
+    const response =  getRetailerById(id)
+    return response
+  }
+  const {getProductById} = useProductStore();
+  const productDetails = (id) =>{
+    const response = getProductById(id);
+    return response;
+  }
 
   if (loading) {
     return (
@@ -44,7 +60,7 @@ const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
                 <th>Product</th>
                 <th>Quantity</th>
                 <th>Amount</th>
-                <th>Coordinates</th>
+                <th>Location</th>
                 <th>Added By</th>
                 <th>Actions</th>
               </tr>
@@ -58,19 +74,29 @@ const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
                     onMouseEnter={(e) => onCellMouseEnter(e, 'Retailer', 'SALES', s)}
                     onMouseLeave={onCellMouseLeave}
                   >
-                    {s.retailer?.shopName || (typeof s.retailer === 'object' && s.retailer !== null ? s.retailer._id : s.retailer) || 'N/A'}
+                    { retailerDetails(s.retailer)?.retailerName || 'N/A'}
                   </td>
                   <td 
                     onClick={(e) => {e.stopPropagation(); onRowCopy(s.product?.name || s.product, 'Product');}}
                     onMouseEnter={(e) => onCellMouseEnter(e, 'Product', 'SALES', s)}
                     onMouseLeave={onCellMouseLeave}
                   >
-                    {s.product?.name || (typeof s.product === 'object' && s.product !== null ? s.product._id : s.product) || 'N/A'}
+                    {productDetails(s.product)?.name || 'N/A'}
                   </td>
                   <td onClick={(e) => {e.stopPropagation(); onRowCopy(s.quantity, 'Quantity');}}>{s.quantity}</td>
                   <td onClick={(e) => {e.stopPropagation(); onRowCopy(s.amount, 'Amount');}}>{s.amount}</td>
-                  <td onClick={(e) => {e.stopPropagation(); onRowCopy(s.coordinates?.coordinates?.join(', ') || 'N/A', 'Coordinates');}}>
-                    {s.coordinates?.coordinates?.join(', ') || 'N/A'}
+                  <td>
+                    {s.coordinates?.coordinates ? (
+                      <a 
+                        href={`https://www.google.com/maps?q=${s.coordinates.coordinates[1]},${s.coordinates.coordinates[0]}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        style={{ color: '#007bff', textDecoration: 'underline', cursor: 'pointer' }}
+                      >
+                        Show on Map
+                      </a>
+                    ) : 'N/A'}
                   </td>
                   <td 
                     onClick={(e) => {e.stopPropagation(); onRowCopy(s.addedBy?.name || s.addedBy || 'N/A', 'Added By');}}

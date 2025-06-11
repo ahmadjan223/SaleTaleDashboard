@@ -3,6 +3,8 @@ import TableActionsHeader from './TableActionsHeader';
 import useSalesStore from '../../store/salesStore';
 import useRetailerStore from '../../store/retailerStore';
 import useProductStore from '../../store/productStore';
+import SaleFilterSearch from '../SaleFilterSearch';
+
 const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
   const { 
     sales, 
@@ -50,12 +52,13 @@ const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
         <h2>Sales</h2>
         <TableActionsHeader onRefresh={fetchSales} />
       </div>
+      <SaleFilterSearch sales={sales} />
       <div className="table-container">
         {sales.length > 0 ? (
           <table>
             <thead>
               <tr>
-                <th>ID</th>
+                <th>Index</th>
                 <th>Retailer</th>
                 <th>Product</th>
                 <th>Quantity</th>
@@ -66,9 +69,11 @@ const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
               </tr>
             </thead>
             <tbody>
-              {sales.map(s => (
+              {sales.map((s,index) => (
                 <tr key={s._id}>
-                  <td onClick={(e) => {e.stopPropagation(); onRowCopy(s._id, 'ID');}}>{s._id}</td>
+                  {/* <td onClick={(e) => {e.stopPropagation(); onRowCopy(s._id, 'ID');}}>{s._id}</td> */}
+                  <td onClick={(e) => {e.stopPropagation()}}>{index + 1}</td>
+                  
                   <td 
                     onClick={(e) => {e.stopPropagation(); onRowCopy(s.retailer?.shopName || s.retailer, 'Retailer');}}
                     onMouseEnter={(e) => onCellMouseEnter(e, 'Retailer', 'SALES', s)}

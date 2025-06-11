@@ -47,11 +47,11 @@ const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
   if (error) return <div className="content-area"><h2 className="error-message">Error loading sales: {error}</h2></div>;
 
   return (
-    <section className="content-area">
-      <div className="section-header">
+    <section >
+      {/* <div className="section-header">
         <h2>Sales</h2>
         <TableActionsHeader onRefresh={fetchSales} />
-      </div>
+      </div> */}
       <SaleFilterSearch sales={sales} />
       <div className="table-container">
         {sales.length > 0 ? (

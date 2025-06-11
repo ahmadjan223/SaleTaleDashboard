@@ -107,14 +107,10 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
     color: '#333',
   };
 
-  const dropdownHoverStyle = {
-    backgroundColor: '#f0f0f0',
-  };
-
   const buttonStylePrimary = {
     padding: '10px 20px',
-    background: '#007bff',
-    color: 'white',
+    background: 'var(--accent-green)',
+    color: 'var(--background-dark)',
     border: 'none',
     borderRadius: '5px',
     cursor: 'pointer',
@@ -126,8 +122,8 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
 
   const buttonStyleSecondary = {
     padding: '10px 20px',
-    background: '#6c757d',
-    color: 'white',
+    background: 'var(--border-color)',
+    color: 'var(--text-light)',
     border: 'none',
     borderRadius: '5px',
     cursor: 'pointer',
@@ -138,14 +134,14 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
   };
 
   return (
-    <div className="sale-filter-search-container" style={{ padding: '20px', background: '#ffffff', borderRadius: '8px', marginBottom: '20px', boxShadow: '0 2px 4px rgba(0,0,0,.05)' }}>
-      <div className="top-search-bar" style={{ display: 'flex', marginBottom: '20px', border: '1px solid #e0e0e0', borderRadius: '5px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,.05)' }}>
+    <div className="sale-filter-search-container" style={{ padding: '20px', background: 'var(--card-bg)', borderRadius: '8px', marginBottom: '20px', boxShadow: '0 2px 4px rgba(0,0,0,.05)' }}>
+      <div className="top-search-bar" style={{ display: 'flex', marginBottom: '20px', border: '1px solid var(--border-color)', borderRadius: '5px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,.05)' }}>
         <input 
           type="text" 
           placeholder="Search all sales (ID, Salesman, Product, Retailer)"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          style={{ ...inputStyle, border: 'none', borderRadius: '0', boxShadow: 'none', padding: '10px 15px' }}
+          style={{ ...inputStyle, border: 'none', borderRadius: '0', boxShadow: 'none', padding: '10px 15px', backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
         />
         <button 
           onClick={handleSearch}
@@ -155,10 +151,10 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
         </button>
       </div>
 
-      <div className="filters-row-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '15px' }}>
+      <div className="filters-row-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px', marginBottom: '15px' }}>
         {/* Salesman Dropdown */}
         <div className="filter-group-modern" style={{ position: 'relative' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9em', color: '#555' }}>Salesman</label>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9em', color: 'var(--text-light)' }}>Salesman</label>
           <input
             type="text"
             placeholder="Select Salesman"
@@ -169,7 +165,7 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
             }}
             onFocus={() => setIsSalesmanDropdownOpen(true)}
             onBlur={() => setTimeout(() => setIsSalesmanDropdownOpen(false), 100)}
-            style={inputStyle}
+            style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
           />
           {isSalesmanDropdownOpen && (
             <div className="dropdown-options" style={{
@@ -178,8 +174,8 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
               left: '0',
               right: '0',
               zIndex: 10,
-              background: '#fff',
-              border: '1px solid #e0e0e0',
+              background: 'var(--card-bg)',
+              border: '1px solid var(--border-color)',
               borderRadius: '5px',
               boxShadow: '0 2px 5px rgba(0,0,0,.1)',
               maxHeight: '200px',
@@ -197,15 +193,15 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
                       setIsSalesmanDropdownOpen(false);
                       setSalesmanSearchTerm('');
                     }}
-                    style={dropdownOptionStyle}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = dropdownHoverStyle.backgroundColor}
+                    style={{ ...dropdownOptionStyle, color: 'var(--text-light)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--table-row-hover)'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
                   >
                     {name}
                   </div>
                 ))}
               {uniqueSalesmen.filter(name => name.toLowerCase().includes(salesmanSearchTerm.toLowerCase())).length === 0 && (
-                <div style={{ ...dropdownOptionStyle, cursor: 'default', color: '#888' }}>No results</div>
+                <div style={{ ...dropdownOptionStyle, cursor: 'default', color: 'var(--text-light)', background: 'var(--card-bg)' }}>No results</div>
               )}
             </div>
           )}
@@ -213,7 +209,7 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
 
         {/* Product Dropdown */}
         <div className="filter-group-modern" style={{ position: 'relative' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9em', color: '#555' }}>Product</label>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9em', color: 'var(--text-light)' }}>Product</label>
           <input
             type="text"
             placeholder="Select Product"
@@ -224,7 +220,7 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
             }}
             onFocus={() => setIsProductDropdownOpen(true)}
             onBlur={() => setTimeout(() => setIsProductDropdownOpen(false), 100)}
-            style={inputStyle}
+            style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
           />
           {isProductDropdownOpen && (
             <div className="dropdown-options" style={{
@@ -233,8 +229,8 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
               left: '0',
               right: '0',
               zIndex: 10,
-              background: '#fff',
-              border: '1px solid #e0e0e0',
+              background: 'var(--card-bg)',
+              border: '1px solid var(--border-color)',
               borderRadius: '5px',
               boxShadow: '0 2px 5px rgba(0,0,0,.1)',
               maxHeight: '200px',
@@ -252,15 +248,15 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
                       setIsProductDropdownOpen(false);
                       setProductSearchTerm('');
                     }}
-                    style={dropdownOptionStyle}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = dropdownHoverStyle.backgroundColor}
+                    style={{ ...dropdownOptionStyle, color: 'var(--text-light)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--table-row-hover)'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
                   >
                     {name}
                   </div>
                 ))}
               {uniqueProducts.filter(name => name.toLowerCase().includes(productSearchTerm.toLowerCase())).length === 0 && (
-                <div style={{ ...dropdownOptionStyle, cursor: 'default', color: '#888' }}>No results</div>
+                <div style={{ ...dropdownOptionStyle, cursor: 'default', color: 'var(--text-light)', background: 'var(--card-bg)' }}>No results</div>
               )}
             </div>
           )}
@@ -268,7 +264,7 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
 
         {/* Retailer Dropdown */}
         <div className="filter-group-modern" style={{ position: 'relative' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9em', color: '#555' }}>Retailer</label>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9em', color: 'var(--text-light)' }}>Retailer</label>
           <input
             type="text"
             placeholder="Select Retailer"
@@ -279,7 +275,7 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
             }}
             onFocus={() => setIsRetailerDropdownOpen(true)}
             onBlur={() => setTimeout(() => setIsRetailerDropdownOpen(false), 100)}
-            style={inputStyle}
+            style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
           />
           {isRetailerDropdownOpen && (
             <div className="dropdown-options" style={{
@@ -288,8 +284,8 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
               left: '0',
               right: '0',
               zIndex: 10,
-              background: '#fff',
-              border: '1px solid #e0e0e0',
+              background: 'var(--card-bg)',
+              border: '1px solid var(--border-color)',
               borderRadius: '5px',
               boxShadow: '0 2px 5px rgba(0,0,0,.1)',
               maxHeight: '200px',
@@ -307,43 +303,40 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
                       setIsRetailerDropdownOpen(false);
                       setRetailerSearchTerm('');
                     }}
-                    style={dropdownOptionStyle}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = dropdownHoverStyle.backgroundColor}
+                    style={{ ...dropdownOptionStyle, color: 'var(--text-light)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--table-row-hover)'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
                   >
                     {name}
                   </div>
                 ))}
               {uniqueRetailers.filter(name => name.toLowerCase().includes(retailerSearchTerm.toLowerCase())).length === 0 && (
-                <div style={{ ...dropdownOptionStyle, cursor: 'default', color: '#888' }}>No results</div>
+                <div style={{ ...dropdownOptionStyle, cursor: 'default', color: 'var(--text-light)', background: 'var(--card-bg)' }}>No results</div>
               )}
             </div>
           )}
         </div>
-
-        {/* Placeholder for remaining space in first row */}
-        <div className="filter-group-modern" style={{ visibility: 'hidden' }}></div>
       </div>
 
       <div className="filters-row-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
         {/* Date Duration */}
         <div className="filter-group-modern">
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9em', color: '#555' }}>Date Duration</label>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9em', color: 'var(--text-light)' }}>Date Duration</label>
           <div style={{ display: 'flex', gap: '5px' }}>
             <input 
               type="date" 
               name="startDate" 
               value={filters.startDate} 
               onChange={(e) => handleFilterChange(e.target.name, e.target.value)}
-              style={inputStyle}
+              style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
             />
-            <span style={{ display: 'flex', alignItems: 'center', color: '#555' }}>-</span>
+            <span style={{ display: 'flex', alignItems: 'center', color: 'var(--text-light)' }}>-</span>
             <input 
               type="date" 
               name="endDate" 
               value={filters.endDate} 
               onChange={(e) => handleFilterChange(e.target.name, e.target.value)}
-              style={inputStyle}
+              style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
             />
           </div>
         </div>

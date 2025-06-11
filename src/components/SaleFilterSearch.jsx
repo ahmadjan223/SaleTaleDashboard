@@ -153,7 +153,7 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
 
       <div className="filters-row-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px', marginBottom: '15px' }}>
         {/* Salesman Dropdown */}
-        <div className="filter-group-modern" style={{ position: 'relative' }}>
+        <div className="filter-group-modern" style={{ position: 'relative', width:"80%" }}>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9em', color: 'var(--text-light)' }}>Salesman</label>
           <input
             type="text"
@@ -208,7 +208,7 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
         </div>
 
         {/* Product Dropdown */}
-        <div className="filter-group-modern" style={{ position: 'relative' }}>
+        <div className="filter-group-modern" style={{ position: 'relative',width:"80%" }}>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9em', color: 'var(--text-light)' }}>Product</label>
           <input
             type="text"
@@ -263,7 +263,7 @@ const SaleFilterSearch = ({ onSearch, onClear, sales }) => {
         </div>
 
         {/* Retailer Dropdown */}
-        <div className="filter-group-modern" style={{ position: 'relative' }}>
+        <div className="filter-group-modern" style={{ position: 'relative',width:"80%" }}>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9em', color: 'var(--text-light)' }}>Retailer</label>
           <input
             type="text"

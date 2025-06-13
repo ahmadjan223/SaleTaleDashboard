@@ -111,7 +111,7 @@ const SalesmenTable = ({ onRowCopy }) => {
               ))}
             </tbody>
           </table>
-        ) : <p>No salesmen found matching your search.</p>}
+        ) : <p style={{paddingLeft:15}}>No salesmen found matching your search.</p>}
       </div>
     </section>
   );

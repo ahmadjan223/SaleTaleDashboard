@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import useRetailerStore from '../../store/retailerStore';
 import { deleteRetailerApi } from '../../utils/api';
+import RetailerForm from '../RetailerForm';
 
 const RetailersTable = ({ onRowCopy }) => {
-  const { retailers, fetchRetailers, loading } = useRetailerStore();
+  const { retailers, fetchRetailers, loading, addRetailer } = useRetailerStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredRetailers, setFilteredRetailers] = useState([]);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   useEffect(() => {
     fetchRetailers();
@@ -36,6 +38,17 @@ const RetailersTable = ({ onRowCopy }) => {
     }
   };
 
+  const handleAddRetailer = async (formData) => {
+    try {
+      await addRetailer(formData);
+      setShowAddModal(false);
+      fetchRetailers(); // Refresh the list
+    } catch (error) {
+      console.error('Error adding retailer:', error);
+      alert('Failed to add retailer. Please try again.');
+    }
+  };
+
   if (loading) {
     return (
       <section>
@@ -52,7 +65,7 @@ const RetailersTable = ({ onRowCopy }) => {
             <span className="search-icon">🔍</span>
           </div>
           <div className="header-actions">
-            <button className="add-btn">
+            <button className="add-btn" onClick={() => setShowAddModal(true)}>
               <span className="plus-icon">+</span>
               Add Retailer
             </button>
@@ -80,7 +93,7 @@ const RetailersTable = ({ onRowCopy }) => {
           <span className="search-icon">🔍</span>
         </div>
         <div className="header-actions">
-          <button className="add-btn">
+          <button className="add-btn" onClick={() => setShowAddModal(true)}>
             <span className="plus-icon">+</span>
             Add Retailer
           </button>
@@ -114,8 +127,97 @@ const RetailersTable = ({ onRowCopy }) => {
               ))}
             </tbody>
           </table>
-        ) : <p>No retailers found matching your search.</p>}
+        ) : <p style={{paddingLeft:15}}>No retailers found matching your search.</p>}
       </div>
+
+      {/* Add Retailer Modal */}
+      {showAddModal && (
+        <div className="modal-overlay">
+              <RetailerForm
+                onSubmit={handleAddRetailer}
+                onCancel={() => setShowAddModal(false)}
+                submitButtonText="Add Retailer"
+                title="Add New Retailer"
+              />
+        </div>
+      )}
+
+      <style jsx>{`
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.5);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+          padding: 20px;
+        }
+
+        .modal-content {
+          background: white;
+          border-radius: 8px;
+          width: 100%;
+          max-width: 800px;
+          max-height: 90vh;
+          overflow-y: auto;
+          position: relative;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+          padding: 16px 24px;
+          border-bottom: 1px solid #e0e0e0;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          position: sticky;
+          top: 0;
+          background: white;
+          z-index: 1;
+        }
+
+        .modal-header h3 {
+          margin: 0;
+          color: var(--accent-green);
+          font-size: 1.2rem;
+          font-weight: 500;
+        }
+
+        .modal-close-btn {
+          background: none;
+          border: none;
+          font-size: 24px;
+          cursor: pointer;
+          color: #666;
+          padding: 0;
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 4px;
+          transition: all 0.3s ease;
+        }
+
+        .modal-close-btn:hover {
+          background-color: #f5f5f5;
+          color: #333;
+        }
+
+        .modal-body {
+          padding: 24px;
+        }
+
+        @media (max-width: 768px) {
+          .modal-content {
+            max-height: 95vh;
+          }
+        }
+      `}</style>
     </section>
   );
 }

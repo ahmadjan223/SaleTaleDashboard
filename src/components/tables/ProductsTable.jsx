@@ -162,7 +162,7 @@ const ProductsTable = ({ onRowCopy }) => {
               ))}
             </tbody>
           </table>
-        ) : <p>No products found matching your search.</p>}
+        ) : <p style={{paddingLeft:15}}>No products found matching your search.</p>}
       </div>
 
       {/* Add Product Modal */}

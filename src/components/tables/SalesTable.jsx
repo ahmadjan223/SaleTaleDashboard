@@ -120,7 +120,7 @@ const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
               </tbody>
             </table>
           ) : (
-            <p>No sales data found.</p>
+            <p style={{paddingLeft:15}}>No sales data found.</p>
           )}
         </div>
       )}

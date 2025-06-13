@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getAllRetailers, deleteItemApi } from '../utils/api';
+import { getAllRetailers, deleteRetailerApi } from '../utils/api';
 
 const useRetailerStore = create((set, get) => ({
   retailers: [],
@@ -9,13 +9,12 @@ const useRetailerStore = create((set, get) => ({
 
   // Fetch retailers from API and update store
   fetchRetailers: async () => {
+    set({ loading: true, error: null });
     try {
-      set({ loading: true, error: null });
       const data = await getAllRetailers();
       set({ retailers: data, loading: false });
     } catch (error) {
       set({ error: error.message, loading: false });
-      throw error;
     }
   },
 
@@ -26,16 +25,15 @@ const useRetailerStore = create((set, get) => ({
 
   // Delete retailer from store and API
   deleteRetailer: async (id) => {
+    set({ loading: true, error: null });
     try {
-      set({ deletingItemId: id });
-      await deleteItemApi('RETAILERS', id);
+      await deleteRetailerApi(id);
       set((state) => ({
         retailers: state.retailers.filter(retailer => retailer._id !== id),
-        deletingItemId: null
+        loading: false
       }));
     } catch (error) {
-      set({ error: error.message, deletingItemId: null });
-      throw error;
+      set({ error: error.message, loading: false });
     }
   },
 

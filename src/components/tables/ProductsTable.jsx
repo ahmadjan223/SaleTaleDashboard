@@ -32,7 +32,7 @@ const ProductsTable = ({ onRowCopy }) => {
           <table>
             <thead>
               <tr>
-                <th>ID</th>
+                <th>Index</th>
                 <th>Name</th>
                 <th>Price</th>
                 <th>Description</th>
@@ -40,9 +40,9 @@ const ProductsTable = ({ onRowCopy }) => {
               </tr>
             </thead>
             <tbody>
-              {products.map(p => (
+              {products.map((p, index) => (
                 <tr key={p._id}>
-                  <td onClick={(e) => {e.stopPropagation(); onRowCopy(p._id, 'ID');}}>{p._id}</td>
+                  <td onClick={(e) => {e.stopPropagation(); onRowCopy(index + 1, 'Index');}}>{index + 1}</td>
                   <td onClick={(e) => {e.stopPropagation(); onRowCopy(p.name, 'Name');}}>{p.name}</td>
                   <td onClick={(e) => {e.stopPropagation(); onRowCopy(p.price, 'Price');}}>{p.price}</td>
                   <td onClick={(e) => {e.stopPropagation(); onRowCopy(p.description, 'Description');}}>{p.description}</td>

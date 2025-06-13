@@ -97,4 +97,14 @@ export const addProductApi = (productData) => {
 };
 
 // Placeholder for logout - implement if backend endpoint exists
-// export const logoutUserApi = () => request('/auth/logout', { method: 'POST' }); 
+// export const logoutUserApi = () => request('/auth/logout', { method: 'POST' });
+
+// Delete retailer with proper error handling
+export const deleteRetailerApi = (id) => {
+  return request(`/retailers/admin/${id}`, { 
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+}; 

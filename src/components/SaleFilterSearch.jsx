@@ -8,12 +8,15 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
 
   // State for searchable dropdowns
   const [salesmanSearchTerm, setSalesmanSearchTerm] = useState('');
+  const [selectedSalesman, setSelectedSalesman] = useState('');
   const [isSalesmanDropdownOpen, setIsSalesmanDropdownOpen] = useState(false);
 
   const [productSearchTerm, setProductSearchTerm] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState('');
   const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false);
 
   const [retailerSearchTerm, setRetailerSearchTerm] = useState('');
+  const [selectedRetailer, setSelectedRetailer] = useState('');
   const [isRetailerDropdownOpen, setIsRetailerDropdownOpen] = useState(false);
 
   // Derive unique options from sales data
@@ -52,8 +55,11 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
     setSearchQuery('');
     setFilter({});
     setSalesmanSearchTerm('');
+    setSelectedSalesman('');
     setProductSearchTerm('');
+    setSelectedProduct('');
     setRetailerSearchTerm('');
+    setSelectedRetailer('');
   }, [setFilter]);
 
   const inputStyle = {
@@ -127,12 +133,15 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
           <input
             type="text"
             placeholder="Select Salesman"
-            value={isSalesmanDropdownOpen ? salesmanSearchTerm : salesmanSearchTerm}
+            value={isSalesmanDropdownOpen ? salesmanSearchTerm : selectedSalesman}
             onChange={(e) => {
               setSalesmanSearchTerm(e.target.value);
               setIsSalesmanDropdownOpen(true);
             }}
-            onFocus={() => setIsSalesmanDropdownOpen(true)}
+            onFocus={() => {
+              setIsSalesmanDropdownOpen(true);
+              setSalesmanSearchTerm('');
+            }}
             onBlur={() => setTimeout(() => setIsSalesmanDropdownOpen(false), 100)}
             style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
           />
@@ -157,7 +166,8 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
                   <div
                     key={salesman.id}
                     onMouseDown={() => {
-                      setSalesmanSearchTerm(salesman.name);
+                      setSelectedSalesman(salesman.name);
+                      setSalesmanSearchTerm('');
                       handleFilterChange('salesman', salesman.id);
                       setIsSalesmanDropdownOpen(false);
                     }}
@@ -176,17 +186,20 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
         </div>
 
         {/* Product Dropdown */}
-        <div className="filter-group-modern" style={{ position: 'relative',width:"80%" }}>
+        <div className="filter-group-modern" style={{ position: 'relative', width:"80%" }}>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9em', color: 'var(--text-light)' }}>Product</label>
           <input
             type="text"
             placeholder="Select Product"
-            value={isProductDropdownOpen ? productSearchTerm : productSearchTerm}
+            value={isProductDropdownOpen ? productSearchTerm : selectedProduct}
             onChange={(e) => {
               setProductSearchTerm(e.target.value);
               setIsProductDropdownOpen(true);
             }}
-            onFocus={() => setIsProductDropdownOpen(true)}
+            onFocus={() => {
+              setIsProductDropdownOpen(true);
+              setProductSearchTerm('');
+            }}
             onBlur={() => setTimeout(() => setIsProductDropdownOpen(false), 100)}
             style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
           />
@@ -211,8 +224,9 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
                   <div
                     key={product.id}
                     onMouseDown={() => {
-                      setProductSearchTerm(product.name);
-                      handleFilterChange('product', product.id);
+                      setSelectedProduct(product.name);
+                      setProductSearchTerm('');
+                      handleFilterChange('product', product.name);
                       setIsProductDropdownOpen(false);
                     }}
                     style={{ ...dropdownOptionStyle, color: 'var(--text-light)' }}
@@ -235,12 +249,15 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
           <input
             type="text"
             placeholder="Select Retailer"
-            value={isRetailerDropdownOpen ? retailerSearchTerm : retailerSearchTerm}
+            value={isRetailerDropdownOpen ? retailerSearchTerm : selectedRetailer}
             onChange={(e) => {
               setRetailerSearchTerm(e.target.value);
               setIsRetailerDropdownOpen(true);
             }}
-            onFocus={() => setIsRetailerDropdownOpen(true)}
+            onFocus={() => {
+              setIsRetailerDropdownOpen(true);
+              setRetailerSearchTerm('');
+            }}
             onBlur={() => setTimeout(() => setIsRetailerDropdownOpen(false), 100)}
             style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
           />
@@ -265,7 +282,8 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
                   <div
                     key={retailer.id}
                     onMouseDown={() => {
-                      setRetailerSearchTerm(retailer.name);
+                      setSelectedRetailer(retailer.name);
+                      setRetailerSearchTerm('');
                       handleFilterChange('retailer', retailer.id);
                       setIsRetailerDropdownOpen(false);
                     }}

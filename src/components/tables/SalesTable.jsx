@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import TableActionsHeader from './TableActionsHeader';
 import useSalesStore from '../../store/salesStore';
-import useRetailerStore from '../../store/retailerStore';
-import useProductStore from '../../store/productStore';
 import SaleFilterSearch from '../SaleFilterSearch';
 
 const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
@@ -27,18 +25,13 @@ const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
     }
   }, [filter]);
 
-  const {getRetailerById} = useRetailerStore();
-  const {getProductById} = useProductStore();
-
-  const retailerDetails = (id) => {
-    const response = getRetailerById(id);
-    return response;
-  }
-
-  const productDetails = (id) => {
-    const response = getProductById(id);
-    return response;
-  }
+  const formatProducts = (products) => {
+    if (!products) return 'N/A';
+    const productNames = Object.keys(products);
+    if (productNames.length === 0) return 'N/A';
+    if (productNames.length === 1) return productNames[0];
+    return `${productNames.join(', ')}...`;
+  };
 
   if (error) return <div className="content-area"><h2 className="error-message">Error loading sales: {error}</h2></div>;
 
@@ -72,24 +65,26 @@ const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
                 </tr>
               </thead>
               <tbody>
-                {displaySales.map((s,index) => (
+                {displaySales.map((s, index) => (
                   <tr key={s._id}>
                     <td onClick={(e) => {e.stopPropagation()}}>{index + 1}</td>
                     <td 
-                      onClick={(e) => {e.stopPropagation(); onRowCopy(s.retailer?.shopName || s.retailer, 'Retailer');}}
+                      onClick={(e) => {e.stopPropagation(); onRowCopy(s.retailer?.shopName || 'N/A', 'Retailer');}}
                       onMouseEnter={(e) => onCellMouseEnter(e, 'Retailer', 'SALES', s)}
                       onMouseLeave={onCellMouseLeave}
                     >
-                      {retailerDetails(s.retailer)?.retailerName || 'N/A'}
+                      {s.retailer?.retailerName || 'N/A'}
                     </td>
                     <td 
-                      onClick={(e) => {e.stopPropagation(); onRowCopy(s.product?.name || s.product, 'Product');}}
+                      onClick={(e) => {e.stopPropagation(); onRowCopy(formatProducts(s.products), 'Product');}}
                       onMouseEnter={(e) => onCellMouseEnter(e, 'Product', 'SALES', s)}
                       onMouseLeave={onCellMouseLeave}
                     >
-                      {productDetails(s.product)?.name || 'N/A'}
+                      {formatProducts(s.products)}
                     </td>
-                    <td onClick={(e) => {e.stopPropagation(); onRowCopy(s.quantity, 'Quantity');}}>{s.quantity}</td>
+                    <td onClick={(e) => {e.stopPropagation(); onRowCopy(Object.values(s.products || {})[0]?.quantity || 'N/A', 'Quantity');}}>
+                      {Object.values(s.products || {})[0]?.quantity || 'N/A'}
+                    </td>
                     <td onClick={(e) => {e.stopPropagation(); onRowCopy(s.amount, 'Amount');}}>{s.amount}</td>
                     <td>
                       {s.coordinates?.coordinates ? (
@@ -105,17 +100,17 @@ const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
                       ) : 'N/A'}
                     </td>
                     <td 
-                      onClick={(e) => {e.stopPropagation(); onRowCopy(s.addedBy?.name || s.addedBy || 'N/A', 'Added By');}}
+                      onClick={(e) => {e.stopPropagation(); onRowCopy(s.addedBy?.name || 'N/A', 'Added By');}}
                       onMouseEnter={(e) => onCellMouseEnter(e, 'Added By', 'SALES', s)}
                       onMouseLeave={onCellMouseLeave}
                     >
-                      {s.addedBy?.name || (typeof s.addedBy === 'object' && s.addedBy !== null ? s.addedBy._id : s.addedBy) || 'N/A'}
+                      {s.addedBy?.name || 'N/A'}
                     </td>
                     <td>
                       <button 
                         onClick={(e) => { 
                           e.stopPropagation(); 
-                          deleteSale(s._id, s.product?.name || s._id);
+                          deleteSale(s._id, Object.keys(s.products || {})[0] || s._id);
                         }} 
                         className="action-btn icon-btn delete-btn"
                       >

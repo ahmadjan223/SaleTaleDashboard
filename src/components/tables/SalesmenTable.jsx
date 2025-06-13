@@ -1,15 +1,26 @@
-import React from 'react';
-import TableActionsHeader from './TableActionsHeader';
+import React, { useState, useEffect } from 'react';
 import useSalesmenStore from '../../store/salesmenStore';
-import { useEffect } from 'react';
 import { deleteItemApi } from '../../utils/api';
 
 const SalesmenTable = ({ onRowCopy }) => {
   const { salesmen, fetchSalesmen, loading } = useSalesmenStore();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredSalesmen, setFilteredSalesmen] = useState([]);
 
   useEffect(() => {
     fetchSalesmen();
   }, []);
+
+  useEffect(() => {
+    if (salesmen) {
+      const filtered = salesmen.filter(salesman => 
+        (salesman.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (salesman.email || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (salesman.phone || '').toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredSalesmen(filtered);
+    }
+  }, [searchQuery, salesmen]);
 
   const handleDelete = async (id, name) => {
     if (window.confirm(`Are you sure you want to delete salesman "${name}"? This will also delete all associated retailers and sales.`)) {
@@ -26,8 +37,26 @@ const SalesmenTable = ({ onRowCopy }) => {
 
   if (loading) {
     return (
-      <section className="content-area">
-        <div className="section-header"><h2>Salesmen</h2><TableActionsHeader/></div>
+      <section className>
+        <div className="section-header">
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="Search salesmen..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="search-input"
+              style={{ paddingLeft: '35px' }}
+            />
+            <span className="search-icon">🔍</span>
+          </div>
+          <div className="header-actions">
+            <button className="add-btn">
+              <span className="plus-icon">+</span>
+              Add Salesman
+            </button>
+          </div>
+        </div>
         <div className="table-container">
           <div className="loading-message">Loading salesmen data...</div>
         </div>
@@ -36,14 +65,41 @@ const SalesmenTable = ({ onRowCopy }) => {
   }
 
   return (
-    <section className="content-area">
-      <div className="section-header"><h2>Salesmen</h2><TableActionsHeader/></div>
+    <section>
+      <div className="section-header">
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Search salesmen..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="search-input"
+            style={{ paddingLeft: '35px' }}
+          />
+          <span className="search-icon">🔍</span>
+        </div>
+        <div className="header-actions">
+          <button className="add-btn">
+            <span className="plus-icon">+</span>
+            Add Salesman
+          </button>
+        </div>
+      </div>
       <div className="table-container">
-        {salesmen.length > 0 ? (<table>
-            <thead><tr><th>Index</th><th>Name</th><th>Email</th><th>Phone</th><th>Actions</th></tr></thead>
+        {filteredSalesmen.length > 0 ? (
+          <table>
+            <thead>
+              <tr>
+                <th>Index</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
             <tbody>
-              {salesmen.map((s, index) => (
-                <tr key={s._id} >
+              {filteredSalesmen.map((s, index) => (
+                <tr key={s._id}>
                   <td onClick={(e) => {e.stopPropagation(); onRowCopy(index + 1, 'Index');}}>{index + 1}</td>
                   <td onClick={(e) => {e.stopPropagation(); onRowCopy(s.name, 'Name');}}>{s.name}</td>
                   <td onClick={(e) => {e.stopPropagation(); onRowCopy(s.email, 'Email');}}>{s.email}</td>
@@ -54,7 +110,8 @@ const SalesmenTable = ({ onRowCopy }) => {
                 </tr>
               ))}
             </tbody>
-          </table>) : <p>No salesmen data found.</p>}
+          </table>
+        ) : <p>No salesmen found matching your search.</p>}
       </div>
     </section>
   );

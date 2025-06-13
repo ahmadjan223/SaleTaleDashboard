@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getAllProducts, deleteItemApi, addProductApi } from '../utils/api';
+import { getAllProducts, deleteItemApi, createProduct, updateProduct, toggleProductStatus } from '../utils/api';
 
 const useProductStore = create((set, get) => ({
   products: [],
@@ -28,12 +28,28 @@ const useProductStore = create((set, get) => ({
   addProduct: async (productData) => {
     try {
       set({ loading: true, error: null });
-      const newProduct = await addProductApi(productData);
+      const newProduct = await createProduct(productData);
       set((state) => ({
         products: [...state.products, newProduct],
         loading: false
       }));
       return newProduct;
+    } catch (error) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
+  // Update product in store and API
+  updateProduct: async (productId, productData) => {
+    try {
+      set({ loading: true, error: null });
+      const updatedProduct = await updateProduct(productId, productData);
+      set((state) => ({
+        products: state.products.map(p => p._id === productId ? updatedProduct : p),
+        loading: false
+      }));
+      return updatedProduct;
     } catch (error) {
       set({ error: error.message, loading: false });
       throw error;
@@ -51,6 +67,20 @@ const useProductStore = create((set, get) => ({
       }));
     } catch (error) {
       set({ error: error.message, deletingItemId: null });
+      throw error;
+    }
+  },
+
+  // Toggle product active status
+  toggleProductStatus: async (productId, active) => {
+    try {
+      const updatedProduct = await toggleProductStatus(productId, active);
+      set((state) => ({
+        products: state.products.map(p => p._id === productId ? updatedProduct.data : p)
+      }));
+      return updatedProduct;
+    } catch (error) {
+      set({ error: error.message });
       throw error;
     }
   },

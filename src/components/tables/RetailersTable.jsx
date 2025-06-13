@@ -1,15 +1,27 @@
-import React from 'react';
-import TableActionsHeader from './TableActionsHeader';
+import React, { useState, useEffect } from 'react';
 import useRetailerStore from '../../store/retailerStore';
-import { useEffect } from 'react';
 import { deleteRetailerApi } from '../../utils/api';
 
 const RetailersTable = ({ onRowCopy }) => {
   const { retailers, fetchRetailers, loading } = useRetailerStore();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredRetailers, setFilteredRetailers] = useState([]);
 
   useEffect(() => {
     fetchRetailers();
   }, []);
+
+  useEffect(() => {
+    if (retailers) {
+      const filtered = retailers.filter(retailer => 
+        retailer.retailerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        retailer.shopName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        retailer.location?.coordinates?.join(', ').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (retailer.addedBy?.name || retailer.addedBy || '').toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredRetailers(filtered);
+    }
+  }, [searchQuery, retailers]);
 
   const handleDelete = async (id, name) => {
     if (window.confirm(`Are you sure you want to delete retailer "${name}"? This will also delete all associated sales.`)) {
@@ -26,8 +38,26 @@ const RetailersTable = ({ onRowCopy }) => {
 
   if (loading) {
     return (
-      <section className="content-area">
-        <div className="section-header"><h2>Retailers</h2><TableActionsHeader/></div>
+      <section>
+        <div className="section-header">
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="Search retailers..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="search-input"
+              style={{ paddingLeft: '35px' }}
+            />
+            <span className="search-icon">🔍</span>
+          </div>
+          <div className="header-actions">
+            <button className="add-btn">
+              <span className="plus-icon">+</span>
+              Add Retailer
+            </button>
+          </div>
+        </div>
         <div className="table-container">
           <div className="loading-message">Loading retailers data...</div>
         </div>
@@ -36,13 +66,28 @@ const RetailersTable = ({ onRowCopy }) => {
   }
 
   return (
-    <section className="content-area">
+    <section>
       <div className="section-header">
-        <h2>Retailers</h2>
-        <TableActionsHeader />
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Search retailers..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="search-input"
+            style={{ paddingLeft: '35px' }}
+          />
+          <span className="search-icon">🔍</span>
+        </div>
+        <div className="header-actions">
+          <button className="add-btn">
+            <span className="plus-icon">+</span>
+            Add Retailer
+          </button>
+        </div>
       </div>
       <div className="table-container">
-        {retailers.length > 0 ? (
+        {filteredRetailers.length > 0 ? (
           <table>
             <thead>
               <tr>
@@ -55,7 +100,7 @@ const RetailersTable = ({ onRowCopy }) => {
               </tr>
             </thead>
             <tbody>
-              {retailers.map((r, index) => (
+              {filteredRetailers.map((r, index) => (
                 <tr key={r._id}>
                   <td onClick={(e) => {e.stopPropagation(); onRowCopy(index + 1, 'Index');}}>{index + 1}</td>
                   <td onClick={(e) => {e.stopPropagation(); onRowCopy(r.retailerName, 'Retailer Name');}}>{r.retailerName}</td>
@@ -69,7 +114,7 @@ const RetailersTable = ({ onRowCopy }) => {
               ))}
             </tbody>
           </table>
-        ) : <p>No retailers data found.</p>}
+        ) : <p>No retailers found matching your search.</p>}
       </div>
     </section>
   );

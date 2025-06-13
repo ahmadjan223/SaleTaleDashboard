@@ -11,7 +11,7 @@ const request = async (endpoint, options = {}) => {
       let errorData;
       try {
         errorData = await response.json();
-      } catch (e) {
+      } catch {
         errorData = { message: response.statusText || `API request failed with status ${response.status}` };
       }
       console.error(`API Error (${response.status}) for ${url}:`, errorData);
@@ -106,5 +106,38 @@ export const deleteRetailerApi = (id) => {
     headers: {
       'Content-Type': 'application/json'
     }
+  });
+};
+
+// Create a new product
+export const createProduct = (productData) => {
+  return request('/products', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(productData),
+  });
+};
+
+// Update an existing product
+export const updateProduct = (productId, productData) => {
+  return request(`/products/${productId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(productData),
+  });
+};
+
+// Toggle product active status
+export const toggleProductStatus = (productId, active) => {
+  return request(`/products/admin/${productId}/status`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ active }),
   });
 }; 

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import TableActionsHeader from './TableActionsHeader';
 import useSalesStore from '../../store/salesStore';
 import SaleFilterSearch from '../SaleFilterSearch';
 
@@ -43,7 +42,6 @@ const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
       <SaleFilterSearch filters={filter} setFilter={setFilter} />
       {loading ? (
         <section className="content-area">
-          <div className="section-header"><h2>Sales</h2><TableActionsHeader/></div>
           <div className="table-container">
             <div className="loading-message">Loading sales data...</div>
           </div>

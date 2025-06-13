@@ -1,8 +1,9 @@
 import { create } from 'zustand';
-import { getAllSales, deleteItemApi } from '../utils/api';
+import { getAllSales, deleteItemApi, getFilteredSales } from '../utils/api';
 
 const useSalesStore = create((set, get) => ({
   sales: [],
+  filteredSales: [],
   loading: false,
   error: null,
   deletingItemId: null,
@@ -13,6 +14,18 @@ const useSalesStore = create((set, get) => ({
       set({ loading: true, error: null });
       const data = await getAllSales();
       set({ sales: data, loading: false });
+    } catch (error) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
+  // Fetch filtered sales
+  fetchFilteredSales: async (filters) => {
+    try {
+      set({ loading: true, error: null });
+      const data = await getFilteredSales(filters);
+      set({ filteredSales: data, loading: false });
     } catch (error) {
       set({ error: error.message, loading: false });
       throw error;
@@ -31,6 +44,7 @@ const useSalesStore = create((set, get) => ({
       await deleteItemApi('SALES', id);
       set((state) => ({
         sales: state.sales.filter(sale => sale._id !== id),
+        filteredSales: state.filteredSales.filter(sale => sale._id !== id),
         deletingItemId: null
       }));
     } catch (error) {
@@ -41,7 +55,7 @@ const useSalesStore = create((set, get) => ({
 
   // Clear store
   clearSales: () => {
-    set({ sales: [], loading: false, error: null, deletingItemId: null });
+    set({ sales: [], filteredSales: [], loading: false, error: null, deletingItemId: null });
   }
 }));
 

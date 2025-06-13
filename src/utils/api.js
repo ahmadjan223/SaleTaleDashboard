@@ -41,6 +41,24 @@ export const getAllProducts = () => request('/products/admin/all');
 export const getAllRetailers = () => request('/retailers/admin/all');
 export const getAllSalesmen = () => request('/salesmen/admin/all');
 
+// Get filtered sales with query parameters
+export const getFilteredSales = (filters = {}) => {
+  // Convert filters object to URLSearchParams
+  const queryParams = new URLSearchParams();
+  
+  // Add each filter if it exists
+  if (filters.salesman) queryParams.append('salesman', filters.salesman);
+  if (filters.product) queryParams.append('product', filters.product);
+  if (filters.retailer) queryParams.append('retailer', filters.retailer);
+  if (filters.startDate) queryParams.append('startDate', filters.startDate);
+  if (filters.endDate) queryParams.append('endDate', filters.endDate);
+
+  // Construct the endpoint with query parameters
+  const endpoint = `/sales/admin/filtered${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+  
+  return request(endpoint);
+};
+
 // Fetch specific retailer details for admin tooltip
 export const getAdminRetailerDetails = (retailerId) => request(`/retailers/admin/details/${retailerId}`);
 

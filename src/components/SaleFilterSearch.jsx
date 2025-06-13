@@ -2,92 +2,59 @@ import React, { useState, useMemo, useCallback } from 'react';
 import useSalesmenStore from '../store/salesmenStore'
 import useRetailerStore from '../store/retailerStore'
 import useProductStore from '../store/productStore'
-const SaleFilterSearch = ({ onSearch, onClear }) => {
+
+const SaleFilterSearch = ({ filters, setFilter }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [filters, setFilters] = useState({
-    salesman: '',
-    product: '',
-    retailer: '',
-    startDate: '',
-    endDate: '',
-  });
 
   // State for searchable dropdowns
   const [salesmanSearchTerm, setSalesmanSearchTerm] = useState('');
   const [isSalesmanDropdownOpen, setIsSalesmanDropdownOpen] = useState(false);
-  const [selectedSalesmanName, setSelectedSalesmanName] = useState('');
 
   const [productSearchTerm, setProductSearchTerm] = useState('');
   const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false);
-  const [selectedProductName, setSelectedProductName] = useState('');
 
   const [retailerSearchTerm, setRetailerSearchTerm] = useState('');
   const [isRetailerDropdownOpen, setIsRetailerDropdownOpen] = useState(false);
-  const [selectedRetailerName, setSelectedRetailerName] = useState('');
 
   // Derive unique options from sales data
   const {salesmen} = useSalesmenStore();
   const uniqueSalesmen = useMemo(() => {
-    const elements = new Set();
-    salesmen.forEach(s => {
-      if (s.name) {
-        elements.add(s.name);
-      } 
-    });
-    return Array.from(elements).sort();
+    return salesmen.map(s => ({
+      id: s._id,
+      name: s.name
+    })).sort((a, b) => a.name.localeCompare(b.name));
   }, [salesmen]);
 
   const {products} = useProductStore();
   const uniqueProducts = useMemo(() => {
-    const elements = new Set();
-    products.forEach(s => {
-      if (s.name) {
-        elements.add(s.name);
-      } 
-    });
-    return Array.from(elements).sort();
+    return products.map(p => ({
+      id: p._id,
+      name: p.name
+    })).sort((a, b) => a.name.localeCompare(b.name));
   }, [products]);
 
   const {retailers} = useRetailerStore();
   const uniqueRetailers = useMemo(() => {
-   console.log(retailers) 
-    const elements = new Set();
-    retailers.forEach(s => {
-      if (s.retailerName) {
-        elements.add(s.retailerName);
-      } 
-    });
-    return Array.from(elements).sort();
+    return retailers.map(r => ({
+      id: r._id,
+      name: r.retailerName
+    })).sort((a, b) => a.name.localeCompare(b.name));
   }, [retailers]);
 
   const handleFilterChange = useCallback((name, value) => {
-    setFilters(prevFilters => ({
+    setFilter(prevFilters => ({
       ...prevFilters,
       [name]: value
     }));
-  }, []);
-
-  const handleSearch = useCallback(() => {
-    onSearch(searchQuery, filters);
-  }, [onSearch, searchQuery, filters]);
+  }, [setFilter]);
 
   const handleClearFilters = useCallback(() => {
     setSearchQuery('');
-    setFilters({
-      salesman: '',
-      product: '',
-      retailer: '',
-      startDate: '',
-      endDate: '',
-    });
-    setSelectedSalesmanName('');
+    setFilter({});
     setSalesmanSearchTerm('');
-    setSelectedProductName('');
     setProductSearchTerm('');
-    setSelectedRetailerName('');
     setRetailerSearchTerm('');
-    onClear();
-  }, [onClear]);
+  }, [setFilter]);
 
   const inputStyle = {
     width: '100%',
@@ -146,7 +113,7 @@ const SaleFilterSearch = ({ onSearch, onClear }) => {
           style={{ ...inputStyle, border: 'none', borderRadius: '0', boxShadow: 'none', padding: '10px 15px', backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
         />
         <button 
-          onClick={handleSearch}
+          onClick={() => handleFilterChange('search', searchQuery)}
           style={{ ...buttonStylePrimary, borderRadius: '0', width: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         >
           🔍
@@ -160,12 +127,15 @@ const SaleFilterSearch = ({ onSearch, onClear }) => {
           <input
             type="text"
             placeholder="Select Salesman"
-            value={isSalesmanDropdownOpen ? salesmanSearchTerm : selectedSalesmanName}
+            value={salesmanSearchTerm}
             onChange={(e) => {
               setSalesmanSearchTerm(e.target.value);
               setIsSalesmanDropdownOpen(true);
             }}
-            onFocus={() => setIsSalesmanDropdownOpen(true)}
+            onFocus={() => {
+              setIsSalesmanDropdownOpen(true);
+              setSalesmanSearchTerm('');
+            }}
             onBlur={() => setTimeout(() => setIsSalesmanDropdownOpen(false), 100)}
             style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
           />
@@ -185,24 +155,23 @@ const SaleFilterSearch = ({ onSearch, onClear }) => {
               marginTop: '5px'
             }}>
               {uniqueSalesmen
-                .filter(name => name.toLowerCase().includes(salesmanSearchTerm.toLowerCase()))
-                .map(name => (
+                .filter(salesman => salesman.name.toLowerCase().includes(salesmanSearchTerm.toLowerCase()))
+                .map(salesman => (
                   <div
-                    key={name}
+                    key={salesman.id}
                     onMouseDown={() => {
-                      setSelectedSalesmanName(name);
-                      handleFilterChange('salesman', name);
+                      setSalesmanSearchTerm(salesman.name);
+                      handleFilterChange('salesman', salesman.id);
                       setIsSalesmanDropdownOpen(false);
-                      setSalesmanSearchTerm('');
                     }}
                     style={{ ...dropdownOptionStyle, color: 'var(--text-light)' }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--table-row-hover)'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
                   >
-                    {name}
+                    {salesman.name}
                   </div>
                 ))}
-              {uniqueSalesmen.filter(name => name.toLowerCase().includes(salesmanSearchTerm.toLowerCase())).length === 0 && (
+              {uniqueSalesmen.filter(salesman => salesman.name.toLowerCase().includes(salesmanSearchTerm.toLowerCase())).length === 0 && (
                 <div style={{ ...dropdownOptionStyle, cursor: 'default', color: 'var(--text-light)', background: 'var(--card-bg)' }}>No results</div>
               )}
             </div>
@@ -215,12 +184,15 @@ const SaleFilterSearch = ({ onSearch, onClear }) => {
           <input
             type="text"
             placeholder="Select Product"
-            value={isProductDropdownOpen ? productSearchTerm : selectedProductName}
+            value={productSearchTerm}
             onChange={(e) => {
               setProductSearchTerm(e.target.value);
               setIsProductDropdownOpen(true);
             }}
-            onFocus={() => setIsProductDropdownOpen(true)}
+            onFocus={() => {
+              setIsProductDropdownOpen(true);
+              setProductSearchTerm('');
+            }}
             onBlur={() => setTimeout(() => setIsProductDropdownOpen(false), 100)}
             style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
           />
@@ -240,24 +212,23 @@ const SaleFilterSearch = ({ onSearch, onClear }) => {
               marginTop: '5px'
             }}>
               {uniqueProducts
-                .filter(name => name.toLowerCase().includes(productSearchTerm.toLowerCase()))
-                .map(name => (
+                .filter(product => product.name.toLowerCase().includes(productSearchTerm.toLowerCase()))
+                .map(product => (
                   <div
-                    key={name}
+                    key={product.id}
                     onMouseDown={() => {
-                      setSelectedProductName(name);
-                      handleFilterChange('product', name);
+                      setProductSearchTerm(product.name);
+                      handleFilterChange('product', product.id);
                       setIsProductDropdownOpen(false);
-                      setProductSearchTerm('');
                     }}
                     style={{ ...dropdownOptionStyle, color: 'var(--text-light)' }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--table-row-hover)'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
                   >
-                    {name}
+                    {product.name}
                   </div>
                 ))}
-              {uniqueProducts.filter(name => name.toLowerCase().includes(productSearchTerm.toLowerCase())).length === 0 && (
+              {uniqueProducts.filter(product => product.name.toLowerCase().includes(productSearchTerm.toLowerCase())).length === 0 && (
                 <div style={{ ...dropdownOptionStyle, cursor: 'default', color: 'var(--text-light)', background: 'var(--card-bg)' }}>No results</div>
               )}
             </div>
@@ -270,12 +241,15 @@ const SaleFilterSearch = ({ onSearch, onClear }) => {
           <input
             type="text"
             placeholder="Select Retailer"
-            value={isRetailerDropdownOpen ? retailerSearchTerm : selectedRetailerName}
+            value={retailerSearchTerm}
             onChange={(e) => {
               setRetailerSearchTerm(e.target.value);
               setIsRetailerDropdownOpen(true);
             }}
-            onFocus={() => setIsRetailerDropdownOpen(true)}
+            onFocus={() => {
+              setIsRetailerDropdownOpen(true);
+              setRetailerSearchTerm('');
+            }}
             onBlur={() => setTimeout(() => setIsRetailerDropdownOpen(false), 100)}
             style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
           />
@@ -295,24 +269,23 @@ const SaleFilterSearch = ({ onSearch, onClear }) => {
               marginTop: '5px'
             }}>
               {uniqueRetailers
-                .filter(name => name.toLowerCase().includes(retailerSearchTerm.toLowerCase()))
-                .map(name => (
+                .filter(retailer => retailer.name.toLowerCase().includes(retailerSearchTerm.toLowerCase()))
+                .map(retailer => (
                   <div
-                    key={name}
+                    key={retailer.id}
                     onMouseDown={() => {
-                      setSelectedRetailerName(name);
-                      handleFilterChange('retailer', name);
+                      setRetailerSearchTerm(retailer.name);
+                      handleFilterChange('retailer', retailer.id);
                       setIsRetailerDropdownOpen(false);
-                      setRetailerSearchTerm('');
                     }}
                     style={{ ...dropdownOptionStyle, color: 'var(--text-light)' }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--table-row-hover)'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
                   >
-                    {name}
+                    {retailer.name}
                   </div>
                 ))}
-              {uniqueRetailers.filter(name => name.toLowerCase().includes(retailerSearchTerm.toLowerCase())).length === 0 && (
+              {uniqueRetailers.filter(retailer => retailer.name.toLowerCase().includes(retailerSearchTerm.toLowerCase())).length === 0 && (
                 <div style={{ ...dropdownOptionStyle, cursor: 'default', color: 'var(--text-light)', background: 'var(--card-bg)' }}>No results</div>
               )}
             </div>
@@ -328,16 +301,16 @@ const SaleFilterSearch = ({ onSearch, onClear }) => {
             <input 
               type="date" 
               name="startDate" 
-              value={filters.startDate} 
-              onChange={(e) => handleFilterChange(e.target.name, e.target.value)}
+              value={filters.startDate || ''} 
+              onChange={(e) => handleFilterChange('startDate', e.target.value)}
               style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
             />
             <span style={{ display: 'flex', alignItems: 'center', color: 'var(--text-light)' }}>-</span>
             <input 
               type="date" 
               name="endDate" 
-              value={filters.endDate} 
-              onChange={(e) => handleFilterChange(e.target.name, e.target.value)}
+              value={filters.endDate || ''} 
+              onChange={(e) => handleFilterChange('endDate', e.target.value)}
               style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
             />
           </div>
@@ -347,19 +320,13 @@ const SaleFilterSearch = ({ onSearch, onClear }) => {
         <div className="filter-group-modern" style={{ visibility: 'hidden' }}></div>
         
         <div className="filter-actions-modern" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', gridColumn: 'span var(--num-cols, 1)', alignItems: 'flex-end' }}>
-        <button 
-          onClick={handleSearch}
-          style={buttonStylePrimary}
-        >
-          Search
-        </button>
-        <button 
-          onClick={handleClearFilters}
-          style={buttonStyleSecondary}
-        >
-          Clear filters
-        </button>
-      </div>
+          <button 
+            onClick={handleClearFilters}
+            style={buttonStyleSecondary}
+          >
+            Clear filters
+          </button>
+        </div>
       </div>
     </div>
   );

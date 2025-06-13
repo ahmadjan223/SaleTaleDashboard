@@ -127,15 +127,12 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
           <input
             type="text"
             placeholder="Select Salesman"
-            value={salesmanSearchTerm}
+            value={isSalesmanDropdownOpen ? salesmanSearchTerm : salesmanSearchTerm}
             onChange={(e) => {
               setSalesmanSearchTerm(e.target.value);
               setIsSalesmanDropdownOpen(true);
             }}
-            onFocus={() => {
-              setIsSalesmanDropdownOpen(true);
-              setSalesmanSearchTerm('');
-            }}
+            onFocus={() => setIsSalesmanDropdownOpen(true)}
             onBlur={() => setTimeout(() => setIsSalesmanDropdownOpen(false), 100)}
             style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
           />
@@ -184,15 +181,12 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
           <input
             type="text"
             placeholder="Select Product"
-            value={productSearchTerm}
+            value={isProductDropdownOpen ? productSearchTerm : productSearchTerm}
             onChange={(e) => {
               setProductSearchTerm(e.target.value);
               setIsProductDropdownOpen(true);
             }}
-            onFocus={() => {
-              setIsProductDropdownOpen(true);
-              setProductSearchTerm('');
-            }}
+            onFocus={() => setIsProductDropdownOpen(true)}
             onBlur={() => setTimeout(() => setIsProductDropdownOpen(false), 100)}
             style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
           />
@@ -241,15 +235,12 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
           <input
             type="text"
             placeholder="Select Retailer"
-            value={retailerSearchTerm}
+            value={isRetailerDropdownOpen ? retailerSearchTerm : retailerSearchTerm}
             onChange={(e) => {
               setRetailerSearchTerm(e.target.value);
               setIsRetailerDropdownOpen(true);
             }}
-            onFocus={() => {
-              setIsRetailerDropdownOpen(true);
-              setRetailerSearchTerm('');
-            }}
+            onFocus={() => setIsRetailerDropdownOpen(true)}
             onBlur={() => setTimeout(() => setIsRetailerDropdownOpen(false), 100)}
             style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
           />

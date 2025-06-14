@@ -4,15 +4,22 @@ import { deleteRetailerApi } from '../../utils/api';
 import RetailerForm from '../RetailerForm';
 
 const RetailersTable = ({ onRowCopy }) => {
-  const { retailers, fetchRetailers, loading, addRetailer } = useRetailerStore();
+  const { retailers, fetchRetailers, loading, addRetailer, toggleRetailerStatus, updateRetailer } = useRetailerStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredRetailers, setFilteredRetailers] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedRetailer, setSelectedRetailer] = useState(null);
 
   useEffect(() => {
     fetchRetailers();
   }, []);
+  
+  useEffect(() => {
+    console.log("salesmen", retailers)
 
+  }, [retailers]);
+  
   useEffect(() => {
     if (retailers) {
       const filtered = retailers.filter(retailer => 
@@ -38,6 +45,17 @@ const RetailersTable = ({ onRowCopy }) => {
     }
   };
 
+  const handleToggleStatus = async (id, currentStatus) => {
+    try {
+      await toggleRetailerStatus(id, !currentStatus);
+      // Refresh the retailers list after successful status change
+      fetchRetailers();
+    } catch (error) {
+      console.error('Error toggling retailer status:', error);
+      alert('Failed to update retailer status. Please try again.');
+    }
+  };
+
   const handleAddRetailer = async (formData) => {
     try {
       await addRetailer(formData);
@@ -49,7 +67,24 @@ const RetailersTable = ({ onRowCopy }) => {
     }
   };
 
-  if (loading) {
+  const handleEditRetailer = async (formData) => {
+    try {
+      await updateRetailer(selectedRetailer._id, formData);
+      setShowEditModal(false);
+      setSelectedRetailer(null);
+      fetchRetailers(); // Refresh the list
+    } catch (error) {
+      console.error('Error updating retailer:', error);
+      alert('Failed to update retailer. Please try again.');
+    }
+  };
+
+  const handleEditClick = (retailer) => {
+    setSelectedRetailer(retailer);
+    setShowEditModal(true);
+  };
+
+  if (!retailers) {
     return (
       <section>
         <div className="section-header">
@@ -108,7 +143,8 @@ const RetailersTable = ({ onRowCopy }) => {
                 <th>Retailer Name</th>
                 <th>Shop Name</th>
                 <th>Location</th>
-                <th>Added By</th>
+                <th>Salesman Assigned</th>
+                <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -118,9 +154,45 @@ const RetailersTable = ({ onRowCopy }) => {
                   <td onClick={(e) => {e.stopPropagation(); onRowCopy(index + 1, 'Index');}}>{index + 1}</td>
                   <td onClick={(e) => {e.stopPropagation(); onRowCopy(r.retailerName, 'Retailer Name');}}>{r.retailerName}</td>
                   <td onClick={(e) => {e.stopPropagation(); onRowCopy(r.shopName, 'Shop Name');}}>{r.shopName}</td>
-                  <td onClick={(e) => {e.stopPropagation(); onRowCopy(r.location?.coordinates?.join(', ') || 'N/A', 'Location');}}>{r.location?.coordinates?.join(', ') || 'N/A'}</td>
-                  <td onClick={(e) => {e.stopPropagation(); onRowCopy(r.addedBy?.name || r.addedBy || 'N/A', 'Added By');}}>{r.addedBy?.name || r.addedBy || 'N/A'}</td>
                   <td>
+                    {r.location?.coordinates?.length === 2 ? (
+                      <a 
+                        href={`https://www.google.com/maps?q=${r.location.coordinates[1]},${r.location.coordinates[0]}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        style={{ color: '#007bff', textDecoration: 'underline', cursor: 'pointer' }}
+                      >
+                        Show on Map
+                      </a>
+                    ) : 'Not set'}
+                  </td>
+                  <td onClick={(e) => {e.stopPropagation(); onRowCopy( r?.assignedSalesman?.name || 'N/A', 'Added By');}}>{r?.assignedSalesman?.name || 'N/A'}</td>
+                  <td>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleStatus(r._id, r.active);
+                      }}
+                      style={{
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        fontWeight: '500',
+                        backgroundColor: r.active ? 'var(--accent-green)' : 'red',
+                        color: r.active ? 'white' : 'var(--accent-red)',
+                        border: r.active ? 'none' : '1px solid var(--accent-red)',
+                        cursor: 'pointer',
+                        transition: 'opacity 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
+                      onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                    >
+                      {r.active ? 'Active' : 'Inactive'}
+                    </button>
+                  </td>
+                  <td>
+                    <button onClick={(e) => { e.stopPropagation(); handleEditClick(r);}} className="action-btn icon-btn edit-btn">✏️</button>
                     <button onClick={(e) => { e.stopPropagation(); handleDelete(r._id, r.retailerName);}} className="action-btn icon-btn delete-btn">🗑️</button>
                   </td>
                 </tr>
@@ -138,6 +210,22 @@ const RetailersTable = ({ onRowCopy }) => {
                 onCancel={() => setShowAddModal(false)}
                 submitButtonText="Add Retailer"
                 title="Add New Retailer"
+              />
+        </div>
+      )}
+
+      {/* Edit Retailer Modal */}
+      {showEditModal && selectedRetailer && (
+        <div className="modal-overlay">
+              <RetailerForm
+                onSubmit={handleEditRetailer}
+                onCancel={() => {
+                  setShowEditModal(false);
+                  setSelectedRetailer(null);
+                }}
+                submitButtonText="Update Retailer"
+                title="Edit Retailer"
+                initialData={selectedRetailer}
               />
         </div>
       )}

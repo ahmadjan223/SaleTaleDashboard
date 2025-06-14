@@ -1,48 +1,88 @@
 import { create } from 'zustand';
-import { getAllSalesmen, deleteItemApi } from '../utils/api';
+import { getAllSalesmen, deleteSalesmanApi, createSalesmanApi, updateSalesmanApi, toggleSalesmanStatusApi } from '../utils/api';
 
-const useSalesmenStore = create((set, get) => ({
+const useSalesmanStore = create((set, get) => ({
   salesmen: [],
   loading: false,
   error: null,
-  deletingItemId: null,
 
   // Fetch salesmen from API and update store
   fetchSalesmen: async () => {
+    set({ loading: true, error: null });
     try {
-      set({ loading: true, error: null });
       const data = await getAllSalesmen();
       set({ salesmen: data, loading: false });
+    } catch (error) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  // Add new salesman
+  addSalesman: async (salesmanData) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await createSalesmanApi(salesmanData);
+      if (response.success) {
+        set((state) => ({
+          salesmen: [...state.salesmen, response.data],
+          loading: false
+        }));
+        return response;
+      } else {
+        set({ error: response.message, loading: false });
+        throw new Error(response.message);
+      }
     } catch (error) {
       set({ error: error.message, loading: false });
       throw error;
     }
   },
 
-  // Get salesman by ID
-  getSalesmanById: (id) => {
-    return get().salesmen.find(salesman => salesman._id === id);
+  // Update salesman
+  updateSalesman: async (id, salesmanData) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await updateSalesmanApi(id, salesmanData);
+      if (response.success) {
+        set((state) => ({
+          salesmen: state.salesmen.map(salesman => 
+            salesman._id === id ? response.data : salesman
+          ),
+          loading: false
+        }));
+        return response;
+      } else {
+        set({ error: response.message, loading: false });
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
   },
 
-  // Delete salesman from store and API
-  deleteSalesman: async (id) => {
+  // Toggle salesman status
+  toggleSalesmanStatus: async (id, active) => {
+    set({ loading: true, error: null });
     try {
-      set({ deletingItemId: id });
-      await deleteItemApi('SALESMEN', id);
+      const response = await toggleSalesmanStatusApi(id, active);
       set((state) => ({
-        salesmen: state.salesmen.filter(salesman => salesman._id !== id),
-        deletingItemId: null
+        salesmen: state.salesmen.map(salesman => 
+          salesman._id === id ? { ...salesman, active } : salesman
+        ),
+        loading: false
       }));
+      return response;
     } catch (error) {
-      set({ error: error.message, deletingItemId: null });
+      set({ error: error.message, loading: false });
       throw error;
     }
   },
 
   // Clear store
   clearSalesmen: () => {
-    set({ salesmen: [], loading: false, error: null, deletingItemId: null });
+    set({ salesmen: [], loading: false, error: null });
   }
 }));
 
-export default useSalesmenStore; 
+export default useSalesmanStore; 

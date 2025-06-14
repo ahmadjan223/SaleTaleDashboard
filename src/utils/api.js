@@ -109,9 +109,20 @@ export const deleteRetailerApi = (id) => {
   });
 };
 
+// Toggle retailer status
+export const toggleRetailerStatusApi = (id, active) => {
+  return request(`/retailers/admin/${id}/status`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ active })
+  });
+};
+
 // Create a new product
 export const createProduct = (productData) => {
-  return request('/products', {
+  return request('/products/admin/create', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -122,7 +133,7 @@ export const createProduct = (productData) => {
 
 // Update an existing product
 export const updateProduct = (productId, productData) => {
-  return request(`/products/${productId}`, {
+  return request(`/products/admin/${productId}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -139,5 +150,85 @@ export const toggleProductStatus = (productId, active) => {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ active }),
+  });
+};
+
+// Get product by ID
+export const getProductById = (id) => request(`/products/admin/${id}`);
+
+// Delete product
+export const deleteProduct = (id) => {
+  return request(`/products/admin/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+};
+
+// Add new retailer
+export const addRetailerApi = (retailerData) => {
+  return request('/retailers/admin/create', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(retailerData),
+  });
+};
+
+// Update retailer
+export const updateRetailerApi = (id, retailerData) => {
+  return request(`/retailers/admin/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(retailerData),
+  });
+};
+
+// Admin Salesman Management
+export const createSalesmanApi = (salesmanData) => {
+  return request('/salesmen/admin/create', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(salesmanData)
+  });
+};
+
+export const updateSalesmanApi = (id, salesmanData) => {
+  return request(`/salesmen/admin/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(salesmanData)
+  });
+};
+
+export const getAllSalesmenApi = () => {
+  return request('/salesmen/admin/all');
+};
+
+export const getSalesmanDetailsApi = (id) => {
+  return request(`/salesmen/admin/details/${id}`);
+};
+
+export const deleteSalesmanApi = (id) => {
+  return request(`/salesmen/admin/${id}`, {
+    method: 'DELETE'
+  });
+};
+
+export const toggleSalesmanStatusApi = (id, active) => {
+  return request(`/salesmen/admin/${id}/status`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ active })
   });
 }; 

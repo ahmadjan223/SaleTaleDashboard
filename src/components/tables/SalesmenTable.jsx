@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import useSalesmenStore from '../../store/salesmenStore';
-import { deleteItemApi } from '../../utils/api';
+import useSalesmanStore from '../../store/salesmenStore';
+import { deleteSalesmanApi } from '../../utils/api';
+import SalesmanForm from '../SalesmanForm';
 
 const SalesmenTable = ({ onRowCopy }) => {
-  const { salesmen, fetchSalesmen, loading } = useSalesmenStore();
+  const { salesmen, fetchSalesmen, loading, addSalesman, updateSalesman, toggleSalesmanStatus } = useSalesmanStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredSalesmen, setFilteredSalesmen] = useState([]);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedSalesman, setSelectedSalesman] = useState(null);
 
   useEffect(() => {
     fetchSalesmen();
@@ -14,28 +18,74 @@ const SalesmenTable = ({ onRowCopy }) => {
   useEffect(() => {
     if (salesmen) {
       const filtered = salesmen.filter(salesman => 
-        (salesman.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (salesman.email || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (salesman.phone || '').toLowerCase().includes(searchQuery.toLowerCase())
+        salesman.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        salesman.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        salesman.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        salesman.contactNo.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredSalesmen(filtered);
     }
   }, [searchQuery, salesmen]);
 
   const handleDelete = async (id, name) => {
-    if (window.confirm(`Are you sure you want to delete salesman "${name}"? This will also delete all associated retailers and sales.`)) {
       try {
-        await deleteItemApi('SALESMEN', id);
+        await deleteSalesmanApi(id);
         // Refresh the salesmen list after successful deletion
         fetchSalesmen();
       } catch (error) {
         console.error('Error deleting salesman:', error);
         alert('Failed to delete salesman. Please try again.');
       }
+  };
+
+  const handleToggleStatus = async (id, currentStatus) => {
+    try {
+      await toggleSalesmanStatus(id, !currentStatus);
+      // Refresh the salesmen list after successful status change
+      fetchSalesmen();
+    } catch (error) {
+      console.error('Error toggling salesman status:', error);
+      alert('Failed to update salesman status. Please try again.');
     }
   };
 
-  if (loading) {
+  const handleAddSalesman = async (formData) => {
+    try {
+      const response = await addSalesman(formData);
+      if (response.success) {
+        setShowAddModal(false);
+        fetchSalesmen(); // Refresh the list
+      } else {
+        alert(response.message || 'Failed to add salesman. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error adding salesman:', error);
+      alert(error.message || 'Failed to add salesman. Please try again.');
+    }
+  };
+
+  const handleEditSalesman = async (formData) => {
+    try {
+      const response = await updateSalesman(selectedSalesman._id, formData);
+      if (response.success) {
+        setShowEditModal(false);
+        setSelectedSalesman(null);
+        fetchSalesmen(); // Refresh the list
+      } else {
+        alert(response.message || 'Failed to update salesman. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error updating salesman:', error);
+      alert(error.message || 'Failed to update salesman. Please try again.');
+    }
+  };
+
+  const handleEditClick = (salesman) => {
+    setSelectedSalesman(salesman);
+    setShowEditModal(true);
+  };
+
+  if (!salesmen) {
     return (
       <section className>
         <div className="section-header">
@@ -79,7 +129,7 @@ const SalesmenTable = ({ onRowCopy }) => {
           <span className="search-icon">🔍</span>
         </div>
         <div className="header-actions">
-          <button className="add-btn">
+          <button className="add-btn" onClick={() => setShowAddModal(true)}>
             <span className="plus-icon">+</span>
             Add Salesman
           </button>
@@ -93,7 +143,8 @@ const SalesmenTable = ({ onRowCopy }) => {
                 <th>Index</th>
                 <th>Name</th>
                 <th>Email</th>
-                <th>Phone</th>
+                <th>Contact No</th>
+                <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -101,11 +152,40 @@ const SalesmenTable = ({ onRowCopy }) => {
               {filteredSalesmen.map((s, index) => (
                 <tr key={s._id}>
                   <td onClick={(e) => {e.stopPropagation(); onRowCopy(index + 1, 'Index');}}>{index + 1}</td>
-                  <td onClick={(e) => {e.stopPropagation(); onRowCopy(s.name, 'Name');}}>{s.name}</td>
+                  <td onClick={(e) => {e.stopPropagation(); onRowCopy(`${s.firstName} ${s.lastName}`, 'Name');}}>{`${s.firstName} ${s.lastName}`}</td>
                   <td onClick={(e) => {e.stopPropagation(); onRowCopy(s.email, 'Email');}}>{s.email}</td>
-                  <td onClick={(e) => {e.stopPropagation(); onRowCopy(s.phone, 'Phone');}}>{s.phone}</td>
+                  <td onClick={(e) => {e.stopPropagation(); onRowCopy(s.contactNo, 'Contact No');}}>{s.contactNo}</td>
                   <td>
-                    <button onClick={(e) => { e.stopPropagation(); handleDelete(s._id, s.name);}} className="action-btn icon-btn delete-btn">🗑️</button>
+                    <span className={`status-badge ${s.active ? 'active' : 'inactive'}`}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleStatus(s._id, s.active);
+                      }}
+                      style={{
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        fontWeight: '500',
+                        backgroundColor: s.active ? 'var(--accent-green)' : 'red',
+                        color: s.active ? 'white' : 'var(--accent-red)',
+                        border: s.active ? 'none' : '1px solid var(--accent-red)',
+                        cursor: 'pointer',
+                        transition: 'opacity 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
+                      onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                    >
+                      {s.active ? 'Active' : 'Inactive'}
+                    </button>
+                    </span>
+                  </td>
+                  <td>
+                    <div className="action-buttons">
+                      <button onClick={(e) => { e.stopPropagation(); handleEditClick(s); }} className="action-btn icon-btn edit-btn">✏️</button>
+                      <button onClick={(e) => { e.stopPropagation(); handleDelete(s._id, `${s.firstName} ${s.lastName}`); }} className="action-btn icon-btn delete-btn">🗑️</button>
+                      
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -113,8 +193,55 @@ const SalesmenTable = ({ onRowCopy }) => {
           </table>
         ) : <p style={{paddingLeft:15}}>No salesmen found matching your search.</p>}
       </div>
+
+      {/* Add Modal */}
+      {showAddModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h3>Add New Salesman</h3>
+                <button className="close-btn" onClick={() => setShowAddModal(false)}>×</button>
+              </div>
+              <SalesmanForm
+                onSubmit={handleAddSalesman}
+                onCancel={() => setShowAddModal(false)}
+                submitButtonText="Add Salesman"
+                title="Add New Salesman"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {showEditModal && selectedSalesman && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h3>Edit Salesman</h3>
+                <button className="close-btn" onClick={() => {
+                  setShowEditModal(false);
+                  setSelectedSalesman(null);
+                }}>×</button>
+              </div>
+              <SalesmanForm
+                onSubmit={handleEditSalesman}
+                onCancel={() => {
+                  setShowEditModal(false);
+                  setSelectedSalesman(null);
+                }}
+                submitButtonText="Update Salesman"
+                title="Edit Salesman"
+                initialData={selectedSalesman}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
-}
+};
 
 export default SalesmenTable; 

@@ -27,10 +27,16 @@ const ProductsTable = ({ onRowCopy }) => {
 
   const handleAddProduct = async (formData) => {
     try {
-      await addProduct(formData);
+      const response = await addProduct(formData);
+      if (response.success) {
       setShowAddModal(false);
+        fetchProducts(); // Refresh the list
+      } else {
+        alert(response.message || 'Failed to add product. Please try again.');
+      }
     } catch (error) {
       console.error('Error adding product:', error);
+      alert(error.message || 'Failed to add product. Please try again.');
     }
   };
 
@@ -46,11 +52,17 @@ const ProductsTable = ({ onRowCopy }) => {
 
   const handleEditProduct = async (formData) => {
     try {
-      await updateProduct(editingProduct._id, formData);
+      const response = await updateProduct(editingProduct._id, formData);
+      if (response.success) {
       setShowEditModal(false);
       setEditingProduct(null);
+        fetchProducts(); // Refresh the list
+      } else {
+        alert(response.message || 'Failed to update product. Please try again.');
+      }
     } catch (error) {
       console.error('Error updating product:', error);
+      alert(error.message || 'Failed to update product. Please try again.');
     }
   };
 

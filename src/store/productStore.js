@@ -28,12 +28,17 @@ const useProductStore = create((set, get) => ({
   addProduct: async (productData) => {
     try {
       set({ loading: true, error: null });
-      const newProduct = await createProduct(productData);
-      set((state) => ({
-        products: [...state.products, newProduct],
-        loading: false
-      }));
-      return newProduct;
+      const response = await createProduct(productData);
+      if (response.success) {
+        set((state) => ({
+          products: [...state.products, response.data],
+          loading: false
+        }));
+        return response;
+      } else {
+        set({ error: response.message, loading: false });
+        throw new Error(response.message);
+      }
     } catch (error) {
       set({ error: error.message, loading: false });
       throw error;
@@ -44,12 +49,17 @@ const useProductStore = create((set, get) => ({
   updateProduct: async (productId, productData) => {
     try {
       set({ loading: true, error: null });
-      const updatedProduct = await updateProduct(productId, productData);
-      set((state) => ({
-        products: state.products.map(p => p._id === productId ? updatedProduct : p),
-        loading: false
-      }));
-      return updatedProduct;
+      const response = await updateProduct(productId, productData);
+      if (response.success) {
+        set((state) => ({
+          products: state.products.map(p => p._id === productId ? response.data : p),
+          loading: false
+        }));
+        return response;
+      } else {
+        set({ error: response.message, loading: false });
+        throw new Error(response.message);
+      }
     } catch (error) {
       set({ error: error.message, loading: false });
       throw error;

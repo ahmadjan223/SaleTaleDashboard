@@ -4,6 +4,7 @@ import './App.css'
 import { VIEWS } from './constants/views'
 import { useTooltip } from './hooks/useTooltip'
 import axios from 'axios'
+import { adminLogout } from './utils/api'
 
 // Components
 import Toast from './components/Toast'
@@ -76,6 +77,18 @@ function App() {
     setToast(prev => ({ ...prev, show: false }))
   }, [])
 
+  const handleLogout = useCallback(async () => {
+    try {
+      await adminLogout();
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminData');
+      window.location.href = '/admin/login';
+    } catch (error) {
+      console.error('Logout failed:', error);
+      showToast('Failed to logout. Please try again.', 'error');
+    }
+  }, [showToast]);
+
   // Updated handleRowCopy for cell-specific copying
   const handleRowCopy = useCallback(async (cellData, columnName) => {
     const textToCopy = typeof cellData === 'object' ? JSON.stringify(cellData) : String(cellData)
@@ -107,7 +120,7 @@ function App() {
 
   const DashboardLayout = () => (
     <>
-      <TopBar onHomeClick={() => setActiveView(VIEWS.HOME)} />
+      <TopBar onHomeClick={() => setActiveView(VIEWS.HOME)} onLogout={handleLogout} />
       <div className="dashboard-layout">
         <Sidebar activeView={activeView} onViewChange={setActiveView} />
         <main className="main-content">

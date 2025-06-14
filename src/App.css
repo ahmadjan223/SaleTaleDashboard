@@ -76,21 +76,28 @@ body {
 }
 
 .logout-btn-icon {
-  font-size: 1.5em; /* Adjusted for emoji combination */
+  font-size: 1.5em;
   padding: 8px;
   color: var(--text-light);
   background-color: transparent;
-  line-height: 1; /* Helps align emoji characters */
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.logout-btn-icon span {
-    display: inline-block; /* Allows transform */
-    transform: translateY(-1px); /* Fine-tune arrow position */
+.logout-icon {
+  font-size: 1.2em;
+  transform: rotate(180deg);
+  display: inline-block;
 }
 
 .logout-btn-icon:hover {
   color: var(--accent-green);
   background-color: rgba(251, 251, 251, 0.05);
+  transform: scale(1.1);
 }
 
 .dashboard-layout {
@@ -370,7 +377,7 @@ tr:hover {
 
 /* Modal Styles */
 .modal-overlay {
-  position: fixed;
+  position: fixed; /* This property ensures the overlay covers the entire viewport */
   top: 0;
   left: 0;
   right: 0;

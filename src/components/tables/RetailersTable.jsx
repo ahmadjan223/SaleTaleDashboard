@@ -69,13 +69,17 @@ const RetailersTable = ({ onRowCopy }) => {
 
   const handleEditRetailer = async (formData) => {
     try {
-      await updateRetailer(selectedRetailer._id, formData);
-      setShowEditModal(false);
-      setSelectedRetailer(null);
-      fetchRetailers(); // Refresh the list
+      const response = await updateRetailer(selectedRetailer._id, formData);
+      if (response.success) {
+        setShowEditModal(false);
+        setSelectedRetailer(null);
+        fetchRetailers(); // Refresh the list
+      } else {
+        throw new Error(response.message || 'Failed to update retailer');
+      }
     } catch (error) {
       console.error('Error updating retailer:', error);
-      alert('Failed to update retailer. Please try again.');
+      alert(error.message || 'Failed to update retailer. Please try again.');
     }
   };
 

@@ -64,6 +64,12 @@ export const getAdminProfile = () => {
   return request('/admin/profile');
 };
 
+export const adminLogout = () => {
+  return request('/admin/logout', {
+    method: 'POST'
+  });
+};
+
 // ===== Sales Management =====
 export const getAllSales = () => request('/sales/admin/all');
 

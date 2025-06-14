@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import useSalesStore from '../../store/salesStore';
 import SaleFilterSearch from '../SaleFilterSearch';
+import SaleDetails from '../salesDetails';
 
 const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
   const { 
@@ -13,6 +14,8 @@ const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
     deleteSale
   } = useSalesStore();
   const [filter, setFilter] = useState({});
+  const [showSaleDetailsModal, setShowSaleDetailsModal] = useState(false);
+  const [selectedSale, setSelectedSale] = useState(null);
 
   useEffect(() => {
     fetchSales();
@@ -30,6 +33,16 @@ const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
     if (productNames.length === 0) return 'N/A';
     if (productNames.length === 1) return productNames[0];
     return `${productNames.join(', ')}...`;
+  };
+
+  const handleRowClick = (sale) => {
+    setSelectedSale(sale);
+    setShowSaleDetailsModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowSaleDetailsModal(false);
+    setSelectedSale(null);
   };
 
   if (error) return <div className="content-area"><h2 className="error-message">Error loading sales: {error}</h2></div>;
@@ -64,10 +77,10 @@ const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
               </thead>
               <tbody>
                 {displaySales.map((s, index) => (
-                  <tr key={s._id}>
+                  <tr key={s._id} onClick={() => handleRowClick(s)} style={{ cursor: 'pointer' }}>
                     <td onClick={(e) => {e.stopPropagation()}}>{index + 1}</td>
                     <td 
-                      onClick={(e) => {e.stopPropagation(); onRowCopy(s.retailer?.shopName || 'N/A', 'Retailer');}}
+                      onClick={(e) => {e.stopPropagation(); onRowCopy(s.retailer?.retailerName || 'N/A', 'Retailer');}}
                       onMouseEnter={(e) => onCellMouseEnter(e, 'Retailer', 'SALES', s)}
                       onMouseLeave={onCellMouseLeave}
                     >
@@ -122,6 +135,16 @@ const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
           ) : (
             <p style={{paddingLeft:15}}>No sales data found.</p>
           )}
+        </div>
+      )}
+
+      {showSaleDetailsModal && selectedSale && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-content">
+              <SaleDetails sale={selectedSale} onClose={handleCloseModal} />
+            </div>
+          </div>
         </div>
       )}
     </section>

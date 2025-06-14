@@ -44,21 +44,21 @@ const useRetailerStore = create((set, get) => ({
     set({ loading: true, error: null });
     try {
       const response = await updateRetailer(id, retailerData);
-      if (response.success) {
+      if (response) {
         set((state) => ({
           retailers: state.retailers.map(retailer => 
-            retailer._id === id ? response.data : retailer
+            retailer._id === id ? response : retailer
           ),
           loading: false
         }));
-        return response;
+        return { success: true, data: response };
       } else {
-        set({ error: response.message, loading: false });
-        throw new Error(response.message);
+        throw new Error('No response received from server');
       }
     } catch (error) {
-      set({ error: error.message, loading: false });
-      throw error;
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to update retailer';
+      set({ error: errorMessage, loading: false });
+      return { success: false, message: errorMessage };
     }
   },
 

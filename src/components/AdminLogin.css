@@ -1,0 +1,83 @@
+
+.admin-login-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: var(--background-dark);
+  }
+  
+  /* Page title */
+  .page-title {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--accent-green);
+  }
+  
+  /* Login card container */
+  .login-card {
+    background-color: var(--card-bg);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  /* Form heading */
+  .form-heading {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    color: var(--text-light);
+  }
+  
+  /* Form layout and spacing */
+  .login-form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-label {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+    color: var(--text-light);
+    font-size: 1rem;
+  }
+  
+  .form-input {
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: transparent;
+    color: var(--text-light);
+    font-size: 1rem;
+  }
+  
+  .form-input:focus {
+    outline: none;
+    border-color: var(--accent-green);
+  }
+  
+  /* Submit button styling */
+  .submit-button {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background-color: var(--accent-green);
+    color: var(--text-light);
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .submit-button:hover {
+    background-color: var(--hover-green);
+  }
+  

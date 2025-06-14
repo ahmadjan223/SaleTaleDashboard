@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getAllSalesmen, deleteSalesmanApi, createSalesmanApi, updateSalesmanApi, toggleSalesmanStatusApi } from '../utils/api';
+import { getAllSalesmen, deleteSalesman, createSalesman, updateSalesman, toggleSalesmanStatus } from '../utils/api';
 
 const useSalesmanStore = create((set, get) => ({
   salesmen: [],
@@ -21,7 +21,7 @@ const useSalesmanStore = create((set, get) => ({
   addSalesman: async (salesmanData) => {
     set({ loading: true, error: null });
     try {
-      const response = await createSalesmanApi(salesmanData);
+      const response = await createSalesman(salesmanData);
       if (response.success) {
         set((state) => ({
           salesmen: [...state.salesmen, response.data],
@@ -42,7 +42,7 @@ const useSalesmanStore = create((set, get) => ({
   updateSalesman: async (id, salesmanData) => {
     set({ loading: true, error: null });
     try {
-      const response = await updateSalesmanApi(id, salesmanData);
+      const response = await updateSalesman(id, salesmanData);
       if (response.success) {
         set((state) => ({
           salesmen: state.salesmen.map(salesman => 
@@ -65,7 +65,7 @@ const useSalesmanStore = create((set, get) => ({
   toggleSalesmanStatus: async (id, active) => {
     set({ loading: true, error: null });
     try {
-      const response = await toggleSalesmanStatusApi(id, active);
+      const response = await toggleSalesmanStatus(id, active);
       set((state) => ({
         salesmen: state.salesmen.map(salesman => 
           salesman._id === id ? { ...salesman, active } : salesman

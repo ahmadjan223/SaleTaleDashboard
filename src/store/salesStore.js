@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getAllSales, deleteItemApi, getFilteredSales } from '../utils/api';
+import { getAllSales, deleteItem, getFilteredSales } from '../utils/api';
 
 const useSalesStore = create((set, get) => ({
   sales: [],
@@ -41,7 +41,7 @@ const useSalesStore = create((set, get) => ({
   deleteSale: async (id) => {
     try {
       set({ deletingItemId: id });
-      await deleteItemApi('SALES', id);
+      await deleteItem('SALES', id);
       set((state) => ({
         sales: state.sales.filter(sale => sale._id !== id),
         filteredSales: state.filteredSales.filter(sale => sale._id !== id),

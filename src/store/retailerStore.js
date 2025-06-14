@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getAllRetailers, deleteRetailerApi, addRetailerApi, toggleRetailerStatusApi, updateRetailerApi } from '../utils/api';
+import { getAllRetailers, deleteRetailer, createRetailer, updateRetailer, toggleRetailerStatus } from '../utils/api';
 
 const useRetailerStore = create((set, get) => ({
   retailers: [],
@@ -22,13 +22,17 @@ const useRetailerStore = create((set, get) => ({
   addRetailer: async (retailerData) => {
     set({ loading: true, error: null });
     try {
-      console.log("retailerData ",retailerData)
-      const newRetailer = await addRetailerApi(retailerData);
-      set((state) => ({
-        retailers: [...state.retailers, newRetailer],
-        loading: false
-      }));
-      return newRetailer;
+      const response = await createRetailer(retailerData);
+      if (response.success) {
+        set((state) => ({
+          retailers: [...state.retailers, response.data],
+          loading: false
+        }));
+        return response;
+      } else {
+        set({ error: response.message, loading: false });
+        throw new Error(response.message);
+      }
     } catch (error) {
       set({ error: error.message, loading: false });
       throw error;
@@ -39,14 +43,19 @@ const useRetailerStore = create((set, get) => ({
   updateRetailer: async (id, retailerData) => {
     set({ loading: true, error: null });
     try {
-      const updatedRetailer = await updateRetailerApi(id, retailerData);
-      set((state) => ({
-        retailers: state.retailers.map(retailer => 
-          retailer._id === id ? updatedRetailer : retailer
-        ),
-        loading: false
-      }));
-      return updatedRetailer;
+      const response = await updateRetailer(id, retailerData);
+      if (response.success) {
+        set((state) => ({
+          retailers: state.retailers.map(retailer => 
+            retailer._id === id ? response.data : retailer
+          ),
+          loading: false
+        }));
+        return response;
+      } else {
+        set({ error: response.message, loading: false });
+        throw new Error(response.message);
+      }
     } catch (error) {
       set({ error: error.message, loading: false });
       throw error;
@@ -62,7 +71,7 @@ const useRetailerStore = create((set, get) => ({
   deleteRetailer: async (id) => {
     set({ loading: true, error: null });
     try {
-      await deleteRetailerApi(id);
+      await deleteRetailer(id);
       set((state) => ({
         retailers: state.retailers.filter(retailer => retailer._id !== id),
         loading: false
@@ -76,7 +85,7 @@ const useRetailerStore = create((set, get) => ({
   toggleRetailerStatus: async (id, active) => {
     set({ loading: true, error: null });
     try {
-      const response = await toggleRetailerStatusApi(id, active);
+      const response = await toggleRetailerStatus(id, active);
       set((state) => ({
         retailers: state.retailers.map(retailer => 
           retailer._id === id ? { ...retailer, active } : retailer

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getAllProducts, deleteItemApi, createProduct, updateProduct, toggleProductStatus } from '../utils/api';
+import { getAllProducts, deleteItem, createProduct, updateProduct, toggleProductStatus } from '../utils/api';
 
 const useProductStore = create((set, get) => ({
   products: [],
@@ -70,7 +70,7 @@ const useProductStore = create((set, get) => ({
   deleteProduct: async (id) => {
     try {
       set({ deletingItemId: id });
-      await deleteItemApi('PRODUCTS', id);
+      await deleteItem('PRODUCTS', id);
       set((state) => ({
         products: state.products.filter(product => product._id !== id),
         deletingItemId: null

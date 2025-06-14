@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import useRetailerStore from '../../store/retailerStore';
-import { deleteRetailerApi } from '../../utils/api';
+import { deleteRetailer } from '../../utils/api';
 import RetailerForm from '../RetailerForm';
 
 const RetailersTable = ({ onRowCopy }) => {
@@ -35,7 +35,7 @@ const RetailersTable = ({ onRowCopy }) => {
   const handleDelete = async (id, name) => {
     if (window.confirm(`Are you sure you want to delete retailer "${name}"? This will also delete all associated sales.`)) {
       try {
-        await deleteRetailerApi(id);
+        await deleteRetailer(id);
         // Refresh the retailers list after successful deletion
         fetchRetailers();
       } catch (error) {

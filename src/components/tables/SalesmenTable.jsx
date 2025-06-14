@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import useSalesmanStore from '../../store/salesmenStore';
-import { deleteSalesmanApi } from '../../utils/api';
+import { deleteSalesman } from '../../utils/api';
 import SalesmanForm from '../SalesmanForm';
 
 const SalesmenTable = ({ onRowCopy }) => {
@@ -29,7 +29,7 @@ const SalesmenTable = ({ onRowCopy }) => {
 
   const handleDelete = async (id, name) => {
       try {
-        await deleteSalesmanApi(id);
+        await deleteSalesman(id);
         // Refresh the salesmen list after successful deletion
         fetchSalesmen();
       } catch (error) {

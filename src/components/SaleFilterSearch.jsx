@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback,useEffect } from 'react';
 import useSalesmenStore from '../store/salesmenStore'
 import useRetailerStore from '../store/retailerStore'
 import useProductStore from '../store/productStore'
@@ -20,7 +20,7 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
   const [isRetailerDropdownOpen, setIsRetailerDropdownOpen] = useState(false);
 
   // Derive unique options from sales data
-  const {salesmen} = useSalesmenStore();
+  const {salesmen,fetchSalesmen} = useSalesmenStore();
   const uniqueSalesmen = useMemo(() => {
     return salesmen.map(s => ({
       id: s._id,
@@ -28,7 +28,7 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
     })).sort((a, b) => a.name.localeCompare(b.name));
   }, [salesmen]);
 
-  const {products} = useProductStore();
+  const {products,fetchProducts} = useProductStore();
   const uniqueProducts = useMemo(() => {
     return products.map(p => ({
       id: p._id,
@@ -36,13 +36,19 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
     })).sort((a, b) => a.name.localeCompare(b.name));
   }, [products]);
 
-  const {retailers} = useRetailerStore();
+  const {retailers,fetchRetailers} = useRetailerStore();
   const uniqueRetailers = useMemo(() => {
     return retailers.map(r => ({
       id: r._id,
       name: r.retailerName
     })).sort((a, b) => a.name.localeCompare(b.name));
   }, [retailers]);
+
+  useEffect(()=>{
+    fetchProducts();
+    fetchRetailers();
+    fetchSalesmen();
+  },[])
 
   const handleFilterChange = useCallback((name, value) => {
     setFilter(prevFilters => ({

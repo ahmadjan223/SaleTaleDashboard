@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import useRetailerStore from '../../store/retailerStore';
 import { deleteRetailer } from '../../utils/api';
 import RetailerForm from '../RetailerForm';
+import RetailerDetailsCard from '../cards/RetailerDetailsCard';
 
-const RetailersTable = ({ onRowCopy }) => {
+const RetailersTable = () => {
   const { retailers, fetchRetailers, loading, addRetailer, toggleRetailerStatus, updateRetailer } = useRetailerStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredRetailers, setFilteredRetailers] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedRetailer, setSelectedRetailer] = useState(null);
 
   useEffect(() => {
@@ -88,6 +90,11 @@ const RetailersTable = ({ onRowCopy }) => {
     setShowEditModal(true);
   };
 
+  const handleRowClick = (retailer) => {
+    setSelectedRetailer(retailer);
+    setShowDetailsModal(true);
+  };
+
   if (!retailers) {
     return (
       <section>
@@ -154,10 +161,10 @@ const RetailersTable = ({ onRowCopy }) => {
             </thead>
             <tbody>
               {filteredRetailers.map((r, index) => (
-                <tr key={r._id}>
-                  <td onClick={(e) => {e.stopPropagation(); onRowCopy(index + 1, 'Index');}}>{index + 1}</td>
-                  <td onClick={(e) => {e.stopPropagation(); onRowCopy(r.retailerName, 'Retailer Name');}}>{r.retailerName}</td>
-                  <td onClick={(e) => {e.stopPropagation(); onRowCopy(r.shopName, 'Shop Name');}}>{r.shopName}</td>
+                <tr key={r._id} onClick={() => handleRowClick(r)} style={{ cursor: 'pointer' }}>
+                  <td>{index + 1}</td>
+                  <td>{r.retailerName}</td>
+                  <td>{r.shopName}</td>
                   <td>
                     {r.location?.coordinates?.length === 2 ? (
                       <a 
@@ -171,7 +178,7 @@ const RetailersTable = ({ onRowCopy }) => {
                       </a>
                     ) : 'Not set'}
                   </td>
-                  <td onClick={(e) => {e.stopPropagation(); onRowCopy( r?.assignedSalesman?.name || 'N/A', 'Added By');}}>{r?.assignedSalesman?.name || 'N/A'}</td>
+                  <td>{r?.assignedSalesman?.name || 'N/A'}</td>
                   <td>
                     <button
                       onClick={(e) => {
@@ -205,6 +212,21 @@ const RetailersTable = ({ onRowCopy }) => {
           </table>
         ) : <p style={{paddingLeft:15}}>No retailers found matching your search.</p>}
       </div>
+
+      {/* Details Modal */}
+      {showDetailsModal && selectedRetailer && (
+        <div className="modal-overlay" onClick={() => setShowDetailsModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Retailer Details</h3>
+              <button className="close-btn" onClick={() => setShowDetailsModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <RetailerDetailsCard retailer={selectedRetailer} />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Add Retailer Modal */}
       {showAddModal && (
@@ -279,7 +301,7 @@ const RetailersTable = ({ onRowCopy }) => {
           font-weight: 500;
         }
 
-        .modal-close-btn {
+        .close-btn {
           background: none;
           border: none;
           font-size: 24px;
@@ -295,7 +317,7 @@ const RetailersTable = ({ onRowCopy }) => {
           transition: all 0.3s ease;
         }
 
-        .modal-close-btn:hover {
+        .close-btn:hover {
           background-color: #f5f5f5;
           color: #333;
         }

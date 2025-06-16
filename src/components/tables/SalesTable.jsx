@@ -3,7 +3,7 @@ import useSalesStore from '../../store/salesStore';
 import SaleFilterSearch from '../SaleFilterSearch';
 import SaleDetails from '../salesDetails';
 
-const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
+const SalesTable = ({ onCellMouseEnter, onCellMouseLeave }) => {
   const { 
     sales, 
     filteredSales,
@@ -78,25 +78,21 @@ const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
               <tbody>
                 {displaySales.map((s, index) => (
                   <tr key={s._id} onClick={() => handleRowClick(s)} style={{ cursor: 'pointer' }}>
-                    <td onClick={(e) => {e.stopPropagation()}}>{index + 1}</td>
+                    <td>{index + 1}</td>
                     <td 
-                      onClick={(e) => {e.stopPropagation(); onRowCopy(s.retailer?.retailerName || 'N/A', 'Retailer');}}
                       onMouseEnter={(e) => onCellMouseEnter(e, 'Retailer', 'SALES', s)}
                       onMouseLeave={onCellMouseLeave}
                     >
                       {s.retailer?.retailerName || 'N/A'}
                     </td>
                     <td 
-                      onClick={(e) => {e.stopPropagation(); onRowCopy(formatProducts(s.products), 'Product');}}
                       onMouseEnter={(e) => onCellMouseEnter(e, 'Product', 'SALES', s)}
                       onMouseLeave={onCellMouseLeave}
                     >
                       {formatProducts(s.products)}
                     </td>
-                    <td onClick={(e) => {e.stopPropagation(); onRowCopy(Object.values(s.products || {})[0]?.quantity || 'N/A', 'Quantity');}}>
-                      {Object.values(s.products || {})[0]?.quantity || 'N/A'}
-                    </td>
-                    <td onClick={(e) => {e.stopPropagation(); onRowCopy(s.amount, 'Amount');}}>{s.amount}</td>
+                    <td>{Object.values(s.products || {})[0]?.quantity || 'N/A'}</td>
+                    <td>{s.amount}</td>
                     <td>
                       {s.coordinates?.coordinates ? (
                         <a 
@@ -111,7 +107,6 @@ const SalesTable = ({ onRowCopy, onCellMouseEnter, onCellMouseLeave }) => {
                       ) : 'N/A'}
                     </td>
                     <td 
-                      onClick={(e) => {e.stopPropagation(); onRowCopy(s.addedBy?.name || 'N/A', 'Added By');}}
                       onMouseEnter={(e) => onCellMouseEnter(e, 'Added By', 'SALES', s)}
                       onMouseLeave={onCellMouseLeave}
                     >

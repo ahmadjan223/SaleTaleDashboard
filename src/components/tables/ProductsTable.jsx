@@ -1,89 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import useProductStore from '../../store/productStore';
 import AddProductForm from '../AddProductForm';
+import ProductDetailsCard from '../cards/ProductDetailsCard';
 
-const ProductsTable = ({ onRowCopy }) => {
-  const { products, fetchProducts, loading, deleteProduct, addProduct, updateProduct, toggleProductStatus } = useProductStore();
+const ProductsTable = () => {
+  const { products, loading, error, fetchProducts, deleteProduct } = useProductStore();
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredProducts, setFilteredProducts] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showProductDetails, setShowProductDetails] = useState(false);
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [fetchProducts]);
 
-  useEffect(() => {
-    if (products) {
-      const filtered = products.filter(product => 
-        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.price.toString().includes(searchQuery)
-      );
-      setFilteredProducts(filtered);
-    }
-  }, [searchQuery, products]);
-
-  const handleAddProduct = async (formData) => {
-    try {
-      const response = await addProduct(formData);
-      if (response.success) {
-      setShowAddModal(false);
-        fetchProducts(); // Refresh the list
-      } else {
-        alert(response.message || 'Failed to add product. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error adding product:', error);
-      alert(error.message || 'Failed to add product. Please try again.');
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this product?')) {
+      await deleteProduct(id);
     }
   };
 
-  const handleEditClick = (product) => {
+  const handleEdit = (product) => {
     setEditingProduct(product);
     setShowEditModal(true);
   };
 
-  const handleEditCancel = () => {
-    setShowEditModal(false);
-    setEditingProduct(null);
+  const handleRowClick = (product) => {
+    setSelectedProduct(product);
+    setShowProductDetails(true);
   };
 
-  const handleEditProduct = async (formData) => {
-    try {
-      const response = await updateProduct(editingProduct._id, formData);
-      if (response.success) {
-      setShowEditModal(false);
-      setEditingProduct(null);
-        fetchProducts(); // Refresh the list
-      } else {
-        alert(response.message || 'Failed to update product. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error updating product:', error);
-      alert(error.message || 'Failed to update product. Please try again.');
-    }
-  };
-
-  const handleDelete = async (id, name) => {
-    if (window.confirm(`Are you sure you want to delete product "${name}"?`)) {
-      try {
-        await deleteProduct(id);
-      } catch (error) {
-        console.error('Error deleting product:', error);
-        alert('Failed to delete product. Please try again.');
-      }
-    }
-  };
-
-  const handleToggleStatus = async (id, currentStatus) => {
-    try {
-      await toggleProductStatus(id, !currentStatus);
-    } catch (error) {
-      console.error('Error toggling product status:', error);
-      alert('Failed to update product status. Please try again.');
-    }
+  const handleCloseModal = () => {
+    setShowProductDetails(false);
+    setSelectedProduct(null);
   };
 
   if (loading) {
@@ -114,6 +65,16 @@ const ProductsTable = ({ onRowCopy }) => {
       </section>
     );
   }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    product.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    product.price.toString().includes(searchQuery)
+  );
 
   return (
     <section>
@@ -151,24 +112,24 @@ const ProductsTable = ({ onRowCopy }) => {
             </thead>
             <tbody>
               {filteredProducts.map((p, index) => (
-                <tr key={p._id}>
-                  <td onClick={(e) => {e.stopPropagation(); onRowCopy(index + 1, 'Index');}}>{index + 1}</td>
-                  <td onClick={(e) => {e.stopPropagation(); onRowCopy(p.name, 'Name');}}>{p.name}</td>
-                  <td onClick={(e) => {e.stopPropagation(); onRowCopy(p.price, 'Price');}}>{p.price}</td>
-                  <td onClick={(e) => {e.stopPropagation(); onRowCopy(p.description, 'Description');}}>{p.description}</td>
+                <tr key={p._id} onClick={() => handleRowClick(p)} style={{ cursor: 'pointer' }}>
+                  <td>{index + 1}</td>
+                  <td>{p.name}</td>
+                  <td>{p.price}</td>
+                  <td>{p.description}</td>
                   <td>
                     <label className="switch">
                       <input
                         type="checkbox"
                         checked={p.active}
-                        onChange={(e) => { e.stopPropagation(); handleToggleStatus(p._id, p.active); }}
+                        onChange={(e) => { e.stopPropagation(); }}
                       />
                       <span className="slider round"></span>
                     </label>
                   </td>
                   <td>
-                    <button onClick={(e) => { e.stopPropagation(); handleEditClick(p); }} className="action-btn icon-btn edit-btn">🖊️</button>
-                    <button onClick={(e) => { e.stopPropagation(); handleDelete(p._id, p.name); }} className="action-btn icon-btn delete-btn">🗑️</button>
+                    <button onClick={(e) => { e.stopPropagation(); handleEdit(p); }} className="action-btn icon-btn edit-btn">🖊️</button>
+                    <button onClick={(e) => { e.stopPropagation(); handleDelete(p._id); }} className="action-btn icon-btn delete-btn">🗑️</button>
                   </td>
                 </tr>
               ))}
@@ -177,7 +138,6 @@ const ProductsTable = ({ onRowCopy }) => {
         ) : <p style={{paddingLeft:15}}>No products found matching your search.</p>}
       </div>
 
-      {/* Add Product Modal */}
       {showAddModal && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -186,31 +146,44 @@ const ProductsTable = ({ onRowCopy }) => {
               <button className="modal-close-btn" onClick={() => setShowAddModal(false)}>×</button>
             </div>
             <div className="modal-body">
+              <AddProductForm onClose={() => setShowAddModal(false)} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showEditModal && editingProduct && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Edit Product</h3>
+              <button className="modal-close-btn" onClick={() => {
+                setShowEditModal(false);
+                setEditingProduct(null);
+              }}>×</button>
+            </div>
+            <div className="modal-body">
               <AddProductForm 
-                onSubmit={handleAddProduct}
-                onCancel={() => setShowAddModal(false)}
+                product={editingProduct} 
+                onClose={() => {
+                  setShowEditModal(false);
+                  setEditingProduct(null);
+                }} 
               />
             </div>
           </div>
         </div>
       )}
 
-      {/* Edit Product Modal */}
-      {showEditModal && (
+      {showProductDetails && selectedProduct && (
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">
-              <h3>Edit Product</h3>
-              <button className="modal-close-btn" onClick={handleEditCancel}>×</button>
+              <h3>Product Details</h3>
+              <button className="modal-close-btn" onClick={handleCloseModal}>×</button>
             </div>
             <div className="modal-body">
-              <AddProductForm
-                initialValues={editingProduct}
-                onSubmit={handleEditProduct}
-                onCancel={handleEditCancel}
-                submitButtonText="Update Product"
-                title="Edit Product"
-              />
+              <ProductDetailsCard product={selectedProduct} />
             </div>
           </div>
         </div>
@@ -232,7 +205,6 @@ const ProductsTable = ({ onRowCopy }) => {
 
         .slider {
           position: absolute;
-          cursor: pointer;
           top: 0;
           left: 0;
           right: 0;
@@ -274,6 +246,6 @@ const ProductsTable = ({ onRowCopy }) => {
       `}</style>
     </section>
   );
-}
+};
 
 export default ProductsTable; 

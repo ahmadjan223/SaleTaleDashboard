@@ -513,7 +513,7 @@ tr:hover {
     padding: 15px;
   }
   .section-header h2 { font-size: 1.6em; }
-  .table-container { max-height: 70vh; } /* More height for table on mobile */
+  .table-container { max-height: 200vh; } /* More height for table on mobile */
   th, td { padding: 10px 8px; font-size: 0.9em; }
   th:first-child, td:first-child { padding-left: 10px; }
   th:last-child, td:last-child { padding-right: 10px; width: 60px; }

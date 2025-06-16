@@ -211,4 +211,44 @@ export const getAdminRetailerDetails = (retailerId) => request(`/retailers/admin
 export const getAdminProductDetails = (productId) => request(`/products/admin/details/${productId}`);
 
 // Fetch specific salesman details for admin tooltip
-export const getAdminSalesmanDetails = (salesmanId) => request(`/salesmen/admin/details/${salesmanId}`); 
+export const getAdminSalesmanDetails = (salesmanId) => request(`/salesmen/admin/details/${salesmanId}`);
+
+// Franchise API functions
+export const getAllFranchises = () => {
+  return request('/franchises/admin/all');
+};
+
+export const getFranchiseById = (id) => {
+  return request(`/franchises/admin/${id}`);
+};
+
+export const createFranchise = (franchiseData) => {
+  return request('/franchises/admin/create', {
+    method: 'POST',
+    body: JSON.stringify(franchiseData),
+  });
+};
+
+export const updateFranchise = (franchiseId, franchiseData) => {
+  return request(`/franchises/admin/${franchiseId}`, {
+    method: 'PUT',
+    body: JSON.stringify(franchiseData),
+  });
+};
+
+export const deleteFranchise = (franchiseId) => {
+  return request(`/franchises/admin/${franchiseId}`, { 
+    method: 'DELETE' 
+  });
+};
+
+export const getFranchiseSalesmen = (franchiseId) => {
+  return request(`/franchises/admin/${franchiseId}/salesmen`);
+};
+
+export const toggleFranchiseStatus = (franchiseId, active) => {
+  return request(`/franchises/admin/${franchiseId}/toggle-status`, {
+    method: 'PUT',
+    body: JSON.stringify({ active }),
+  });
+}; 

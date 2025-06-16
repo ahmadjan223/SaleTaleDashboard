@@ -1,8 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
-import { VIEWS } from './constants/views'
-import { useTooltip } from './hooks/useTooltip'
 import axios from 'axios'
 import { adminLogout } from './utils/api'
 
@@ -11,10 +9,11 @@ import Toast from './components/Toast'
 import Tooltip from './components/Tooltip'
 import TopBar from './components/layout/TopBar'
 import Sidebar from './components/layout/Sidebar'
-import SalesTable from './components/tables/SalesTable'
-import ProductsTable from './components/tables/ProductsTable'
-import RetailersTable from './components/tables/RetailersTable'
-import SalesmenTable from './components/tables/SalesmenTable'
+import SalesPage from './components/pages/salesPage'
+import ProductsPage from './components/pages/productsPage'
+import RetailersPage from './components/pages/retailersPage'
+import SalesmenPage from './components/pages/SalesmenPage'
+import FranchisePage from './components/pages/franchisePage'
 import HomePage from './components/pages/homePage'
 import AdminLogin from './components/AdminLogin'
 
@@ -65,8 +64,6 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
-  const [activeView, setActiveView] = useState(VIEWS.HOME)
-  const { tooltip } = useTooltip()
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' })
 
   const showToast = useCallback((message, type = 'success') => {
@@ -101,30 +98,20 @@ function App() {
     }
   }, [showToast])
 
-  const renderContent = () => {
-    switch (activeView) {
-      case VIEWS.HOME:
-        return <HomePage />
-      case VIEWS.SALES:
-        return <SalesTable onRowCopy={handleRowCopy} />
-      case VIEWS.PRODUCTS:
-        return <ProductsTable onRowCopy={handleRowCopy} />
-      case VIEWS.RETAILERS:
-        return <RetailersTable onRowCopy={handleRowCopy} />
-      case VIEWS.SALESMEN:
-        return <SalesmenTable onRowCopy={handleRowCopy} />
-      default:
-        return <div className="content-area">Select an option from the sidebar.</div>
-    }
-  }
-
   const DashboardLayout = () => (
     <>
-      <TopBar onHomeClick={() => setActiveView(VIEWS.HOME)} onLogout={handleLogout} />
+      <TopBar onHomeClick={() => window.location.href = '/admin'} onLogout={handleLogout} />
       <div className="dashboard-layout">
-        <Sidebar activeView={activeView} onViewChange={setActiveView} />
+        <Sidebar />
         <main className="main-content">
-          {renderContent()}
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/sales" element={<SalesPage onRowCopy={handleRowCopy} />} />
+            <Route path="/products" element={<ProductsPage onRowCopy={handleRowCopy} />} />
+            <Route path="/retailers" element={<RetailersPage onRowCopy={handleRowCopy} />} />
+            <Route path="/salesmen" element={<SalesmenPage onRowCopy={handleRowCopy} />} />
+            <Route path="/franchises" element={<FranchisePage onRowCopy={handleRowCopy} />} />
+          </Routes>
         </main>
       </div>
     </>
@@ -135,20 +122,17 @@ function App() {
       <Routes>
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route
-          path="/*"
+          path="/admin/*"
           element={
             <ProtectedRoute>
               <DashboardLayout />
             </ProtectedRoute>
           }
         />
+        <Route path="/" element={<Navigate to="/admin" replace />} />
       </Routes>
       {toast.show && <Toast message={toast.message} type={toast.type} onClose={closeToast} />}
-      <Tooltip 
-        text={tooltip.content} 
-        visible={tooltip.isVisible} 
-        position={tooltip.position} 
-      />
+      
     </Router>
   )
 }

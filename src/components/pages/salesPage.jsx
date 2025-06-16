@@ -3,7 +3,7 @@ import useSalesStore from '../../store/salesStore';
 import SaleFilterSearch from '../SaleFilterSearch';
 import SaleDetails from '../salesDetails';
 
-const SalesTable = ({ onCellMouseEnter, onCellMouseLeave }) => {
+const SalesPage = ({ onCellMouseEnter, onCellMouseLeave }) => {
   const { 
     sales, 
     filteredSales,
@@ -68,7 +68,6 @@ const SalesTable = ({ onCellMouseEnter, onCellMouseLeave }) => {
                   <th>Index</th>
                   <th>Retailer</th>
                   <th>Product</th>
-                  <th>Quantity</th>
                   <th>Amount</th>
                   <th>Location</th>
                   <th>Added By</th>
@@ -91,7 +90,6 @@ const SalesTable = ({ onCellMouseEnter, onCellMouseLeave }) => {
                     >
                       {formatProducts(s.products)}
                     </td>
-                    <td>{Object.values(s.products || {})[0]?.quantity || 'N/A'}</td>
                     <td>{s.amount}</td>
                     <td>
                       {s.coordinates?.coordinates ? (
@@ -146,4 +144,4 @@ const SalesTable = ({ onCellMouseEnter, onCellMouseLeave }) => {
   );
 };
 
-export default SalesTable; 
+export default SalesPage; 

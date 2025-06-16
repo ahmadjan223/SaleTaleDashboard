@@ -1,14 +1,44 @@
 import React, { useState, useEffect } from 'react';
+import useFranchiseStore from '../store/franchiseStore';
 
 const SalesmanForm = ({ onSubmit, onCancel, submitButtonText = 'Add Salesman', title = 'Add New Salesman', initialData = null }) => {
+  const { franchises, fetchFranchises } = useFranchiseStore();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     contactNo: '',
     contactNo2: '',
     email: '',
-    password: ''
+    password: '',
+    franchise: ''
   });
+
+  // Add new state variables for franchise selection
+  const [isFranchiseDropdownOpen, setIsFranchiseDropdownOpen] = useState(false);
+  const [franchiseSearchTerm, setFranchiseSearchTerm] = useState('');
+  const [selectedFranchise, setSelectedFranchise] = useState('');
+
+  // Styles for the dropdown
+  const inputStyle = {
+    width: '100%',
+    padding: '8px 12px',
+    border: '1px solid var(--border-color)',
+    borderRadius: '4px',
+    fontSize: '14px',
+    outline: 'none',
+    transition: 'border-color 0.2s'
+  };
+
+  const dropdownOptionStyle = {
+    padding: '8px 12px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    transition: 'background-color 0.2s'
+  };
+
+  useEffect(() => {
+    fetchFranchises();
+  }, []);
 
   useEffect(() => {
     if (initialData) {
@@ -18,10 +48,15 @@ const SalesmanForm = ({ onSubmit, onCancel, submitButtonText = 'Add Salesman', t
         contactNo: initialData.contactNo || '',
         contactNo2: initialData.contactNo2 || '',
         email: initialData.email || '',
-        password: '' // Don't populate password for security
+        password: '',
+        franchise: initialData.franchise?._id || ''
       });
+      // Set the selected franchise name if it exists
+      if (initialData.franchise) {
+        setSelectedFranchise(initialData.franchise.name);
+      }
     }
-  }, [initialData]);
+  }, [initialData, franchises]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,6 +64,16 @@ const SalesmanForm = ({ onSubmit, onCancel, submitButtonText = 'Add Salesman', t
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleFranchiseSelect = (franchise) => {
+    setSelectedFranchise(franchise.name);
+    setFranchiseSearchTerm('');
+    setFormData(prev => ({
+      ...prev,
+      franchise: franchise._id
+    }));
+    setIsFranchiseDropdownOpen(false);
   };
 
   const handleSubmit = (e) => {
@@ -124,6 +169,67 @@ const SalesmanForm = ({ onSubmit, onCancel, submitButtonText = 'Add Salesman', t
             required={!initialData}
             minLength={6}
           />
+        </div>
+      </div>
+
+      <div className="form-group" style={{ marginTop: '20px' }}>
+        <label htmlFor="franchise">Franchise</label>
+        <div className="filter-group-modern" style={{ position: 'relative', width: "80%" }}>
+          <input
+            type="text"
+            placeholder="Select Franchise"
+            value={isFranchiseDropdownOpen ? franchiseSearchTerm : selectedFranchise}
+            onChange={(e) => {
+              setFranchiseSearchTerm(e.target.value);
+              setIsFranchiseDropdownOpen(true);
+            }}
+            onFocus={() => {
+              setIsFranchiseDropdownOpen(true);
+              setFranchiseSearchTerm('');
+            }}
+            onBlur={() => setTimeout(() => setIsFranchiseDropdownOpen(false), 100)}
+            style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
+            required
+          />
+          {isFranchiseDropdownOpen && (
+            <div className="dropdown-options" style={{
+              position: 'absolute',
+              top: '100%',
+              left: '0',
+              right: '0',
+              zIndex: 1000,
+              background: 'var(--card-bg)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '5px',
+              boxShadow: '0 2px 5px rgba(0,0,0,.1)',
+              maxHeight: '200px',
+              overflowY: 'auto',
+              marginTop: '5px'
+            }}>
+              {franchises
+                .filter(franchise => 
+                  franchise.name.toLowerCase().includes(franchiseSearchTerm.toLowerCase()) &&
+                  franchise.active
+                )
+                .map(franchise => (
+                  <div
+                    key={franchise._id}
+                    onMouseDown={() => handleFranchiseSelect(franchise)}
+                    style={{ ...dropdownOptionStyle, color: 'var(--text-light)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--table-row-hover)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
+                  >
+                    {franchise.name}
+                  </div>
+                ))}
+              {franchises.filter(franchise => 
+                franchise.name.toLowerCase().includes(franchiseSearchTerm.toLowerCase()) &&
+                franchise.active
+              ).length === 0 && (
+                <div style={{ ...dropdownOptionStyle, cursor: 'default', color: 'var(--text-light)', background: 'var(--card-bg)' }}>No active franchises found</div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

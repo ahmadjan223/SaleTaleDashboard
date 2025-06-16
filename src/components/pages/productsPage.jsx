@@ -3,8 +3,8 @@ import useProductStore from '../../store/productStore';
 import AddProductForm from '../AddProductForm';
 import ProductDetailsCard from '../cards/ProductDetailsCard';
 
-const ProductsTable = () => {
-  const { products, loading, error, fetchProducts, deleteProduct } = useProductStore();
+const ProductsPage = () => {
+  const { products, loading, error, fetchProducts, deleteProduct, toggleProductStatus } = useProductStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -118,14 +118,29 @@ const ProductsTable = () => {
                   <td>{p.price}</td>
                   <td>{p.description}</td>
                   <td>
-                    <label className="switch">
-                      <input
-                        type="checkbox"
-                        checked={p.active}
-                        onChange={(e) => { e.stopPropagation(); }}
-                      />
-                      <span className="slider round"></span>
-                    </label>
+                    <span className={`status-badge ${p.active ? 'active' : 'inactive'}`}>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleProductStatus(p._id, !p.active);
+                        }}
+                        style={{
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          backgroundColor: p.active ? 'var(--accent-green)' : 'red',
+                          color: p.active ? 'white' : 'var(--accent-red)',
+                          border: p.active ? 'none' : '1px solid var(--accent-red)',
+                          cursor: 'pointer',
+                          transition: 'opacity 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
+                        onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                      >
+                        {p.active ? 'Active' : 'Inactive'}
+                      </button>
+                    </span>
                   </td>
                   <td>
                     <button onClick={(e) => { e.stopPropagation(); handleEdit(p); }} className="action-btn icon-btn edit-btn">🖊️</button>
@@ -189,63 +204,8 @@ const ProductsTable = () => {
         </div>
       )}
 
-      <style jsx>{`
-        .switch {
-          position: relative;
-          display: inline-block;
-          width: 50px;
-          height: 24px;
-        }
-
-        .switch input {
-          opacity: 0;
-          width: 0;
-          height: 0;
-        }
-
-        .slider {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: #ccc;
-          transition: .4s;
-        }
-
-        .slider:before {
-          position: absolute;
-          content: "";
-          height: 16px;
-          width: 16px;
-          left: 4px;
-          bottom: 4px;
-          background-color: white;
-          transition: .4s;
-        }
-
-        input:checked + .slider {
-          background-color: #4CAF50;
-        }
-
-        input:focus + .slider {
-          box-shadow: 0 0 1px #4CAF50;
-        }
-
-        input:checked + .slider:before {
-          transform: translateX(26px);
-        }
-
-        .slider.round {
-          border-radius: 24px;
-        }
-
-        .slider.round:before {
-          border-radius: 50%;
-        }
-      `}</style>
     </section>
   );
 };
 
-export default ProductsTable; 
+export default ProductsPage; 

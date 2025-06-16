@@ -4,7 +4,7 @@ import { deleteSalesman } from '../../utils/api';
 import SalesmanForm from '../SalesmanForm';
 import SalesmanDetailsCard from '../cards/SalesmanDetailsCard';
 
-const SalesmenTable = () => {
+const SalesmenPage = () => {
   const { salesmen, fetchSalesmen, loading, addSalesman, updateSalesman, toggleSalesmanStatus } = useSalesmanStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredSalesmen, setFilteredSalesmen] = useState([]);
@@ -262,7 +262,7 @@ const SalesmenTable = () => {
         </div>
       )}
 
-      <style jsx>{`
+      {/* <style jsx>{`
         .modal-overlay {
           position: fixed;
           top: 0;
@@ -337,9 +337,9 @@ const SalesmenTable = () => {
             max-height: 95vh;
           }
         }
-      `}</style>
+      `}</style> */}
     </section>
   );
 };
 
-export default SalesmenTable; 
+export default SalesmenPage; 

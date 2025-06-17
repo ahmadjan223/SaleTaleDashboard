@@ -14,10 +14,14 @@ const request = async (endpoint, options = {}) => {
   
   // Add auth header to all requests
   const headers = {
-    'Content-Type': 'application/json',
     ...getAuthHeader(),
     ...options.headers,
   };
+
+  // Only add Content-Type if not sending FormData
+  if (!(options.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json';
+  }
 
   try {
     const response = await fetch(url, { 
@@ -140,6 +144,59 @@ export const createRetailer = (retailerData) => {
   });
 };
 
+// CSV Upload function
+export const uploadRetailersCSV = (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  return request('/retailers/admin/upload-csv', {
+    method: 'POST',
+    headers: {
+      ...getAuthHeader(),
+      // Remove Content-Type header to let browser set it automatically for FormData
+    },
+    body: formData,
+  }).catch(error => {
+    console.error('CSV Upload API Error:', error);
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw error;
+  });
+};
+
+// CSV Download function
+export const downloadRetailersCSV = () => {
+  const sampleData = [
+    {
+      retailerName: 'John\'s Store',
+      shopName: 'John\'s Shop',
+      contactNo: '03001234567',
+      contactNo2: '03012345678',
+      address: '123 Main Street',
+      assignedSalesman: '684dacbce6e7cac8bfdd1b81'
+    }
+  ];
+
+  // Convert to CSV
+  const headers = ['retailerName', 'shopName', 'contactNo', 'contactNo2', 'address', 'assignedSalesman'];
+  const csvContent = [
+    headers.join(','),
+    ...sampleData.map(row => headers.map(header => row[header]).join(','))
+  ].join('\n');
+
+  // Create and download file
+  const blob = new Blob([csvContent], { type: 'text/csv' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'retailers_template.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(url);
+};
+
 export const updateRetailer = (id, retailerData) => {
   return request(`/retailers/admin/${id}`, {
     method: 'PUT',
@@ -188,33 +245,62 @@ export const toggleSalesmanStatus = (id, active) => {
   });
 };
 
+// CSV Upload function for salesmen
+export const uploadSalesmenCSV = (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  return request('/salesmen/admin/upload-csv', {
+    method: 'POST',
+    body: formData,
+  });
+};
+
+// CSV Download function for salesmen
+export const downloadSalesmenCSV = () => {
+  const sampleData = [
+    {
+      firstName: 'John',
+      lastName: 'Doee',
+      contactNo: '03001234567',
+      contactNo2: '03012345678',
+      email: 'john.doe@efdg234dxampldsfsde.com',
+      password: 'password1sdf23',
+      franchise: '68514fe736979e01142f4864'
+    }
+  ];
+
+  // Convert to CSV
+  const headers = ['firstName', 'lastName', 'contactNo', 'contactNo2', 'email', 'password', 'franchise'];
+  const csvContent = [
+    headers.join(','),
+    ...sampleData.map(row => headers.map(header => row[header]).join(','))
+  ].join('\n');
+
+  // Create and download file
+  const blob = new Blob([csvContent], { type: 'text/csv' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'salesmen_template.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(url);
+};
+
 // ===== Generic Operations =====
 export const deleteItem = (itemType, itemId) => {
-  const endpoints = {
-    SALES: `/sales/admin/${itemId}`,
-    PRODUCTS: `/products/admin/${itemId}`,
-    RETAILERS: `/retailers/admin/${itemId}`,
-    SALESMEN: `/salesmen/admin/${itemId}`,
-  };
-
-  const endpoint = endpoints[itemType.toUpperCase()];
-  if (!endpoint) {
-    return Promise.reject(new Error(`Unknown item type for deletion: ${itemType}`));
-  }
-
-  return request(endpoint, { method: 'DELETE' });
+  return request(`/${itemType}/admin/${itemId}`, { method: 'DELETE' });
 };
 
 // Fetch specific retailer details for admin tooltip
 export const getAdminRetailerDetails = (retailerId) => request(`/retailers/admin/details/${retailerId}`);
 
-// Fetch specific product details for admin tooltip
 export const getAdminProductDetails = (productId) => request(`/products/admin/details/${productId}`);
 
-// Fetch specific salesman details for admin tooltip
 export const getAdminSalesmanDetails = (salesmanId) => request(`/salesmen/admin/details/${salesmanId}`);
 
-// Franchise API functions
 export const getAllFranchises = () => {
   return request('/franchises/admin/all');
 };
@@ -282,4 +368,4 @@ export const getFilteredSalesmen = (filters = {}) => {
 
   const endpoint = `/salesmen/admin/filtered${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
   return request(endpoint);
-}; 
+};

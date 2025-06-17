@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import useSalesmanStore from '../../store/salesmenStore';
-import { deleteSalesman } from '../../utils/api';
+import { deleteSalesman, uploadSalesmenCSV, downloadSalesmenCSV } from '../../utils/api';
 import SalesmanForm from '../SalesmanForm';
 import SalesmanDetailsCard from '../cards/SalesmanDetailsCard';
 import SalesmanFilterSearch from '../SalesmanFilterSearch';
@@ -104,6 +104,28 @@ const SalesmenPage = () => {
     setShowDetailsModal(true);
   };
 
+  const handleUploadCSV = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      const response = await uploadSalesmenCSV(file);
+      if (response.success) {
+        alert(`CSV uploaded successfully!\nProcessed: ${response.successCount} records\nErrors: ${response.errorCount}${response.errors ? '\n\nErrors:\n' + response.errors.map(e => `- ${e.error}`).join('\n') : ''}`);
+        fetchSalesmen(); // Refresh the list
+      } else {
+        alert(response.message || 'Failed to upload CSV. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error uploading CSV:', error);
+      alert(error.message || 'Failed to upload CSV. Please try again.');
+    }
+  };
+
+  const handleDownloadCSV = () => {
+    downloadSalesmenCSV();
+  };
+
   if (!salesmen) {
     return (
       <section className>
@@ -149,6 +171,18 @@ const SalesmenPage = () => {
           <span className="search-icon">🔍</span>
         </div>
         <div className="header-actions">
+          <button className="action-btn" onClick={handleDownloadCSV}>
+            📥 Download CSV
+          </button>
+          <label className="action-btn" style={{ cursor: 'pointer' }}>
+            📤 Upload CSV
+            <input
+              type="file"
+              accept=".csv"
+              onChange={handleUploadCSV}
+              style={{ display: 'none' }}
+            />
+          </label>
           <button className="add-btn" onClick={() => setShowAddModal(true)}>
             <span className="plus-icon">+</span>
             Add Salesman

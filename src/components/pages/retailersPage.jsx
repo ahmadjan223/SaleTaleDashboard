@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import useRetailerStore from '../../store/retailerStore';
-import { deleteRetailer } from '../../utils/api';
+import { deleteRetailer, uploadRetailersCSV, downloadRetailersCSV } from '../../utils/api';
 import RetailerForm from '../RetailerForm';
 import RetailerDetailsCard from '../cards/RetailerDetailsCard';
 import RetailerFilterSearch from '../RetailerFilterSearch';
@@ -106,6 +106,28 @@ const RetailersPage = () => {
     setShowDetailsModal(true);
   };
 
+  const handleDownloadCSV = () => {
+    downloadRetailersCSV();
+  };
+
+  const handleUploadCSV = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      const response = await uploadRetailersCSV(file);
+      if (response.success) {
+        alert(`CSV processing completed\nSuccess: ${response.successCount}\nErrors: ${response.errorCount}`);
+        fetchRetailers(); // Refresh the list
+      } else {
+        alert('Error: ' + (response.message || 'Failed to process CSV'));
+      }
+    } catch (error) {
+      console.error('CSV Upload Error:', error);
+      alert('Error uploading CSV: ' + (error.response?.data?.message || error.message || 'Something went wrong'));
+    }
+  };
+
   if (!retailers) {
     return (
       <section>
@@ -123,6 +145,18 @@ const RetailersPage = () => {
             <span className="search-icon">🔍</span>
           </div>
           <div className="header-actions">
+            <button className="action-btn" onClick={handleDownloadCSV}>
+              📥 Download CSV
+            </button>
+            <label className="action-btn" style={{ cursor: 'pointer' }}>
+              📤 Upload CSV
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleUploadCSV}
+                style={{ display: 'none' }}
+              />
+            </label>
             <button className="add-btn" onClick={() => setShowAddModal(true)}>
               <span className="plus-icon">+</span>
               Add Retailer
@@ -152,6 +186,18 @@ const RetailersPage = () => {
           <span className="search-icon">🔍</span>
         </div>
         <div className="header-actions">
+          <button className="action-btn" onClick={handleDownloadCSV}>
+            📥 Download CSV
+          </button>
+          <label className="action-btn" style={{ cursor: 'pointer' }}>
+            📤 Upload CSV
+            <input
+              type="file"
+              accept=".csv"
+              onChange={handleUploadCSV}
+              style={{ display: 'none' }}
+            />
+          </label>
           <button className="add-btn" onClick={() => setShowAddModal(true)}>
             <span className="plus-icon">+</span>
             Add Retailer

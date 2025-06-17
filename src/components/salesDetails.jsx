@@ -12,7 +12,7 @@ const SaleDetails = ({ sale, onClose }) => {
     <div key={name} style={{ marginBottom: '15px' }}>
       <p style={{ margin: '0 0 5px 0', fontWeight: 'bold' }}>{name}</p>
       <p style={{ margin: '2px 0', paddingLeft: '20px' }}>Quantity: {details.quantity.toLocaleString()}</p>
-      <p style={{ margin: '2px 0', paddingLeft: '20px' }}>Price: Rs. {details.price.toFixed(2)}</p>
+      <p style={{ margin: '2px 0', paddingLeft: '20px' }}>Price: Rs. {details.price.toFixed(4)}</p>
       <p style={{ margin: '2px 0', paddingLeft: '20px' }}>Total: Rs. {details.total.toLocaleString()}</p>
     </div>
   ));
@@ -72,7 +72,7 @@ const SaleDetails = ({ sale, onClose }) => {
           padding: '20px'
         }}>
           <a
-            href={`https://www.google.com/maps?q=${sale.coordinates.coordinates[1]},${sale.coordinates.coordinates[0]}`}
+            href={`https://www.google.com/maps?q=${sale.coordinates.coordinates[1].toFixed(4)},${sale.coordinates.coordinates[0].toFixed(4)}`}
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: '#0066cc', textDecoration: 'underline' }}

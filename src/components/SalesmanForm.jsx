@@ -174,7 +174,7 @@ const SalesmanForm = ({ onSubmit, onCancel, submitButtonText = 'Add Salesman', t
 
       <div className="form-group" style={{ marginTop: '20px' }}>
         <label htmlFor="franchise">Franchise</label>
-        <div className="filter-group-modern" style={{ position: 'relative', width: "80%" }}>
+        <div className="filter-group-modern" style={{ position: 'relative', width: "250px" }}>
           <input
             type="text"
             placeholder="Select Franchise"
@@ -208,7 +208,8 @@ const SalesmanForm = ({ onSubmit, onCancel, submitButtonText = 'Add Salesman', t
             }}>
               {franchises
                 .filter(franchise => 
-                  franchise.name.toLowerCase().includes(franchiseSearchTerm.toLowerCase()) &&
+                  (franchise.name.toLowerCase().includes(franchiseSearchTerm.toLowerCase()) ||
+                   franchise._id.toLowerCase().includes(franchiseSearchTerm.toLowerCase())) &&
                   franchise.active
                 )
                 .map(franchise => (
@@ -223,7 +224,8 @@ const SalesmanForm = ({ onSubmit, onCancel, submitButtonText = 'Add Salesman', t
                   </div>
                 ))}
               {franchises.filter(franchise => 
-                franchise.name.toLowerCase().includes(franchiseSearchTerm.toLowerCase()) &&
+                (franchise.name.toLowerCase().includes(franchiseSearchTerm.toLowerCase()) ||
+                 franchise._id.toLowerCase().includes(franchiseSearchTerm.toLowerCase())) &&
                 franchise.active
               ).length === 0 && (
                 <div style={{ ...dropdownOptionStyle, cursor: 'default', color: 'var(--text-light)', background: 'var(--card-bg)' }}>No active franchises found</div>

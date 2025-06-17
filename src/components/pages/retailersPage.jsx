@@ -3,11 +3,22 @@ import useRetailerStore from '../../store/retailerStore';
 import { deleteRetailer } from '../../utils/api';
 import RetailerForm from '../RetailerForm';
 import RetailerDetailsCard from '../cards/RetailerDetailsCard';
+import RetailerFilterSearch from '../RetailerFilterSearch';
+import { searchRetailer } from '../../utils/searchUtils';
 
 const RetailersPage = () => {
-  const { retailers, fetchRetailers, loading, addRetailer, toggleRetailerStatus, updateRetailer } = useRetailerStore();
+  const { 
+    retailers, 
+    filteredRetailers,
+    fetchRetailers, 
+    fetchFilteredRetailers,
+    addRetailer, 
+    toggleRetailerStatus, 
+    updateRetailer 
+  } = useRetailerStore();
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredRetailers, setFilteredRetailers] = useState([]);
+  const [localFilteredRetailers, setLocalFilteredRetailers] = useState([]);
+  const [filter, setFilter] = useState({});
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -18,19 +29,19 @@ const RetailersPage = () => {
   }, []);
   
   useEffect(() => {
-    console.log("salesmen", retailers)
-
+    console.log("retailers", retailers)
   }, [retailers]);
-  
+
+  useEffect(() => {
+    if (Object.keys(filter).length > 0) {
+      fetchFilteredRetailers(filter);
+    }
+  }, [filter]);
+
   useEffect(() => {
     if (retailers) {
-      const filtered = retailers.filter(retailer => 
-        retailer.retailerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        retailer.shopName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        retailer.location?.coordinates?.join(', ').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (retailer.addedBy?.name || retailer.addedBy || '').toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setFilteredRetailers(filtered);
+      const filtered = retailers.filter(retailer => searchRetailer(retailer, searchQuery));
+      setLocalFilteredRetailers(filtered);
     }
   }, [searchQuery, retailers]);
 
@@ -98,11 +109,12 @@ const RetailersPage = () => {
   if (!retailers) {
     return (
       <section>
+        <RetailerFilterSearch filters={filter} setFilter={setFilter} />
         <div className="section-header">
           <div className="search-container">
             <input
               type="text"
-              placeholder="Search retailers..."
+              placeholder="Search all retailers (ID, Name, Shop, Contact, Address, Location, Assigned Salesman, Status)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
@@ -126,11 +138,12 @@ const RetailersPage = () => {
 
   return (
     <section>
+      <RetailerFilterSearch filters={filter} setFilter={setFilter} />
       <div className="section-header">
         <div className="search-container">
           <input
             type="text"
-            placeholder="Search retailers..."
+            placeholder="Search all retailers (ID, Name, Shop, Contact, Address, Location, Assigned Salesman, Status)"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="search-input"
@@ -145,73 +158,79 @@ const RetailersPage = () => {
           </button>
         </div>
       </div>
-      <div className="table-container">
-        {filteredRetailers.length > 0 ? (
-          <table>
-            <thead>
-              <tr>
-                <th>Index</th>
-                <th>Retailer Name</th>
-                <th>Shop Name</th>
-                <th>Location</th>
-                <th>Salesman Assigned</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredRetailers.map((r, index) => (
-                <tr key={r._id} onClick={() => handleRowClick(r)} style={{ cursor: 'pointer' }}>
-                  <td>{index + 1}</td>
-                  <td>{r.retailerName}</td>
-                  <td>{r.shopName}</td>
-                  <td>
-                    {r.location?.coordinates?.length === 2 ? (
-                      <a 
-                        href={`https://www.google.com/maps?q=${r.location.coordinates[1]},${r.location.coordinates[0]}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        style={{ color: '#007bff', textDecoration: 'underline', cursor: 'pointer' }}
-                      >
-                        Show on Map
-                      </a>
-                    ) : 'Not set'}
-                  </td>
-                  <td>{r?.assignedSalesman?.name || 'N/A'}</td>
-                  <td>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleToggleStatus(r._id, r.active);
-                      }}
-                      style={{
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        fontSize: '12px',
-                        fontWeight: '500',
-                        backgroundColor: r.active ? 'var(--accent-green)' : 'red',
-                        color: r.active ? 'white' : 'var(--accent-red)',
-                        border: r.active ? 'none' : '1px solid var(--accent-red)',
-                        cursor: 'pointer',
-                        transition: 'opacity 0.2s'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
-                      onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-                    >
-                      {r.active ? 'Active' : 'Inactive'}
-                    </button>
-                  </td>
-                  <td>
-                    <button onClick={(e) => { e.stopPropagation(); handleEditClick(r);}} className="action-btn icon-btn edit-btn">✏️</button>
-                    <button onClick={(e) => { e.stopPropagation(); handleDelete(r._id, r.retailerName);}} className="action-btn icon-btn delete-btn">🗑️</button>
-                  </td>
+      {!filteredRetailers ? (
+        <div className="table-container">
+          <div className="loading-message">Loading retailers data...</div>
+        </div>
+      ) : (
+        <div className="table-container">
+          {(Object.keys(filter).length > 0 ? filteredRetailers : localFilteredRetailers).length > 0 ? (
+            <table>
+              <thead>
+                <tr>
+                  <th>Index</th>
+                  <th>Retailer Name</th>
+                  <th>Shop Name</th>
+                  <th>Location</th>
+                  <th>Salesman Assigned</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : <p style={{paddingLeft:15}}>No retailers found matching your search.</p>}
-      </div>
+              </thead>
+              <tbody>
+                {(Object.keys(filter).length > 0 ? filteredRetailers : localFilteredRetailers).map((r, index) => (
+                  <tr key={r._id} onClick={() => handleRowClick(r)} style={{ cursor: 'pointer' }}>
+                    <td>{index + 1}</td>
+                    <td>{r.retailerName}</td>
+                    <td>{r.shopName}</td>
+                    <td>
+                      {r.location?.coordinates?.length === 2 ? (
+                        <a 
+                          href={`https://www.google.com/maps?q=${r.location.coordinates[1].toFixed(4)},${r.location.coordinates[0].toFixed(4)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          style={{ color: '#007bff', textDecoration: 'underline', cursor: 'pointer' }}
+                        >
+                          Show on Map
+                        </a>
+                      ) : 'Not set'}
+                    </td>
+                    <td>{r?.assignedSalesman?.name || 'N/A'}</td>
+                    <td>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleStatus(r._id, r.active);
+                        }}
+                        style={{
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          backgroundColor: r.active ? 'var(--accent-green)' : 'red',
+                          color: r.active ? 'white' : 'var(--accent-red)',
+                          border: r.active ? 'none' : '1px solid var(--accent-red)',
+                          cursor: 'pointer',
+                          transition: 'opacity 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
+                        onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                      >
+                        {r.active ? 'Active' : 'Inactive'}
+                      </button>
+                    </td>
+                    <td>
+                      <button onClick={(e) => { e.stopPropagation(); handleEditClick(r);}} className="action-btn icon-btn edit-btn">✏️</button>
+                      <button onClick={(e) => { e.stopPropagation(); handleDelete(r._id, r.retailerName);}} className="action-btn icon-btn delete-btn">🗑️</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : <p style={{paddingLeft:15}}>No retailers found matching your search.</p>}
+        </div>
+      )}
 
       {/* Details Modal */}
       {showDetailsModal && selectedRetailer && (

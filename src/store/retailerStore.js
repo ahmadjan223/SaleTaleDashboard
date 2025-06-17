@@ -1,8 +1,9 @@
 import { create } from 'zustand';
-import { getAllRetailers, deleteRetailer, createRetailer, updateRetailer, toggleRetailerStatus } from '../utils/api';
+import { getAllRetailers, deleteRetailer, createRetailer, updateRetailer, toggleRetailerStatus, getFilteredRetailers } from '../utils/api';
 
 const useRetailerStore = create((set, get) => ({
   retailers: [],
+  filteredRetailers: [],
   loading: false,
   error: null,
   deletingItemId: null,
@@ -15,6 +16,18 @@ const useRetailerStore = create((set, get) => ({
       set({ retailers: data, loading: false });
     } catch (error) {
       set({ error: error.message, loading: false });
+    }
+  },
+
+  // Fetch filtered retailers
+  fetchFilteredRetailers: async (filters) => {
+    try {
+      set({ loading: true, error: null });
+      const data = await getFilteredRetailers(filters);
+      set({ filteredRetailers: data, loading: false });
+    } catch (error) {
+      set({ error: error.message, loading: false });
+      throw error;
     }
   },
 
@@ -101,7 +114,7 @@ const useRetailerStore = create((set, get) => ({
 
   // Clear store
   clearRetailers: () => {
-    set({ retailers: [], loading: false, error: null, deletingItemId: null });
+    set({ retailers: [], filteredRetailers: [], loading: false, error: null, deletingItemId: null });
   }
 }));
 

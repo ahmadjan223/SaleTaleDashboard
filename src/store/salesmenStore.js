@@ -1,8 +1,9 @@
 import { create } from 'zustand';
-import { getAllSalesmen, deleteSalesman, createSalesman, updateSalesman, toggleSalesmanStatus } from '../utils/api';
+import { getAllSalesmen, deleteSalesman, createSalesman, updateSalesman, toggleSalesmanStatus, getFilteredSalesmen } from '../utils/api';
 
 const useSalesmanStore = create((set, get) => ({
   salesmen: [],
+  filteredSalesmen: [],
   loading: false,
   error: null,
 
@@ -14,6 +15,18 @@ const useSalesmanStore = create((set, get) => ({
       set({ salesmen: data, loading: false });
     } catch (error) {
       set({ error: error.message, loading: false });
+    }
+  },
+
+  // Fetch filtered salesmen
+  fetchFilteredSalesmen: async (filters) => {
+    try {
+      set({ loading: true, error: null });
+      const data = await getFilteredSalesmen(filters);
+      set({ filteredSalesmen: data, loading: false });
+    } catch (error) {
+      set({ error: error.message, loading: false });
+      throw error;
     }
   },
 
@@ -81,7 +94,7 @@ const useSalesmanStore = create((set, get) => ({
 
   // Clear store
   clearSalesmen: () => {
-    set({ salesmen: [], loading: false, error: null });
+    set({ salesmen: [], filteredSalesmen: [], loading: false, error: null });
   }
 }));
 

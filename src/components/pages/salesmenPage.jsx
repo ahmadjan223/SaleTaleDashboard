@@ -3,11 +3,22 @@ import useSalesmanStore from '../../store/salesmenStore';
 import { deleteSalesman } from '../../utils/api';
 import SalesmanForm from '../SalesmanForm';
 import SalesmanDetailsCard from '../cards/SalesmanDetailsCard';
+import SalesmanFilterSearch from '../SalesmanFilterSearch';
+import { searchSalesman } from '../../utils/searchUtils';
 
 const SalesmenPage = () => {
-  const { salesmen, fetchSalesmen, loading, addSalesman, updateSalesman, toggleSalesmanStatus } = useSalesmanStore();
+  const { 
+    salesmen, 
+    filteredSalesmen,
+    fetchSalesmen, 
+    fetchFilteredSalesmen,
+    addSalesman, 
+    updateSalesman, 
+    toggleSalesmanStatus 
+  } = useSalesmanStore();
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredSalesmen, setFilteredSalesmen] = useState([]);
+  const [localFilteredSalesmen, setLocalFilteredSalesmen] = useState([]);
+  const [filter, setFilter] = useState({});
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -18,18 +29,19 @@ const SalesmenPage = () => {
   }, []);
 
   useEffect(() => {
+    if (Object.keys(filter).length > 0) {
+      fetchFilteredSalesmen(filter);
+    }
+  }, [filter]);
+
+  useEffect(() => {
     if (salesmen) {
-      const filtered = salesmen.filter(salesman => 
-        salesman.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        salesman.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        salesman.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        salesman.contactNo.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setFilteredSalesmen(filtered);
+      const filtered = salesmen.filter(salesman => searchSalesman(salesman, searchQuery));
+      setLocalFilteredSalesmen(filtered);
     }
   }, [searchQuery, salesmen]);
 
-  const handleDelete = async (id, name) => {
+  const handleDelete = async (id) => {
       try {
         await deleteSalesman(id);
         // Refresh the salesmen list after successful deletion
@@ -99,7 +111,7 @@ const SalesmenPage = () => {
           <div className="search-container">
             <input
               type="text"
-              placeholder="Search salesmen..."
+              placeholder="Search all salesmen (ID, Name, Email, Contact, Address, Franchise, Status)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
@@ -123,11 +135,12 @@ const SalesmenPage = () => {
 
   return (
     <section>
+      <SalesmanFilterSearch filters={filter} setFilter={setFilter} />
       <div className="section-header">
         <div className="search-container">
           <input
             type="text"
-            placeholder="Search salesmen..."
+            placeholder="Search all salesmen (ID, Name, Email, Contact, Address, Franchise, Status)"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="search-input"
@@ -142,63 +155,69 @@ const SalesmenPage = () => {
           </button>
         </div>
       </div>
-      <div className="table-container">
-        {filteredSalesmen.length > 0 ? (
-          <table>
-            <thead>
-              <tr>
-                <th>Index</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Contact No</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredSalesmen.map((s, index) => (
-                <tr key={s._id} onClick={() => handleRowClick(s)} style={{ cursor: 'pointer' }}>
-                  <td>{index + 1}</td>
-                  <td>{`${s.firstName} ${s.lastName}`}</td>
-                  <td>{s.email}</td>
-                  <td>{s.contactNo}</td>
-                  <td>
-                    <span className={`status-badge ${s.active ? 'active' : 'inactive'}`}>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleToggleStatus(s._id, s.active);
-                      }}
-                      style={{
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        fontSize: '12px',
-                        fontWeight: '500',
-                        backgroundColor: s.active ? 'var(--accent-green)' : 'red',
-                        color: s.active ? 'white' : 'var(--accent-red)',
-                        border: s.active ? 'none' : '1px solid var(--accent-red)',
-                        cursor: 'pointer',
-                        transition: 'opacity 0.2s'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
-                      onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-                    >
-                      {s.active ? 'Active' : 'Inactive'}
-                    </button>
-                    </span>
-                  </td>
-                  <td>
-                    <div className="action-buttons">
-                      <button onClick={(e) => { e.stopPropagation(); handleEditClick(s); }} className="action-btn icon-btn edit-btn">✏️</button>
-                      <button onClick={(e) => { e.stopPropagation(); handleDelete(s._id, `${s.firstName} ${s.lastName}`); }} className="action-btn icon-btn delete-btn">🗑️</button>
-                    </div>
-                  </td>
+      {!(filteredSalesmen ) ? (
+        <div className="table-container">
+          <div className="loading-message">Loading salesmen data...</div>
+        </div>
+      ) : (
+        <div className="table-container">
+          {(Object.keys(filter).length > 0 ? filteredSalesmen : localFilteredSalesmen).length > 0 ? (
+            <table>
+              <thead>
+                <tr>
+                  <th>Index</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Contact No</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : <p style={{paddingLeft:15}}>No salesmen found matching your search.</p>}
-      </div>
+              </thead>
+              <tbody>
+                {(Object.keys(filter).length > 0 ? filteredSalesmen : localFilteredSalesmen).map((s, index) => (
+                  <tr key={s._id} onClick={() => handleRowClick(s)} style={{ cursor: 'pointer' }}>
+                    <td>{index + 1}</td>
+                    <td>{`${s.firstName} ${s.lastName}`}</td>
+                    <td>{s.email}</td>
+                    <td>{s.contactNo}</td>
+                    <td>
+                      <span className={`status-badge ${s.active ? 'active' : 'inactive'}`}>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleStatus(s._id, s.active);
+                        }}
+                        style={{
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          backgroundColor: s.active ? 'var(--accent-green)' : 'red',
+                          color: s.active ? 'white' : 'var(--accent-red)',
+                          border: s.active ? 'none' : '1px solid var(--accent-red)',
+                          cursor: 'pointer',
+                          transition: 'opacity 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
+                        onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                      >
+                        {s.active ? 'Active' : 'Inactive'}
+                      </button>
+                      </span>
+                    </td>
+                    <td>
+                      <div className="action-buttons">
+                        <button onClick={(e) => { e.stopPropagation(); handleEditClick(s); }} className="action-btn icon-btn edit-btn">✏️</button>
+                        <button onClick={(e) => { e.stopPropagation(); handleDelete(s._id); }} className="action-btn icon-btn delete-btn">🗑️</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : <p style={{paddingLeft:15}}>No salesmen found matching your search.</p>}
+        </div>
+      )}
 
       {/* Details Modal */}
       {showDetailsModal && selectedSalesman && (

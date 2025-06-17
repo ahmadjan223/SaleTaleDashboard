@@ -84,7 +84,7 @@ const ProductDetailsCard = ({ product }) => {
         {/* Pricing Information */}
         <div style={infoSection}>
           <h3 style={sectionHeader}>Pricing Information</h3>
-          <div style={rowStyle}><span style={labelStyle}>Price:</span><span>Rs. {product.price?.toFixed(2) || 'N/A'}</span></div>
+          <div style={rowStyle}><span style={labelStyle}>Price:</span><span>Rs. {product.price?.toFixed(4) || 'N/A'}</span></div>
           <div style={rowStyle}><span style={labelStyle}>ID:</span><span>{product._id || 'N/A'}</span></div>
         </div>
       </div>

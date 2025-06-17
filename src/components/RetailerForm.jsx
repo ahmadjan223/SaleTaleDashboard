@@ -195,7 +195,8 @@ const RetailerForm = ({ onSubmit, onCancel, submitButtonText = 'Add Retailer', t
             }}>
               {salesmen
                 .filter(salesman => 
-                  salesman.name.toLowerCase().includes(salesmanSearchTerm.toLowerCase()) &&
+                  (salesman.name.toLowerCase().includes(salesmanSearchTerm.toLowerCase()) ||
+                   salesman._id.toLowerCase().includes(salesmanSearchTerm.toLowerCase())) &&
                   salesman.active
                 )
                 .map(salesman => (
@@ -210,7 +211,8 @@ const RetailerForm = ({ onSubmit, onCancel, submitButtonText = 'Add Retailer', t
                   </div>
                 ))}
               {salesmen.filter(salesman => 
-                salesman.name.toLowerCase().includes(salesmanSearchTerm.toLowerCase()) &&
+                (salesman.name.toLowerCase().includes(salesmanSearchTerm.toLowerCase()) ||
+                 salesman._id.toLowerCase().includes(salesmanSearchTerm.toLowerCase())) &&
                 salesman.active
               ).length === 0 && (
                 <div style={{ ...dropdownOptionStyle, cursor: 'default', color: 'var(--text-light)', background: 'var(--card-bg)' }}>No active salesmen found</div>

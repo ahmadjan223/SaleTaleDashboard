@@ -4,8 +4,6 @@ import useRetailerStore from '../store/retailerStore'
 import useProductStore from '../store/productStore'
 
 const SaleFilterSearch = ({ filters, setFilter }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-
   // State for searchable dropdowns
   const [salesmanSearchTerm, setSalesmanSearchTerm] = useState('');
   const [selectedSalesman, setSelectedSalesman] = useState('');
@@ -58,7 +56,6 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
   }, [setFilter]);
 
   const handleClearFilters = useCallback(() => {
-    setSearchQuery('');
     setFilter({});
     setSalesmanSearchTerm('');
     setSelectedSalesman('');
@@ -88,19 +85,6 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
     color: '#333',
   };
 
-  const buttonStylePrimary = {
-    padding: '10px 20px',
-    background: 'var(--accent-green)',
-    color: 'var(--background-dark)',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    fontWeight: 'bold',
-    transition: 'background-color 0.2s',
-    flexShrink: 0,
-    boxShadow: '0 2px 4px rgba(0,0,0,.1)'
-  };
-
   const buttonStyleSecondary = {
     padding: '10px 20px',
     background: 'var(--border-color)',
@@ -116,25 +100,9 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
 
   return (
     <div className="sale-filter-search-container" style={{ padding: '20px', background: 'var(--card-bg)', borderRadius: '8px', marginBottom: '20px', boxShadow: '0 2px 4px rgba(0,0,0,.05)' }}>
-      <div className="top-search-bar" style={{ display: 'flex', marginBottom: '20px', border: '1px solid var(--border-color)', borderRadius: '5px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,.05)' }}>
-        <input 
-          type="text" 
-          placeholder="Search all sales (ID, Salesman, Product, Retailer)"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          style={{ ...inputStyle, border: 'none', borderRadius: '0', boxShadow: 'none', padding: '10px 15px', backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
-        />
-        <button 
-          onClick={() => handleFilterChange('search', searchQuery)}
-          style={{ ...buttonStylePrimary, borderRadius: '0', width: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-        >
-          🔍
-        </button>
-      </div>
-
       <div className="filters-row-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px', marginBottom: '15px' }}>
         {/* Salesman Dropdown */}
-        <div className="filter-group-modern" style={{ position: 'relative', width:"80%" }}>
+        <div className="filter-group-modern" style={{ position: 'relative', width: "250px" }}>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9em', color: 'var(--text-light)' }}>Salesman</label>
           <input
             type="text"
@@ -192,7 +160,7 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
         </div>
 
         {/* Product Dropdown */}
-        <div className="filter-group-modern" style={{ position: 'relative', width:"80%" }}>
+        <div className="filter-group-modern" style={{ position: 'relative', width: "250px" }}>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9em', color: 'var(--text-light)' }}>Product</label>
           <input
             type="text"
@@ -250,7 +218,7 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
         </div>
 
         {/* Retailer Dropdown */}
-        <div className="filter-group-modern" style={{ position: 'relative',width:"80%" }}>
+        <div className="filter-group-modern" style={{ position: 'relative', width: "250px" }}>
           <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9em', color: 'var(--text-light)' }}>Retailer</label>
           <input
             type="text"
@@ -330,6 +298,21 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
             />
           </div>
         </div>
+
+        {/* Status Filter */}
+        <div className="filter-group-modern">
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9em', color: 'var(--text-light)' }}>Status</label>
+          <select
+            value={filters.valid || ''}
+            onChange={(e) => handleFilterChange('valid', e.target.value)}
+            style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
+          >
+            <option value="">All Sales</option>
+            <option value="true">Valid Sales</option>
+            <option value="false">Invalid Sales</option>
+          </select>
+        </div>
+
         {/* Placeholder for remaining space in second row */}
         <div className="filter-group-modern" style={{ visibility: 'hidden' }}></div>
         <div className="filter-group-modern" style={{ visibility: 'hidden' }}></div>

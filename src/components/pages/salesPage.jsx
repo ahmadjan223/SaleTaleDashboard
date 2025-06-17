@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import useSalesStore from '../../store/salesStore';
 import SaleFilterSearch from '../SaleFilterSearch';
 import SaleDetails from '../salesDetails';
+import { searchSale } from '../../utils/searchUtils';
 
 const SalesPage = ({ onCellMouseEnter, onCellMouseLeave }) => {
   const { 
@@ -14,6 +15,8 @@ const SalesPage = ({ onCellMouseEnter, onCellMouseLeave }) => {
     deleteSale
   } = useSalesStore();
   const [filter, setFilter] = useState({});
+  const [searchQuery, setSearchQuery] = useState('');
+  const [localFilteredSales, setLocalFilteredSales] = useState([]);
   const [showSaleDetailsModal, setShowSaleDetailsModal] = useState(false);
   const [selectedSale, setSelectedSale] = useState(null);
 
@@ -26,6 +29,13 @@ const SalesPage = ({ onCellMouseEnter, onCellMouseLeave }) => {
       fetchFilteredSales(filter);
     }
   }, [filter]);
+
+  useEffect(() => {
+    if (sales) {
+      const filtered = sales.filter(sale => searchSale(sale, searchQuery));
+      setLocalFilteredSales(filtered);
+    }
+  }, [searchQuery, sales]);
 
   const formatProducts = (products) => {
     if (!products) return 'N/A';
@@ -48,11 +58,25 @@ const SalesPage = ({ onCellMouseEnter, onCellMouseLeave }) => {
   if (error) return <div className="content-area"><h2 className="error-message">Error loading sales: {error}</h2></div>;
 
   // Use filteredSales if filters are applied, otherwise use sales
-  const displaySales = Object.keys(filter).length > 0 ? filteredSales : sales;
+  const displaySales = Object.keys(filter).length > 0 ? filteredSales : 
+                      searchQuery.trim() ? localFilteredSales : sales;
 
   return (
     <section>
       <SaleFilterSearch filters={filter} setFilter={setFilter} />
+      <div className="section-header">
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Search all sales (ID, Retailer, Product, Salesman, Amount, Location)"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="search-input"
+            style={{ paddingLeft: '35px' }}
+          />
+          <span className="search-icon">🔍</span>
+        </div>
+      </div>
       {loading ? (
         <section className="content-area">
           <div className="table-container">
@@ -71,6 +95,7 @@ const SalesPage = ({ onCellMouseEnter, onCellMouseLeave }) => {
                   <th>Amount</th>
                   <th>Location</th>
                   <th>Added By</th>
+                  <th>Status</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -109,6 +134,25 @@ const SalesPage = ({ onCellMouseEnter, onCellMouseLeave }) => {
                       onMouseLeave={onCellMouseLeave}
                     >
                       {s.addedBy?.name || 'N/A'}
+                    </td>
+                    <td>
+                      <span className={`status-badge ${s.valid ? 'Valid' : 'Invalid'}`}>
+                        <button
+                          style={{
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            fontSize: '12px',
+                            fontWeight: '500',
+                            backgroundColor: s.valid ? 'var(--accent-green)' : 'red',
+                            color: s.valid ? 'white' : 'white',
+                            border: 'none',
+                            cursor: 'default',
+                            transition: 'opacity 0.2s'
+                          }}
+                        >
+                          {s.valid ? 'Valid' : 'Invalid'}
+                        </button>
+                      </span>
                     </td>
                     <td>
                       <button 

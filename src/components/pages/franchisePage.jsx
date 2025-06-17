@@ -1,20 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import useFranchiseStore from '../../store/franchiseStore';
+import { deleteFranchise } from '../../utils/api';
 import AddFranchiseForm from '../AddFranchiseForm';
 import FranchiseDetailsCard from '../cards/FranchiseDetailsCard';
+import { searchFranchise } from '../../utils/searchUtils';
 
 const FranchisePage = () => {
-  const { franchises, loading, error, fetchFranchises, deleteFranchise, toggleFranchiseStatus } = useFranchiseStore();
+  const { franchises, fetchFranchises, loading, error, addFranchise, updateFranchise, toggleFranchiseStatus } = useFranchiseStore();
   const [searchQuery, setSearchQuery] = useState('');
+  const [filteredFranchises, setFilteredFranchises] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [editingFranchise, setEditingFranchise] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedFranchise, setSelectedFranchise] = useState(null);
-  const [showFranchiseDetails, setShowFranchiseDetails] = useState(false);
 
   useEffect(() => {
     fetchFranchises();
-  }, [fetchFranchises]);
+  }, []);
+
+  useEffect(() => {
+    if (franchises) {
+      const filtered = franchises.filter(franchise => searchFranchise(franchise, searchQuery));
+      setFilteredFranchises(filtered);
+    }
+  }, [searchQuery, franchises]);
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this franchise?')) {
@@ -23,28 +32,28 @@ const FranchisePage = () => {
   };
 
   const handleEdit = (franchise) => {
-    setEditingFranchise(franchise);
-    setShowEditModal(true);
+    setSelectedFranchise(franchise);
+    setShowDetailsModal(true);
   };
 
   const handleRowClick = (franchise) => {
     setSelectedFranchise(franchise);
-    setShowFranchiseDetails(true);
+    setShowDetailsModal(true);
   };
 
   const handleCloseModal = () => {
-    setShowFranchiseDetails(false);
+    setShowDetailsModal(false);
     setSelectedFranchise(null);
   };
 
-  if (loading) {
+  if (!franchises) {
     return (
       <section>
         <div className="section-header">
           <div className="search-container">
             <input
               type="text"
-              placeholder="Search franchises..."
+              placeholder="Search all franchises (ID, Name, Description, Address, Contact, Email, Master SIM, Status)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
@@ -70,23 +79,13 @@ const FranchisePage = () => {
     return <div>Error: {error}</div>;
   }
 
-  const filteredFranchises = (franchises || []).filter(franchise => {
-    if (!franchise) return false;
-    const searchLower = searchQuery.toLowerCase();
-    return (
-      (franchise.name?.toLowerCase() || '').includes(searchLower) ||
-      (franchise.description?.toLowerCase() || '').includes(searchLower) ||
-      (franchise.price?.toString() || '').includes(searchQuery)
-    );
-  });
-
   return (
     <section>
       <div className="section-header">
         <div className="search-container">
           <input
             type="text"
-            placeholder="Search franchises..."
+            placeholder="Search all franchises (ID, Name, Description, Address, Contact, Email, Master SIM, Status)"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="search-input"
@@ -175,30 +174,7 @@ const FranchisePage = () => {
         </div>
       )}
 
-      {showEditModal && editingFranchise && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h3>Edit Franchise</h3>
-              <button className="modal-close-btn" onClick={() => {
-                setShowEditModal(false);
-                setEditingFranchise(null);
-              }}>×</button>
-            </div>
-            <div className="modal-body">
-              <AddFranchiseForm 
-                franchise={editingFranchise} 
-                onClose={() => {
-                  setShowEditModal(false);
-                  setEditingFranchise(null);
-                }} 
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showFranchiseDetails && selectedFranchise && (
+      {showDetailsModal && selectedFranchise && (
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">

@@ -81,6 +81,7 @@ export const getFilteredSales = (filters = {}) => {
   if (filters.retailer) queryParams.append('retailer', filters.retailer);
   if (filters.startDate) queryParams.append('startDate', filters.startDate);
   if (filters.endDate) queryParams.append('endDate', filters.endDate);
+  if (filters.valid !== undefined) queryParams.append('valid', filters.valid);
 
   const endpoint = `/sales/admin/filtered${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
   return request(endpoint);
@@ -251,4 +252,34 @@ export const toggleFranchiseStatus = (franchiseId, active) => {
     method: 'PUT',
     body: JSON.stringify({ active }),
   });
+};
+
+export const getFilteredRetailers = (filters = {}) => {
+  const queryParams = new URLSearchParams();
+  
+  if (filters.retailerName) queryParams.append('retailerName', filters.retailerName);
+  if (filters.shopName) queryParams.append('shopName', filters.shopName);
+  if (filters.contactNo) queryParams.append('contactNo', filters.contactNo);
+  if (filters.assignedSalesman) queryParams.append('assignedSalesman', filters.assignedSalesman);
+  if (filters.active !== undefined) queryParams.append('active', filters.active);
+  if (filters.startDate) queryParams.append('startDate', filters.startDate);
+  if (filters.endDate) queryParams.append('endDate', filters.endDate);
+
+  const endpoint = `/retailers/admin/filtered${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+  return request(endpoint);
+};
+
+export const getFilteredSalesmen = (filters = {}) => {
+  const queryParams = new URLSearchParams();
+  
+  if (filters.name) queryParams.append('name', filters.name);
+  if (filters.email) queryParams.append('email', filters.email);
+  if (filters.contactNo) queryParams.append('contactNo', filters.contactNo);
+  if (filters.franchise) queryParams.append('franchise', filters.franchise);
+  if (filters.active !== undefined) queryParams.append('active', filters.active);
+  if (filters.startDate) queryParams.append('startDate', filters.startDate);
+  if (filters.endDate) queryParams.append('endDate', filters.endDate);
+
+  const endpoint = `/salesmen/admin/filtered${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+  return request(endpoint);
 }; 

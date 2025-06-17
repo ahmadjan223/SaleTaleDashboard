@@ -1,20 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import useProductStore from '../../store/productStore';
+import { deleteProduct } from '../../utils/api';
 import AddProductForm from '../AddProductForm';
 import ProductDetailsCard from '../cards/ProductDetailsCard';
+import { searchProduct } from '../../utils/searchUtils';
 
 const ProductsPage = () => {
-  const { products, loading, error, fetchProducts, deleteProduct, toggleProductStatus } = useProductStore();
+  const { products, fetchProducts, loading, error, addProduct, updateProduct, toggleProductStatus } = useProductStore();
   const [searchQuery, setSearchQuery] = useState('');
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [showProductDetails, setShowProductDetails] = useState(false);
 
   useEffect(() => {
     fetchProducts();
-  }, [fetchProducts]);
+  }, []);
+
+  useEffect(() => {
+    if (products) {
+      const filtered = products.filter(product => searchProduct(product, searchQuery));
+      setFilteredProducts(filtered);
+    }
+  }, [searchQuery, products]);
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
@@ -23,17 +32,17 @@ const ProductsPage = () => {
   };
 
   const handleEdit = (product) => {
-    setEditingProduct(product);
-    setShowEditModal(true);
+    setSelectedProduct(product);
+    setShowDetailsModal(true);
   };
 
   const handleRowClick = (product) => {
     setSelectedProduct(product);
-    setShowProductDetails(true);
+    setShowDetailsModal(true);
   };
 
   const handleCloseModal = () => {
-    setShowProductDetails(false);
+    setShowDetailsModal(false);
     setSelectedProduct(null);
   };
 
@@ -44,7 +53,7 @@ const ProductsPage = () => {
           <div className="search-container">
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder="Search all products (ID, Name, Description, Category, Brand, SKU, Price, Stock, Status)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
@@ -70,19 +79,13 @@ const ProductsPage = () => {
     return <div>Error: {error}</div>;
   }
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.price.toString().includes(searchQuery)
-  );
-
   return (
     <section>
       <div className="section-header">
         <div className="search-container">
           <input
             type="text"
-            placeholder="Search products..."
+            placeholder="Search all products (ID, Name, Description, Category, Brand, SKU, Price, Stock, Status)"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="search-input"
@@ -167,30 +170,7 @@ const ProductsPage = () => {
         </div>
       )}
 
-      {showEditModal && editingProduct && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h3>Edit Product</h3>
-              <button className="modal-close-btn" onClick={() => {
-                setShowEditModal(false);
-                setEditingProduct(null);
-              }}>×</button>
-            </div>
-            <div className="modal-body">
-              <AddProductForm 
-                product={editingProduct} 
-                onClose={() => {
-                  setShowEditModal(false);
-                  setEditingProduct(null);
-                }} 
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showProductDetails && selectedProduct && (
+      {showDetailsModal && selectedProduct && (
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">

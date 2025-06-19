@@ -242,3 +242,36 @@
   z-index: 1000;
   backdrop-filter: blur(4px);
 } 
+.date-picker-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.date-picker-group label {
+  color: var(--text-light);
+  font-size: 0.85em;
+  font-weight: 500;
+}
+
+.date-input {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-light);
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 0.95em;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: var(--accent-green);
+  box-shadow: 0 0 0 2px rgba(49, 197, 141, 0.2);
+}
+
+.stats-section h4 {
+  margin-top: 25px;
+  font-size: 1.2em;
+  color: var(--accent-green);
+}

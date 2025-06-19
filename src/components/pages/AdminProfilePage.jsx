@@ -3,8 +3,10 @@ import {
   getAdminProfile,
   updateAdminEmail,
   updateAdminPhone,
-  updateAdminPassword
+  updateAdminPassword,
+  adminLogout
 } from '../../utils/api';
+import { useNavigate } from 'react-router-dom';
 import './AdminProfilePage.css';
 
 const AdminProfilePage = () => {
@@ -20,6 +22,8 @@ const AdminProfilePage = () => {
     password: { currentPassword: '', newPassword: '', confirmPassword: '' }
   });
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     fetchAdminProfile();
   }, []);
@@ -33,7 +37,7 @@ const AdminProfilePage = () => {
         email: { ...prev.email, email: response.email },
         phone: { ...prev.phone, phone: response.phone }
       }));
-    } catch (err) {
+    } catch {
       setError('Failed to load profile');
     } finally {
       setLoading(false);
@@ -71,6 +75,17 @@ const AdminProfilePage = () => {
     } catch (err) {
       showError(err.message || 'Update failed');
     }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await adminLogout();
+    } catch {
+      // Ignore errors for logout
+    }
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminData');
+    navigate('/admin/login');
   };
 
   const renderRow = (label, value, field) => {
@@ -156,9 +171,7 @@ const AdminProfilePage = () => {
 
   return (
     <div className="admin-profile-container">
-      <div className="profile-header">
-        <h1>Account Settings</h1>
-        <p>Manage your contact and login info</p>
+      <div className="profile-header custom-admin-header">
       </div>
 
       {error && <div className="error-message">{error}</div>}
@@ -168,6 +181,9 @@ const AdminProfilePage = () => {
         {renderRow('Email', adminData.email, 'email')}
         {renderRow('Phone', adminData.phone, 'phone')}
         {renderRow('Password', '********', 'password')}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32 }}>
+        <button className="logout-btn" onClick={handleLogout}>Logout</button>
       </div>
     </div>
   );

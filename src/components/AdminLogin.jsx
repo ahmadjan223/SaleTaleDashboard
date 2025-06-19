@@ -23,7 +23,7 @@ const AdminLogin = () => {
             headers: { Authorization: `Bearer ${token}` }
           });
           // If successful, redirect to dashboard
-          navigate('/admin/dashboard');
+          navigate('/');
         } catch (error) {
           // If token is invalid or expired, remove it
           localStorage.removeItem('adminToken');
@@ -60,7 +60,7 @@ const AdminLogin = () => {
       localStorage.setItem('adminData', JSON.stringify(response.data.admin));
 
       // Redirect to admin dashboard
-      navigate('/admin/dashboard');
+      navigate('/admin');
     } catch (err) {
       setError(err.response?.data?.error || 'An error occurred during login');
     } finally {

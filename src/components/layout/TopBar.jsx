@@ -1,18 +1,11 @@
 import React from 'react';
 
-const TopBar = ({ onHomeClick, onLogout }) => (
+const TopBar = ({ onHomeClick }) => (
   <div className="top-bar">
     <div className="top-bar-title-container" onClick={onHomeClick}>
-      <h1>SaleTale</h1>
-      <p className="subline">Admin Dashboard</p>
+      {/* <h1>SaleTale</h1> */}
+      <h1>Babar Brothers</h1>
     </div>
-    <button 
-      onClick={onLogout} 
-      className="action-btn icon-btn logout-btn-icon" 
-      title="Logout"
-    >
-      <span className="logout-icon">⇥</span>
-    </button>
   </div>
 );
 

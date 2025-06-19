@@ -89,8 +89,8 @@ const AddFranchiseForm = ({ franchise, onClose }) => {
           value={formData.masterSimNo}
           onChange={handleChange}
           required
-          pattern="[0-9]{12}"
-          title="Please enter a 12-digit SIM number"
+          pattern="[0-9]{10-15}"
+          title="Please enter a valid length SIM number"
           className="form-input"
         />
       </div>

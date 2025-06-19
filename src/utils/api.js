@@ -391,3 +391,19 @@ export const getFilteredSalesmen = (filters = {}) => {
   const endpoint = `/salesmen/admin/filtered${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
   return request(endpoint);
 };
+
+export const getGraphDataStatistics = (startDate, endDate) => {
+  const params = [];
+  if (startDate) params.push(`startDate=${startDate}`);
+  if (endDate) params.push(`endDate=${endDate}`);
+  const endpoint = `/sales/admin/graph-data${params.length ? '?' + params.join('&') : ''}`;
+  return request(endpoint);
+};
+
+export const getSalesStatistics = (startDate, endDate) => {
+  const params = [];
+  if (startDate) params.push(`startDate=${startDate}`);
+  if (endDate) params.push(`endDate=${endDate}`);
+  const endpoint = `/sales/admin/statistics${params.length ? '?' + params.join('&') : ''}`;
+  return request(endpoint);
+};

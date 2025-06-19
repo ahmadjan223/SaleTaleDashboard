@@ -1,0 +1,78 @@
+.dashboard {
+  padding: 2rem;
+  background: var(--background-dark);
+  color: var(--text-light);
+  min-height: 100vh;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 16px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.dashboard-header h1 {
+  font-size: 2.2rem;
+  color: var(--accent-green);
+  margin: 0;
+}
+
+.filters select {
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  background: var(--card-bg);
+  color: var(--text-light);
+  border: 1px solid var(--border-color);
+  font-size: 1rem;
+  min-width: 180px;
+}
+
+.main-graph {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+}
+
+.main-graph h2 {
+  color: var(--accent-green);
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.main-graph canvas {
+  max-height: 300px !important; /* Reduce chart height */
+}
+
+.bottom-charts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: space-between;
+}
+
+.pie-chart-box {
+  flex: 1;
+  min-width: 300px;
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.pie-chart-box h3 {
+  color: var(--accent-green);
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+}
+
+.pie-chart-box canvas {
+  max-height: 260px !important; /* Reduce pie chart height */
+}

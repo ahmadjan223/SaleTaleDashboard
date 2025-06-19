@@ -6,13 +6,17 @@ import ProductDetailsCard from '../cards/ProductDetailsCard';
 import { searchProduct } from '../../utils/searchUtils';
 
 const ProductsPage = () => {
-  const { products, fetchProducts, loading, error, addProduct, updateProduct, toggleProductStatus } = useProductStore();
+  const { products, fetchProducts, loading, error, addProduct, toggleProductStatus } = useProductStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const addProductHandler = (formData) => {
+    addProduct(formData);
+    setShowAddModal(false);
+  };
 
   useEffect(() => {
     fetchProducts();
@@ -164,7 +168,10 @@ const ProductsPage = () => {
               <button className="modal-close-btn" onClick={() => setShowAddModal(false)}>×</button>
             </div>
             <div className="modal-body">
-              <AddProductForm onClose={() => setShowAddModal(false)} />
+              <AddProductForm
+                onSubmit={addProductHandler}
+                onCancel={() => setShowAddModal(false)}
+              />
             </div>
           </div>
         </div>

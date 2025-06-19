@@ -114,3 +114,40 @@
   font-weight: bold;
   color: var(--text-light);
 }
+
+@media (max-width: 768px) {
+  .profile-card {
+    padding: 10px;
+  }
+  .profile-row {
+    padding: 8px 0;
+    font-size: 0.95em;
+  }
+  .profile-label {
+    font-size: 0.95em;
+  }
+  .profile-value {
+    font-size: 0.9em;
+  }
+  .profile-action button,
+  .edit-btn,
+  .cancel-btn,
+  .update-btn {
+    font-size: 0.9em;
+    padding: 4px 8px;
+  }
+  .logout-btn {
+    font-size: 0.95em;
+    padding: 8px 18px;
+  }
+  .custom-admin-header {
+    padding: 10px 0 5px 0;
+    margin-bottom: 12px;
+  }
+  .header-left {
+    font-size: 1em;
+  }
+  .header-center {
+    font-size: 1.1em;
+  }
+}

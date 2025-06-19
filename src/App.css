@@ -511,16 +511,41 @@ tr:hover {
   .main-content {
     margin-left: 0;
     padding: 15px;
+    font-size: 0.95em;
   }
-  .section-header h2 { font-size: 1.6em; }
-  .table-container { max-height: 200vh; } /* More height for table on mobile */
-  th, td { padding: 10px 8px; font-size: 0.9em; }
+  .section-header h2 { font-size: 1.2em; }
+  .table-container { max-height: 200vh; padding: 0; } /* More height for table on mobile */
+  th, td { padding: 7px 4px; font-size: 0.8em; }
   th:first-child, td:first-child { padding-left: 10px; }
   th:last-child, td:last-child { padding-right: 10px; width: 60px; }
   .icon-btn { font-size: 1.2em; }
   .modal-content { width: 95%; padding: 20px; }
   .modal-header h3 { font-size: 1.3em; }
   .modal-footer .action-btn { padding: 8px 12px; font-size: 0.9em;}
+  .home-content h1 {
+    font-size: 1.3em;
+    margin-bottom: 0.5em;
+  }
+  .home-content .tagline {
+    font-size: 1em;
+    margin-bottom: 0.5em;
+  }
+  .features-overview h3 {
+    font-size: 1.1em;
+  }
+  .features-overview ul li {
+    font-size: 0.95em;
+    margin-bottom: 0.3em;
+  }
+  .chart-container, .graph-container {
+    min-width: 0;
+    width: 100% !important;
+    height: 220px !important;
+    max-height: 220px !important;
+  }
+  .dashboard-header.section-header h2 {
+    display: none !important;
+  }
 }
 
 .logo, .logo.react, .card, .read-the-docs { display: none; }
@@ -702,4 +727,79 @@ tr:hover {
   color: var(--text-muted);
   font-size: 16px;
   pointer-events: none;
+}
+
+/* Sidebar overlay for mobile */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.4);
+  z-index: 1200;
+  display: none;
+}
+
+/* Hamburger menu button */
+.sidebar-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  font-size: 2em;
+  cursor: pointer;
+  margin-right: 16px;
+  display: none;
+  z-index: 1300;
+}
+.hamburger-icon {
+  display: inline-block;
+  font-size: 1.2em;
+}
+
+/* Sidebar close button for mobile */
+.sidebar-close-btn {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  font-size: 2em;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 16px;
+  display: none;
+  z-index: 1301;
+}
+
+@media (max-width: 768px) {
+  .sidebar-toggle-btn {
+    display: block;
+  }
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 60px;
+    width: 80vw;
+    max-width: 300px;
+    height: calc(100vh - 60px);
+    background: var(--background-dark);
+    z-index: 1300;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+    border-right: 1px solid var(--border-color);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  .sidebar-overlay {
+    display: block;
+  }
+  .sidebar-close-btn {
+    display: block;
+  }
+  .main-content {
+    margin-left: 0;
+    padding: 15px;
+  }
 }

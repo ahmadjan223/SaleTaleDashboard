@@ -72,6 +72,10 @@ const ProtectedRoute = ({ children }) => {
 
 function App() {
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' })
+  // Responsive sidebar state
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const handleSidebarToggle = () => setSidebarOpen(open => !open);
+  const handleSidebarClose = () => setSidebarOpen(false);
 
   const showToast = useCallback((message, type = 'success') => {
     setToast({ show: true, message, type })
@@ -107,9 +111,12 @@ function App() {
 
   const DashboardLayout = () => (
     <>
-      <TopBar onHomeClick={() => window.location.href = '/admin'} onLogout={handleLogout} />
+      <TopBar onHomeClick={() => window.location.href = '/admin'} onLogout={handleLogout} onSidebarToggle={handleSidebarToggle} />
       <div className="dashboard-layout">
-        <Sidebar />
+        <Sidebar open={sidebarOpen} onClose={handleSidebarClose} />
+        {sidebarOpen && (
+          <div className="sidebar-overlay" onClick={handleSidebarClose}></div>
+        )}
         <main className="main-content">
           <Routes>
             <Route path="/" element={<HomePage />} />

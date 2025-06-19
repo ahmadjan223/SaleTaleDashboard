@@ -76,3 +76,57 @@
 .pie-chart-box canvas {
   max-height: 260px !important; /* Reduce pie chart height */
 }
+
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 0.7rem;
+    font-size: 0.95em;
+  }
+  .dashboard-header h1 {
+    font-size: 1.2rem;
+  }
+  .main-graph {
+    padding: 0.7rem;
+  }
+  .main-graph h2 {
+    font-size: 1.1rem;
+  }
+  .main-graph canvas {
+    max-height: 180px !important;
+  }
+  .pie-chart-box {
+    min-width: 0;
+    padding: 0.5rem;
+  }
+  .pie-chart-box h3 {
+    font-size: 1em;
+  }
+  .pie-chart-box canvas {
+    max-height: 140px !important;
+  }
+  .stats-table th, .stats-table td {
+    font-size: 0.8em;
+    padding: 6px 3px;
+  }
+  .franchise-title {
+    font-size: 1em;
+  }
+  .section-header h2 {
+    display: none !important;
+  }
+  .section-header-actions {
+    gap: 0.5rem;
+  }
+  .date-picker-group label {
+    font-size: 0.9em;
+  }
+  .date-input {
+    font-size: 0.9em;
+    padding: 4px 6px;
+    min-width: 90px;
+  }
+  .content-area h3, .content-area h4 {
+    font-size: 1em;
+    margin-bottom: 0.5em;
+  }
+}

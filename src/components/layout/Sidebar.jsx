@@ -1,10 +1,18 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 
-const Sidebar = () => (
-  <nav className="sidebar">
+const Sidebar = ({ open = true, onClose }) => (
+  <nav className={`sidebar${open ? ' open' : ''}`}>
     <div className="sidebar-header">
       {/* Sidebar title can be removed if top-bar has main title */}
+      <button
+        className="sidebar-close-btn"
+        onClick={onClose}
+        aria-label="Close sidebar"
+        style={{ display: 'none' }}
+      >
+        &times;
+      </button>
     </div>
     <ul>
       <li>

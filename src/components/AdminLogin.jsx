@@ -24,10 +24,15 @@ const AdminLogin = () => {
           });
           // If successful, redirect to dashboard
           navigate('/admin/dashboard');
-        } catch  {
-          // If token is invalid, remove it
+        } catch (error) {
+          // If token is invalid or expired, remove it
           localStorage.removeItem('adminToken');
           localStorage.removeItem('adminData');
+          
+          // Show error message if it's a token expiration
+          if (error.response?.data?.error?.includes('expired')) {
+            setError('Your session has expired. Please login again.');
+          }
         }
       }
     };

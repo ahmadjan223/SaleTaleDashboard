@@ -74,6 +74,28 @@ export const adminLogout = () => {
   });
 };
 
+// ===== Admin Profile Management =====
+export const updateAdminEmail = (emailData) => {
+  return request('/admin/update-email', {
+    method: 'PUT',
+    body: JSON.stringify(emailData),
+  });
+};
+
+export const updateAdminPhone = (phoneData) => {
+  return request('/admin/update-phone', {
+    method: 'PUT',
+    body: JSON.stringify(phoneData),
+  });
+};
+
+export const updateAdminPassword = (passwordData) => {
+  return request('/admin/update-password', {
+    method: 'PUT',
+    body: JSON.stringify(passwordData),
+  });
+};
+
 // ===== Sales Management =====
 export const getAllSales = () => request('/sales/admin/all');
 

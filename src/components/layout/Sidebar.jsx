@@ -63,6 +63,16 @@ const Sidebar = () => (
           Franchises
         </NavLink>
       </li>
+      <li className="sidebar-divider"></li>
+      <li>
+        <NavLink 
+          to="/admin/profile" 
+          className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
+          style={{ textDecoration: 'none', color: 'inherit' }}
+        >
+          Profile Settings
+        </NavLink>
+      </li>
     </ul>
   </nav>
 );

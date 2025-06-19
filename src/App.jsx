@@ -16,6 +16,7 @@ import SalesmenPage from './components/pages/SalesmenPage'
 import FranchisePage from './components/pages/franchisePage'
 import HomePage from './components/pages/homePage'
 import AdminLogin from './components/AdminLogin'
+import AdminProfilePage from './components/pages/AdminProfilePage'
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -37,9 +38,15 @@ const ProtectedRoute = ({ children }) => {
         });
         setIsAuthenticated(true);
       } catch (error) {
+        // Clear invalid/expired token
         localStorage.removeItem('adminToken');
         localStorage.removeItem('adminData');
         setIsAuthenticated(false);
+        
+        // Show error message if it's a token expiration
+        if (error.response?.data?.error?.includes('expired')) {
+          console.log('Token expired. Please login again.');
+        }
       } finally {
         setIsValidating(false);
       }
@@ -111,6 +118,7 @@ function App() {
             <Route path="/retailers" element={<RetailersPage onRowCopy={handleRowCopy} />} />
             <Route path="/salesmen" element={<SalesmenPage onRowCopy={handleRowCopy} />} />
             <Route path="/franchises" element={<FranchisePage onRowCopy={handleRowCopy} />} />
+            <Route path="/profile" element={<AdminProfilePage />} />
           </Routes>
         </main>
       </div>

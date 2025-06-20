@@ -1,6 +1,5 @@
-// const API_BASE_URL = 'https://sale-tale-backend.vercel.app/api';
-const API_BASE_URL = 'http://localhost:5000/api';
-
+// const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = '/api';
 // Helper function to get auth header
 const getAuthHeader = () => {
   const token = localStorage.getItem('adminToken');

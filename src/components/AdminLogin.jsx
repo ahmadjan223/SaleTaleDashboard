@@ -2,7 +2,7 @@
 import './AdminLogin.css'; // Added import for styles (changed)
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { loginAdmin, validateAdminToken } from '../utils/api';
 
 const AdminLogin = () => {
   const [formData, setFormData] = useState({
@@ -18,25 +18,17 @@ const AdminLogin = () => {
       const token = localStorage.getItem('adminToken');
       if (token) {
         try {
-          // Verify token by making a request to get admin profile
-          await axios.get('http://localhost:5000/api/admin/profile', {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          // If successful, redirect to dashboard
+          await validateAdminToken(token);
           navigate('/');
         } catch (error) {
-          // If token is invalid or expired, remove it
           localStorage.removeItem('adminToken');
           localStorage.removeItem('adminData');
-          
-          // Show error message if it's a token expiration
-          if (error.response?.data?.error?.includes('expired')) {
+          if (error.message?.includes('expired')) {
             setError('Your session has expired. Please login again.');
           }
         }
       }
     };
-
     validateToken();
   }, [navigate]);
 
@@ -53,16 +45,12 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/admin/login', formData);
-
-      // Store the token and admin data
-      localStorage.setItem('adminToken', response.data.token);
-      localStorage.setItem('adminData', JSON.stringify(response.data.admin));
-
-      // Redirect to admin dashboard
+      const response = await loginAdmin(formData);
+      localStorage.setItem('adminToken', response.token);
+      localStorage.setItem('adminData', JSON.stringify(response.admin));
       navigate('/admin');
     } catch (err) {
-      setError(err.response?.data?.error || 'An error occurred during login');
+      setError(err.message || 'An error occurred during login');
     } finally {
       setLoading(false);
     }

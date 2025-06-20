@@ -406,3 +406,16 @@ export const getSalesStatistics = (startDate, endDate) => {
   const endpoint = `/sales/admin/statistics${params.length ? '?' + params.join('&') : ''}`;
   return request(endpoint);
 };
+
+export const loginAdmin = (credentials) => {
+  return request('/admin/login', {
+    method: 'POST',
+    body: JSON.stringify(credentials),
+  });
+};
+
+export const validateAdminToken = (token) => {
+  return request('/admin/profile', {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+};

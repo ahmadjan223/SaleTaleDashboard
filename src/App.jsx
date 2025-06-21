@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import './App.css'
 import axios from 'axios'
 import { adminLogout } from './utils/api'
+import { validateAdminToken } from './utils/api'
 
 // Components
 import Toast from './components/Toast'
@@ -24,7 +25,7 @@ const ProtectedRoute = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const validateToken = async () => {
+    const validateTokenAsync = async () => {
       const token = localStorage.getItem('adminToken');
       if (!token) {
         setIsAuthenticated(false);
@@ -33,9 +34,7 @@ const ProtectedRoute = ({ children }) => {
       }
 
       try {
-        await axios.get('http://localhost:5000/api/admin/profile', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await validateAdminToken(token);
         setIsAuthenticated(true);
       } catch (error) {
         // Clear invalid/expired token
@@ -52,7 +51,7 @@ const ProtectedRoute = ({ children }) => {
       }
     };
 
-    validateToken();
+    validateTokenAsync();
   }, []);
 
   if (isValidating) {

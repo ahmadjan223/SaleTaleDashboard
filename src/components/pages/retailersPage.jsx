@@ -267,8 +267,10 @@ const RetailersPage = () => {
                       </button>
                     </td>
                     <td>
-                      <button onClick={(e) => { e.stopPropagation(); handleEditClick(r);}} className="action-btn icon-btn edit-btn">✏️</button>
+                    <div className="action-buttons">
+                      <button onClick={(e) => { e.stopPropagation(); handleEditClick(r);}} className="action-btn icon-btn edit-btn">🖊️</button>
                       <button onClick={(e) => { e.stopPropagation(); handleDelete(r._id, r.retailerName);}} className="action-btn icon-btn delete-btn">🗑️</button>
+                    </div>
                     </td>
                   </tr>
                 ))}

@@ -271,7 +271,7 @@ body {
 
 /* Table Styles */
 .table-container {
-  max-height: 60vh; /* Adjust as needed, e.g., 500px or 60vh */
+  max-height: 85vh; /* Adjust as needed, e.g., 500px or 60vh */
   overflow-y: auto;
   border-radius: 8px; /* Rounded corners for the scrollable container */
   border: 1px solid var(--border-color);

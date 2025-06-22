@@ -146,8 +146,10 @@ const FranchisePage = () => {
                     </span>
                   </td>
                   <td>
+                  <div className="action-buttons">
                     <button onClick={(e) => { e.stopPropagation(); handleEdit(f); }} className="action-btn icon-btn edit-btn">🖊️</button>
                     <button onClick={(e) => { e.stopPropagation(); handleDelete(f._id); }} className="action-btn icon-btn delete-btn">🗑️</button>
+                  </div>
                   </td>
                 </tr>
               ))}

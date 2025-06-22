@@ -150,8 +150,10 @@ const ProductsPage = () => {
                     </span>
                   </td>
                   <td>
+                  <div className="action-buttons">
                     <button onClick={(e) => { e.stopPropagation(); handleEdit(p); }} className="action-btn icon-btn edit-btn">🖊️</button>
                     <button onClick={(e) => { e.stopPropagation(); handleDelete(p._id); }} className="action-btn icon-btn delete-btn">🗑️</button>
+                  </div>
                   </td>
                 </tr>
               ))}

@@ -241,7 +241,7 @@ const SalesmenPage = () => {
                     </td>
                     <td>
                       <div className="action-buttons">
-                        <button onClick={(e) => { e.stopPropagation(); handleEditClick(s); }} className="action-btn icon-btn edit-btn">✏️</button>
+                        <button onClick={(e) => { e.stopPropagation(); handleEditClick(s); }} className="action-btn icon-btn edit-btn">🖊️</button>
                         <button onClick={(e) => { e.stopPropagation(); handleDelete(s._id); }} className="action-btn icon-btn delete-btn">🗑️</button>
                       </div>
                     </td>

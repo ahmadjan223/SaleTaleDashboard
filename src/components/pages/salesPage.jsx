@@ -171,7 +171,9 @@ const SalesPage = ({ onCellMouseEnter, onCellMouseLeave }) => {
                       <button 
                         onClick={(e) => { 
                           e.stopPropagation(); 
-                          deleteSale(s._id, Object.keys(s.products || {})[0] || s._id);
+                          if (window.confirm('Are you sure you want to delete this sale?')) {
+                            deleteSale(s._id, Object.keys(s.products || {})[0] || s._id);
+                          }
                         }} 
                         className="action-btn icon-btn delete-btn"
                       >

@@ -3,6 +3,22 @@ import useSalesmenStore from '../store/salesmenStore';
 import useRetailerStore from '../store/retailerStore';
 import useProductStore from '../store/productStore';
 
+// Helper functions to get start of week and today in yyyy-mm-dd format
+function getStartOfWeek(date = new Date()) {
+  const d = new Date(date);
+  const day = d.getDay(); // 0 (Sun) - 6 (Sat)
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is Sunday
+  d.setDate(diff);
+  d.setHours(0, 0, 0, 0);
+  return d.toISOString().slice(0, 10);
+}
+
+function getToday() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d.toISOString().slice(0, 10);
+}
+
 const SaleFilterSearch = ({ filters, setFilter }) => {
   const [saleId, setSaleId] = useState('');
   const [salesmanSearchTerm, setSalesmanSearchTerm] = useState('');
@@ -45,7 +61,10 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
   }, [setFilter]);
 
   const handleClear = useCallback(() => {
-    setFilter({});
+    setFilter({
+      startDate: getStartOfWeek(),
+      endDate: getToday()
+    });
     setSaleId('');
     setSelectedSalesman(''); setSalesmanSearchTerm('');
     setSelectedProduct(''); setProductSearchTerm('');
@@ -103,7 +122,7 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
   return (
     <div style={containerStyle}>
       <div style={gridStyle}>
-        <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative',paddingRight:20 }}>
           <input
             type="text"
             placeholder="Sale ID"
@@ -113,7 +132,7 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
           />
         </div>
 
-        <div style={{ position: 'relative' }}>
+        <div style={{ position: 'relative',paddingRight:20 }}>
           <input
             type="text"
             placeholder="Salesman"
@@ -134,7 +153,7 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
           )}
         </div>
 
-        <div style={{ position: 'relative' }}>
+        <div style={{ position: 'relative',paddingRight:20 }}>
           <input
             type="text"
             placeholder="Product"
@@ -147,7 +166,7 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
           {isProductOpen && (
             <div style={dropdownStyle}>
               {uniqueProducts.filter(p => p.name.toLowerCase().includes(productSearchTerm.toLowerCase())).map(p => (
-                <div key={p.id} onMouseDown={() => { setSelectedProduct(p.name); handleFilterChange('product', p.id); setIsProductOpen(false); }} style={optionStyle}>
+                <div key={p.id} onMouseDown={() => { setSelectedProduct(p.name); handleFilterChange('product', p.name); setIsProductOpen(false); }} style={optionStyle}>
                   {p.name}
                 </div>
               ))}

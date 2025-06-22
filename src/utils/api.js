@@ -74,6 +74,14 @@ export const adminLogout = () => {
   });
 };
 
+// Validate admin password
+export const validateAdminPassword = (password) => {
+  return request('/admin/validate-password', {
+    method: 'POST',
+    body: JSON.stringify({ password }),
+  });
+};
+
 // ===== Admin Profile Management =====
 export const updateAdminEmail = (emailData) => {
   return request('/admin/update-email', {

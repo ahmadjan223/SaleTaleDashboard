@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import useProductStore from '../../store/productStore';
-import { deleteProduct } from '../../utils/api';
+import { searchProduct } from '../../utils/searchUtils';
 import AddProductForm from '../AddProductForm';
 import ProductDetailsCard from '../cards/ProductDetailsCard';
-import { searchProduct } from '../../utils/searchUtils';
+import PasswordConfirmModal from '../PasswordConfirmModal';
 
 const ProductsPage = () => {
-  const { products, fetchProducts, loading, error, addProduct, toggleProductStatus } = useProductStore();
+  const { products, fetchProducts, loading, addProduct, toggleProductStatus, updateProduct, deleteProduct } = useProductStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
 
   const addProductHandler = (formData) => {
     addProduct(formData);
@@ -29,15 +32,40 @@ const ProductsPage = () => {
     }
   }, [searchQuery, products]);
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      await deleteProduct(id);
+  const handleDelete = (id) => {
+    const product = products.find(p => p._id === id);
+    setProductToDelete(product);
+    setShowPasswordModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (productToDelete) {
+      await deleteProduct(productToDelete._id);
+      setProductToDelete(null);
+      setShowPasswordModal(false);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setProductToDelete(null);
+    setShowPasswordModal(false);
   };
 
   const handleEdit = (product) => {
     setSelectedProduct(product);
-    setShowDetailsModal(true);
+    setShowEditModal(true);
+  };
+
+  const handleEditProduct = async (formData) => {
+    try {
+      await updateProduct(selectedProduct._id, formData);
+      setShowEditModal(false);
+      setSelectedProduct(null);
+      fetchProducts(); // Refresh the list
+    } catch (error) {
+      // Optionally show an error message
+      alert('Failed to update product. Please try again.');
+    }
   };
 
   const handleRowClick = (product) => {
@@ -47,6 +75,7 @@ const ProductsPage = () => {
 
   const handleCloseModal = () => {
     setShowDetailsModal(false);
+    setShowEditModal(false);
     setSelectedProduct(null);
   };
 
@@ -77,10 +106,6 @@ const ProductsPage = () => {
         </div>
       </section>
     );
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
   }
 
   return (
@@ -129,7 +154,12 @@ const ProductsPage = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          toggleProductStatus(p._id, !p.active);
+                          const confirmMsg = p.active
+                            ? "Are you sure you want to deactivate this product? Salesmen will not be able to make sales against it."
+                            : "Are you sure you want to activate this product?";
+                          if (window.confirm(confirmMsg)) {
+                            toggleProductStatus(p._id, !p.active);
+                          }
                         }}
                         style={{
                           padding: '4px 8px',
@@ -179,6 +209,26 @@ const ProductsPage = () => {
         </div>
       )}
 
+      {showEditModal && selectedProduct && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Edit Product</h3>
+              <button className="modal-close-btn" onClick={handleCloseModal}>×</button>
+            </div>
+            <div className="modal-body">
+              <AddProductForm
+                onSubmit={handleEditProduct}
+                onCancel={handleCloseModal}
+                initialValues={selectedProduct}
+                submitButtonText="Update Product"
+                title="Edit Product"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {showDetailsModal && selectedProduct && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -192,6 +242,12 @@ const ProductsPage = () => {
           </div>
         </div>
       )}
+
+      <PasswordConfirmModal
+        visible={showPasswordModal}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
 
     </section>
   );

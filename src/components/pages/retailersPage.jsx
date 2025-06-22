@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import useRetailerStore from '../../store/retailerStore';
-import { deleteRetailer, uploadRetailersCSV, downloadRetailersCSV } from '../../utils/api';
+import { uploadRetailersCSV, downloadRetailersCSV } from '../../utils/api';
 import RetailerForm from '../RetailerForm';
 import RetailerDetailsCard from '../cards/RetailerDetailsCard';
 import RetailerFilterSearch from '../RetailerFilterSearch';
 import { searchRetailer } from '../../utils/searchUtils';
+import PasswordConfirmModal from '../PasswordConfirmModal';
 
 const RetailersPage = () => {
   const { 
@@ -14,7 +15,7 @@ const RetailersPage = () => {
     fetchFilteredRetailers,
     addRetailer, 
     toggleRetailerStatus, 
-    updateRetailer 
+    updateRetailer
   } = useRetailerStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [localFilteredRetailers, setLocalFilteredRetailers] = useState([]);
@@ -23,6 +24,8 @@ const RetailersPage = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedRetailer, setSelectedRetailer] = useState(null);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [retailerToDelete, setRetailerToDelete] = useState(null);
 
   useEffect(() => {
     fetchRetailers();
@@ -45,32 +48,49 @@ const RetailersPage = () => {
     }
   }, [searchQuery, retailers]);
 
-  const handleDelete = async (id, name) => {
-    if (window.confirm(`Are you sure you want to delete retailer "${name}"? This will also delete all associated sales.`)) {
+  const handleDelete = (id) => {
+    const retailer = retailers.find(r => r._id === id);
+    setRetailerToDelete(retailer);
+    setShowPasswordModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (retailerToDelete) {
       try {
-        await deleteRetailer(id);
-        // Refresh the retailers list after successful deletion
-        fetchRetailers();
+        await useRetailerStore.getState().deleteRetailer(retailerToDelete._id);
       } catch (error) {
         console.error('Error deleting retailer:', error);
         alert('Failed to delete retailer. Please try again.');
+      } finally {
+        setRetailerToDelete(null);
+        setShowPasswordModal(false);
       }
     }
   };
 
+  const handleCancelDelete = () => {
+    setRetailerToDelete(null);
+    setShowPasswordModal(false);
+  };
+
   const handleToggleStatus = async (id, currentStatus) => {
-    try {
-      await toggleRetailerStatus(id, !currentStatus);
-      // Refresh the retailers list after successful status change
-      fetchRetailers();
-    } catch (error) {
-      console.error('Error toggling retailer status:', error);
-      alert('Failed to update retailer status. Please try again.');
+    const actionText = currentStatus ? 'deactivate' : 'activate';
+    const warningText = currentStatus ? ' An inactive retailer cannot have any sales recorded.' : '';
+    
+    if (window.confirm(`Are you sure you want to ${actionText} this retailer?${warningText}`)) {
+      try {
+        await toggleRetailerStatus(id, !currentStatus);
+        // The store now handles the state update, no need to fetch again
+      } catch (error) {
+        console.error('Error toggling retailer status:', error);
+        alert('Failed to update retailer status. Please try again.');
+      }
     }
   };
 
   const handleAddRetailer = async (formData) => {
     try {
+      console.log('Step 1: handleAddRetailer in retailersPage.jsx, formData:', formData);
       await addRetailer(formData);
       setShowAddModal(false);
       fetchRetailers(); // Refresh the list
@@ -269,7 +289,7 @@ const RetailersPage = () => {
                     <td>
                     <div className="action-buttons">
                       <button onClick={(e) => { e.stopPropagation(); handleEditClick(r);}} className="action-btn icon-btn edit-btn">🖊️</button>
-                      <button onClick={(e) => { e.stopPropagation(); handleDelete(r._id, r.retailerName);}} className="action-btn icon-btn delete-btn">🗑️</button>
+                      <button onClick={(e) => { e.stopPropagation(); handleDelete(r._id);}} className="action-btn icon-btn delete-btn">🗑️</button>
                     </div>
                     </td>
                   </tr>
@@ -282,11 +302,11 @@ const RetailersPage = () => {
 
       {/* Details Modal */}
       {showDetailsModal && selectedRetailer && (
-        <div className="modal-overlay" onClick={() => setShowDetailsModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ zIndex: 1001 }}>
             <div className="modal-header">
               <h3>Retailer Details</h3>
-              <button className="close-btn" onClick={() => setShowDetailsModal(false)}>×</button>
+              <button className="modal-close-btn" onClick={() => setShowDetailsModal(false)}>×</button>
             </div>
             <div className="modal-body">
               <RetailerDetailsCard retailer={selectedRetailer} />
@@ -323,7 +343,13 @@ const RetailersPage = () => {
         </div>
       )}
 
-    
+      <PasswordConfirmModal
+        visible={showPasswordModal}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        title="Confirm Deletion"
+        message={`Are you sure you want to delete retailer "${retailerToDelete?.retailerName}"? Deleting this retailer will also delete its relevant sales. A better option is to simply set its status to Inactive.`}
+      />
     </section>
   );
 }

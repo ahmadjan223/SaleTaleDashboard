@@ -35,8 +35,11 @@ const useRetailerStore = create((set, get) => ({
   addRetailer: async (retailerData) => {
     set({ loading: true, error: null });
     try {
+      console.log('Step 2: addRetailer in retailerStore.js, retailerData:', retailerData);
       const response = await createRetailer(retailerData);
+      console.log("response is retailer store",response)
       if (response.success) {
+        
         set((state) => ({
           retailers: [...state.retailers, response.data],
           loading: false
@@ -87,6 +90,7 @@ const useRetailerStore = create((set, get) => ({
       await deleteRetailer(id);
       set((state) => ({
         retailers: state.retailers.filter(retailer => retailer._id !== id),
+        filteredRetailers: state.filteredRetailers.filter(retailer => retailer._id !== id),
         loading: false
       }));
     } catch (error) {
@@ -101,6 +105,9 @@ const useRetailerStore = create((set, get) => ({
       const response = await toggleRetailerStatus(id, active);
       set((state) => ({
         retailers: state.retailers.map(retailer => 
+          retailer._id === id ? { ...retailer, active } : retailer
+        ),
+        filteredRetailers: state.filteredRetailers.map(retailer =>
           retailer._id === id ? { ...retailer, active } : retailer
         ),
         loading: false

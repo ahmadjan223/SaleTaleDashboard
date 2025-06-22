@@ -169,6 +169,7 @@ export const getAllRetailers = () => request('/retailers/admin/all');
 export const getRetailerById = (id) => request(`/retailers/admin/details/${id}`);
 
 export const createRetailer = (retailerData) => {
+  console.log('Step 3: createRetailer in api.js, retailerData:', retailerData);
   return request('/retailers/admin/create', {
     method: 'POST',
     body: JSON.stringify(retailerData),

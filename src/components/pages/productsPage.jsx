@@ -62,7 +62,7 @@ const ProductsPage = () => {
       setShowEditModal(false);
       setSelectedProduct(null);
       fetchProducts(); // Refresh the list
-    } catch (error) {
+    } catch {
       // Optionally show an error message
       alert('Failed to update product. Please try again.');
     }

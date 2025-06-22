@@ -1,0 +1,63 @@
+.filter-container {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  grid-template-rows: auto auto;
+  gap: 1rem;
+  align-items: end;
+  padding: 1.25rem;
+  background: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,.05);
+  margin-bottom: 2rem;
+}
+
+.filter-container .filter-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-container .filter-item label {
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+  color: var(--text-light);
+}
+
+.filter-container .filter-item input,
+.filter-container .filter-item select {
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  background: var(--card-bg);
+  color: var(--text-light);
+  border: 1px solid var(--border-color);
+  font-size: 0.9rem;
+}
+
+.filter-container .date-range {
+  grid-column: span 2;
+}
+
+.filter-container .clear-button {
+  justify-self: end;
+  padding: 0.6rem 1.2rem;
+  background: var(--accent-green);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.filter-container .search-bar {
+  grid-column: 1 / -1;
+  margin-top: 0.5rem;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  font-size: 0.95rem;
+  background: var(--background-dark);
+  color: var(--text-light);
+}

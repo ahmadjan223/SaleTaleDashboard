@@ -1,328 +1,214 @@
-import React, { useState, useMemo, useCallback,useEffect } from 'react';
-import useSalesmenStore from '../store/salesmenStore'
-import useRetailerStore from '../store/retailerStore'
-import useProductStore from '../store/productStore'
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import useSalesmenStore from '../store/salesmenStore';
+import useRetailerStore from '../store/retailerStore';
+import useProductStore from '../store/productStore';
 
 const SaleFilterSearch = ({ filters, setFilter }) => {
-  // State for searchable dropdowns
+  const [saleId, setSaleId] = useState('');
   const [salesmanSearchTerm, setSalesmanSearchTerm] = useState('');
   const [selectedSalesman, setSelectedSalesman] = useState('');
-  const [isSalesmanDropdownOpen, setIsSalesmanDropdownOpen] = useState(false);
+  const [isSalesmanOpen, setIsSalesmanOpen] = useState(false);
 
   const [productSearchTerm, setProductSearchTerm] = useState('');
   const [selectedProduct, setSelectedProduct] = useState('');
-  const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false);
+  const [isProductOpen, setIsProductOpen] = useState(false);
 
   const [retailerSearchTerm, setRetailerSearchTerm] = useState('');
   const [selectedRetailer, setSelectedRetailer] = useState('');
-  const [isRetailerDropdownOpen, setIsRetailerDropdownOpen] = useState(false);
+  const [isRetailerOpen, setIsRetailerOpen] = useState(false);
 
-  // Derive unique options from sales data
-  const {salesmen,fetchSalesmen} = useSalesmenStore();
-  const uniqueSalesmen = useMemo(() => {
-    return salesmen.map(s => ({
-      id: s._id,
-      name: s.name
-    })).sort((a, b) => a.name.localeCompare(b.name));
-  }, [salesmen]);
+  const { salesmen, fetchSalesmen } = useSalesmenStore();
+  const { products, fetchProducts } = useProductStore();
+  const { retailers, fetchRetailers } = useRetailerStore();
 
-  const {products,fetchProducts} = useProductStore();
-  const uniqueProducts = useMemo(() => {
-    return products.map(p => ({
-      id: p._id,
-      name: p.name
-    })).sort((a, b) => a.name.localeCompare(b.name));
-  }, [products]);
-
-  const {retailers,fetchRetailers} = useRetailerStore();
-  const uniqueRetailers = useMemo(() => {
-    return retailers.map(r => ({
-      id: r._id,
-      name: r.retailerName
-    })).sort((a, b) => a.name.localeCompare(b.name));
-  }, [retailers]);
-
-  useEffect(()=>{
+  useEffect(() => {
+    fetchSalesmen();
     fetchProducts();
     fetchRetailers();
-    fetchSalesmen();
-  },[])
+  }, []);
+
+  const uniqueSalesmen = useMemo(() =>
+    salesmen.map(s => ({ id: s._id, name: s.name })).sort((a, b) => a.name.localeCompare(b.name)),
+    [salesmen]
+  );
+  const uniqueProducts = useMemo(() =>
+    products.map(p => ({ id: p._id, name: p.name })).sort((a, b) => a.name.localeCompare(b.name)),
+    [products]
+  );
+  const uniqueRetailers = useMemo(() =>
+    retailers.map(r => ({ id: r._id, name: r.retailerName })).sort((a, b) => a.name.localeCompare(b.name)),
+    [retailers]
+  );
 
   const handleFilterChange = useCallback((name, value) => {
-    setFilter(prevFilters => ({
-      ...prevFilters,
-      [name]: value
-    }));
+    setFilter(prev => ({ ...prev, [name]: value }));
   }, [setFilter]);
 
-  const handleClearFilters = useCallback(() => {
+  const handleClear = useCallback(() => {
     setFilter({});
-    setSalesmanSearchTerm('');
-    setSelectedSalesman('');
-    setProductSearchTerm('');
-    setSelectedProduct('');
-    setRetailerSearchTerm('');
-    setSelectedRetailer('');
+    setSaleId('');
+    setSelectedSalesman(''); setSalesmanSearchTerm('');
+    setSelectedProduct(''); setProductSearchTerm('');
+    setSelectedRetailer(''); setRetailerSearchTerm('');
   }, [setFilter]);
 
-  const inputStyle = {
+  const containerStyle = {
+    padding: '20px',
+    background: 'var(--card-bg)',
+    borderRadius: '8px',
+    marginBottom: '20px',
+    boxShadow: '0 2px 4px rgba(0,0,0,.05)'  
+  };
+
+  const gridStyle = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gridTemplateRows: 'auto auto',
+    gap: '10px'
+  };
+
+  const inputBase = {
     width: '100%',
-    padding: '10px 12px',
-    border: '1px solid #e0e0e0',
-    borderRadius: '5px',
-    fontSize: '0.95em',
-    color: '#333',
-    boxShadow: 'inset 0 1px 2px rgba(0,0,0,.04)',
+    padding: '8px',
+    border: '1px solid var(--border-color)',
+    borderRadius: '4px',
+    fontSize: '0.9em',
     outline: 'none',
-    transition: 'border-color 0.2s',
-    backgroundColor: '#fff'
+    background: 'var(--card-bg)',
+    color: 'var(--text-light)'
   };
 
-  const dropdownOptionStyle = {
-    padding: '10px 12px',
-    cursor: 'pointer',
-    borderBottom: '1px solid #f0f0f0',
-    color: '#333',
+  // Dark dropdown background
+  const dropdownStyle = {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    zIndex: 10,
+    maxHeight: '150px',
+    overflowY: 'auto',
+    border: '1px solid var(--border-color)',
+    borderRadius: '4px',
+    background: 'var(--card-bg)'
   };
 
-  const buttonStyleSecondary = {
-    padding: '10px 20px',
-    background: 'var(--border-color)',
-    color: 'var(--text-light)',
-    border: 'none',
-    borderRadius: '5px',
+  // Light dropdown text
+  const optionStyle = {
+    padding: '8px',
     cursor: 'pointer',
-    fontWeight: 'bold',
-    transition: 'background-color 0.2s',
-    flexShrink: 0,
-    boxShadow: '0 2px 4px rgba(0,0,0,.1)'
+    borderBottom: '1px solid var(--border-color)',
+    color: 'var(--text-light)'  
   };
 
   return (
-    <div className="sale-filter-search-container" style={{ padding: '20px', background: 'var(--card-bg)', borderRadius: '8px', marginBottom: '20px', boxShadow: '0 2px 4px rgba(0,0,0,.05)' }}>
-      <div className="filters-row-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px', marginBottom: '15px' }}>
-        {/* Salesman Dropdown */}
-        <div className="filter-group-modern" style={{ position: 'relative', width: "250px" }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9em', color: 'var(--text-light)' }}>Salesman</label>
+    <div style={containerStyle}>
+      <div style={gridStyle}>
+        <div style={{ position: 'relative' }}>
           <input
             type="text"
-            placeholder="Select Salesman"
-            value={isSalesmanDropdownOpen ? salesmanSearchTerm : selectedSalesman}
-            onChange={(e) => {
-              setSalesmanSearchTerm(e.target.value);
-              setIsSalesmanDropdownOpen(true);
-            }}
-            onFocus={() => {
-              setIsSalesmanDropdownOpen(true);
-              setSalesmanSearchTerm('');
-            }}
-            onBlur={() => setTimeout(() => setIsSalesmanDropdownOpen(false), 100)}
-            style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
+            placeholder="Sale ID"
+            value={saleId}
+            onChange={e => { setSaleId(e.target.value); handleFilterChange('id', e.target.value); }}
+            style={inputBase}
           />
-          {isSalesmanDropdownOpen && (
-            <div className="dropdown-options" style={{
-              position: 'absolute',
-              top: '100%',
-              left: '0',
-              right: '0',
-              zIndex: 1000,
-              background: 'var(--card-bg)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '5px',
-              boxShadow: '0 2px 5px rgba(0,0,0,.1)',
-              maxHeight: '200px',
-              overflowY: 'auto',
-              marginTop: '5px'
-            }}>
-              {uniqueSalesmen
-                .filter(salesman => salesman.name.toLowerCase().includes(salesmanSearchTerm.toLowerCase()))
-                .map(salesman => (
-                  <div
-                    key={salesman.id}
-                    onMouseDown={() => {
-                      setSelectedSalesman(salesman.name);
-                      setSalesmanSearchTerm('');
-                      handleFilterChange('salesman', salesman.id);
-                      setIsSalesmanDropdownOpen(false);
-                    }}
-                    style={{ ...dropdownOptionStyle, color: 'var(--text-light)' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--table-row-hover)'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
-                  >
-                    {salesman.name}
-                  </div>
-                ))}
-              {uniqueSalesmen.filter(salesman => salesman.name.toLowerCase().includes(salesmanSearchTerm.toLowerCase())).length === 0 && (
-                <div style={{ ...dropdownOptionStyle, cursor: 'default', color: 'var(--text-light)', background: 'var(--card-bg)' }}>No results</div>
-              )}
+        </div>
+
+        <div style={{ position: 'relative' }}>
+          <input
+            type="text"
+            placeholder="Salesman"
+            value={isSalesmanOpen ? salesmanSearchTerm : selectedSalesman}
+            onChange={e => { setSalesmanSearchTerm(e.target.value); setIsSalesmanOpen(true); }}
+            onFocus={() => { setIsSalesmanOpen(true); setSalesmanSearchTerm(''); }}
+            onBlur={() => setTimeout(() => setIsSalesmanOpen(false), 100)}
+            style={inputBase}
+          />
+          {isSalesmanOpen && (
+            <div style={dropdownStyle}>
+              {uniqueSalesmen.filter(s => s.name.toLowerCase().includes(salesmanSearchTerm.toLowerCase())).map(s => (
+                <div key={s.id} onMouseDown={() => { setSelectedSalesman(s.name); handleFilterChange('salesman', s.id); setIsSalesmanOpen(false); }} style={optionStyle}>
+                  {s.name}
+                </div>
+              ))}
             </div>
           )}
         </div>
 
-        {/* Product Dropdown */}
-        <div className="filter-group-modern" style={{ position: 'relative', width: "250px" }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9em', color: 'var(--text-light)' }}>Product</label>
+        <div style={{ position: 'relative' }}>
           <input
             type="text"
-            placeholder="Select Product"
-            value={isProductDropdownOpen ? productSearchTerm : selectedProduct}
-            onChange={(e) => {
-              setProductSearchTerm(e.target.value);
-              setIsProductDropdownOpen(true);
-            }}
-            onFocus={() => {
-              setIsProductDropdownOpen(true);
-              setProductSearchTerm('');
-            }}
-            onBlur={() => setTimeout(() => setIsProductDropdownOpen(false), 100)}
-            style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
+            placeholder="Product"
+            value={isProductOpen ? productSearchTerm : selectedProduct}
+            onChange={e => { setProductSearchTerm(e.target.value); setIsProductOpen(true); }}
+            onFocus={() => { setIsProductOpen(true); setProductSearchTerm(''); }}
+            onBlur={() => setTimeout(() => setIsProductOpen(false), 100)}
+            style={inputBase}
           />
-          {isProductDropdownOpen && (
-            <div className="dropdown-options" style={{
-              position: 'absolute',
-              top: '100%',
-              left: '0',
-              right: '0',
-              zIndex: 1000,
-              background: 'var(--card-bg)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '5px',
-              boxShadow: '0 2px 5px rgba(0,0,0,.1)',
-              maxHeight: '200px',
-              overflowY: 'auto',
-              marginTop: '5px'
-            }}>
-              {uniqueProducts
-                .filter(product => product.name.toLowerCase().includes(productSearchTerm.toLowerCase()))
-                .map(product => (
-                  <div
-                    key={product.id}
-                    onMouseDown={() => {
-                      setSelectedProduct(product.name);
-                      setProductSearchTerm('');
-                      handleFilterChange('product', product.name);
-                      setIsProductDropdownOpen(false);
-                    }}
-                    style={{ ...dropdownOptionStyle, color: 'var(--text-light)' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--table-row-hover)'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
-                  >
-                    {product.name}
-                  </div>
-                ))}
-              {uniqueProducts.filter(product => product.name.toLowerCase().includes(productSearchTerm.toLowerCase())).length === 0 && (
-                <div style={{ ...dropdownOptionStyle, cursor: 'default', color: 'var(--text-light)', background: 'var(--card-bg)' }}>No results</div>
-              )}
+          {isProductOpen && (
+            <div style={dropdownStyle}>
+              {uniqueProducts.filter(p => p.name.toLowerCase().includes(productSearchTerm.toLowerCase())).map(p => (
+                <div key={p.id} onMouseDown={() => { setSelectedProduct(p.name); handleFilterChange('product', p.id); setIsProductOpen(false); }} style={optionStyle}>
+                  {p.name}
+                </div>
+              ))}
             </div>
           )}
         </div>
 
-        {/* Retailer Dropdown */}
-        <div className="filter-group-modern" style={{ position: 'relative', width: "250px" }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9em', color: 'var(--text-light)' }}>Retailer</label>
+        <div style={{ position: 'relative', paddingRight:20 }}>
           <input
             type="text"
-            placeholder="Select Retailer"
-            value={isRetailerDropdownOpen ? retailerSearchTerm : selectedRetailer}
-            onChange={(e) => {
-              setRetailerSearchTerm(e.target.value);
-              setIsRetailerDropdownOpen(true);
-            }}
-            onFocus={() => {
-              setIsRetailerDropdownOpen(true);
-              setRetailerSearchTerm('');
-            }}
-            onBlur={() => setTimeout(() => setIsRetailerDropdownOpen(false), 100)}
-            style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
+            placeholder="Retailer"
+            value={isRetailerOpen ? retailerSearchTerm : selectedRetailer}
+            onChange={e => { setRetailerSearchTerm(e.target.value); setIsRetailerOpen(true); }}
+            onFocus={() => { setIsRetailerOpen(true); setRetailerSearchTerm(''); }}
+            onBlur={() => setTimeout(() => setIsRetailerOpen(false), 100)}
+            style={inputBase}
           />
-          {isRetailerDropdownOpen && (
-            <div className="dropdown-options" style={{
-              position: 'absolute',
-              top: '100%',
-              left: '0',
-              right: '0',
-              zIndex: 1000,
-              background: 'var(--card-bg)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '5px',
-              boxShadow: '0 2px 5px rgba(0,0,0,.1)',
-              maxHeight: '200px',
-              overflowY: 'auto',
-              marginTop: '5px'
-            }}>
-              {uniqueRetailers
-                .filter(retailer => retailer.name.toLowerCase().includes(retailerSearchTerm.toLowerCase()))
-                .map(retailer => (
-                  <div
-                    key={retailer.id}
-                    onMouseDown={() => {
-                      setSelectedRetailer(retailer.name);
-                      setRetailerSearchTerm('');
-                      handleFilterChange('retailer', retailer.id);
-                      setIsRetailerDropdownOpen(false);
-                    }}
-                    style={{ ...dropdownOptionStyle, color: 'var(--text-light)' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--table-row-hover)'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
-                  >
-                    {retailer.name}
-                  </div>
-                ))}
-              {uniqueRetailers.filter(retailer => retailer.name.toLowerCase().includes(retailerSearchTerm.toLowerCase())).length === 0 && (
-                <div style={{ ...dropdownOptionStyle, cursor: 'default', color: 'var(--text-light)', background: 'var(--card-bg)' }}>No results</div>
-              )}
+          {isRetailerOpen && (
+            <div style={dropdownStyle}>
+              {uniqueRetailers.filter(r => r.name.toLowerCase().includes(retailerSearchTerm.toLowerCase())).map(r => (
+                <div key={r.id} onMouseDown={() => { setSelectedRetailer(r.name); handleFilterChange('retailer', r.id); setIsRetailerOpen(false); }} style={optionStyle}>
+                  {r.name}
+                </div>
+              ))}
             </div>
           )}
         </div>
-      </div>
 
-      <div className="filters-row-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
-        {/* Date Duration */}
-        <div className="filter-group-modern">
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9em', color: 'var(--text-light)' }}>Date Duration</label>
-          <div style={{ display: 'flex', gap: '5px' }}>
-            <input 
-              type="date" 
-              name="startDate" 
-              value={filters.startDate || ''} 
-              onChange={(e) => handleFilterChange('startDate', e.target.value)}
-              style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
-            />
-            <span style={{ display: 'flex', alignItems: 'center', color: 'var(--text-light)' }}>-</span>
-            <input 
-              type="date" 
-              name="endDate" 
-              value={filters.endDate || ''} 
-              onChange={(e) => handleFilterChange('endDate', e.target.value)}
-              style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
-            />
-          </div>
+        <div style={{ display: 'flex', gap: '5px' }}>
+          <input
+            type="date"
+            value={filters.startDate || ''}
+            onChange={e => handleFilterChange('startDate', e.target.value)}
+            style={{ ...inputBase, flex: 1 }}
+          />
+          <input
+            type="date"
+            value={filters.endDate || ''}
+            onChange={e => handleFilterChange('endDate', e.target.value)}
+            style={{ ...inputBase, flex: 1 }}
+          />
         </div>
 
-        {/* Status Filter */}
-        <div className="filter-group-modern">
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9em', color: 'var(--text-light)' }}>Status</label>
+        <div>
           <select
             value={filters.valid || ''}
-            onChange={(e) => handleFilterChange('valid', e.target.value)}
-            style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
+            onChange={e => handleFilterChange('valid', e.target.value)}
+            style={inputBase}
           >
             <option value="">All Sales</option>
-            <option value="true">Valid Sales</option>
-            <option value="false">Invalid Sales</option>
+            <option value="true">Valid</option>
+            <option value="false">Invalid</option>
           </select>
         </div>
 
-        {/* Placeholder for remaining space in second row */}
-        <div className="filter-group-modern" style={{ visibility: 'hidden' }}></div>
-        <div className="filter-group-modern" style={{ visibility: 'hidden' }}></div>
-        
-        <div className="filter-actions-modern" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', gridColumn: 'span var(--num-cols, 1)', alignItems: 'flex-end' }}>
-          <button 
-            onClick={handleClearFilters}
-            style={buttonStyleSecondary}
+        <div style={{ gridColumn: '4 / 5', justifySelf: 'end' }}>
+          <button
+            onClick={handleClear}
+            style={{ padding: '8px 16px', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
           >
-            Clear filters
+            Clear
           </button>
         </div>
       </div>
@@ -330,4 +216,4 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
   );
 };
 
-export default SaleFilterSearch; 
+export default SaleFilterSearch;

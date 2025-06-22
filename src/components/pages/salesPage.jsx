@@ -4,38 +4,55 @@ import SaleFilterSearch from '../SaleFilterSearch';
 import SaleDetails from '../salesDetails';
 import { searchSale } from '../../utils/searchUtils';
 
+// Helper functions to get start of week and today in yyyy-mm-dd format
+function getStartOfWeek(date = new Date()) {
+  const d = new Date(date);
+  const day = d.getDay(); // 0 (Sun) - 6 (Sat)
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is Sunday
+  d.setDate(diff);
+  d.setHours(0, 0, 0, 0);
+  return d.toISOString().slice(0, 10);
+}
+
+function getToday() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d.toISOString().slice(0, 10);
+}
+
 const SalesPage = ({ onCellMouseEnter, onCellMouseLeave }) => {
   const { 
-    sales, 
     filteredSales,
     loading, 
     error, 
-    fetchSales,
     fetchFilteredSales,
     deleteSale
   } = useSalesStore();
-  const [filter, setFilter] = useState({});
+  const [filter, setFilter] = useState({
+    startDate: getStartOfWeek(),
+    endDate: getToday()
+  });
   const [searchQuery, setSearchQuery] = useState('');
-  const [localFilteredSales, setLocalFilteredSales] = useState([]);
   const [showSaleDetailsModal, setShowSaleDetailsModal] = useState(false);
   const [selectedSale, setSelectedSale] = useState(null);
 
   useEffect(() => {
-    fetchSales();
+    // Only fetch filtered sales on mount (with default filter)
+    fetchFilteredSales(filter);
+    // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
     if (Object.keys(filter).length > 0) {
       fetchFilteredSales(filter);
     }
+    // eslint-disable-next-line
   }, [filter]);
 
-  useEffect(() => {
-    if (sales) {
-      const filtered = sales.filter(sale => searchSale(sale, searchQuery));
-      setLocalFilteredSales(filtered);
-    }
-  }, [searchQuery, sales]);
+  // Filtered and searched sales
+  const displaySales = searchQuery.trim()
+    ? filteredSales.filter(sale => searchSale(sale, searchQuery))
+    : filteredSales;
 
   const formatProducts = (products) => {
     if (!products) return 'N/A';
@@ -56,10 +73,6 @@ const SalesPage = ({ onCellMouseEnter, onCellMouseLeave }) => {
   };
 
   if (error) return <div className="content-area"><h2 className="error-message">Error loading sales: {error}</h2></div>;
-
-  // Use filteredSales if filters are applied, otherwise use sales
-  const displaySales = Object.keys(filter).length > 0 ? filteredSales : 
-                      searchQuery.trim() ? localFilteredSales : sales;
 
   return (
     <section>

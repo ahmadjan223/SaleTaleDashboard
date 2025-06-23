@@ -27,6 +27,7 @@ const RetailersPage = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [retailerToDelete, setRetailerToDelete] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [sortBy, setSortBy] = useState('name_az');
 
   useEffect(() => {
     fetchRetailers();
@@ -44,10 +45,15 @@ const RetailersPage = () => {
 
   useEffect(() => {
     if (retailers) {
-      const filtered = retailers.filter(retailer => searchRetailer(retailer, searchQuery));
+      let filtered = retailers.filter(retailer => searchRetailer(retailer, searchQuery));
+      if (sortBy === 'name_az') {
+        filtered = [...filtered].sort((a, b) => (a.retailerName || '').localeCompare(b.retailerName || ''));
+      } else if (sortBy === 'name_za') {
+        filtered = [...filtered].sort((a, b) => (b.retailerName || '').localeCompare(a.retailerName || ''));
+      }
       setLocalFilteredRetailers(filtered);
     }
-  }, [searchQuery, retailers]);
+  }, [searchQuery, retailers, sortBy]);
 
   const handleDelete = (id) => {
     const retailer = retailers.find(r => r._id === id);
@@ -205,7 +211,7 @@ const RetailersPage = () => {
         </div>
       )}
       <RetailerFilterSearch filters={filter} setFilter={setFilter} />
-      <div className="section-header">
+      <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div className="search-container">
           <input
             type="text"
@@ -217,23 +223,46 @@ const RetailersPage = () => {
           />
           <span className="search-icon">🔍</span>
         </div>
-        <div className="header-actions">
-          <button className="action-btn" onClick={handleDownloadCSV}>
-            📥 Download CSV
-          </button>
-          <label className="action-btn" style={{ cursor: 'pointer' }}>
-            📤 Upload CSV
-            <input
-              type="file"
-              accept=".csv"
-              onChange={handleUploadCSV}
-              style={{ display: 'none' }}
-            />
-          </label>
-          <button className="add-btn" onClick={() => setShowAddModal(true)}>
-            <span className="plus-icon">+</span>
-            Add Retailer
-          </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div>
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value)}
+              style={{
+                padding: '0.6rem 0.8rem',
+                borderRadius: '6px',
+                background: 'var(--card-bg)',
+                color: 'var(--text-light)',
+                border: '1px solid var(--border-color)',
+                fontSize: '0.95rem',
+                minWidth: '180px',
+                outline: 'none',
+                transition: 'border 0.2s',
+                cursor: 'pointer',
+              }}
+            >
+              <option value="name_az">Retailer Name: A-Z</option>
+              <option value="name_za">Retailer Name: Z-A</option>
+            </select>
+          </div>
+          <div className="header-actions">
+            <button className="action-btn" onClick={handleDownloadCSV}>
+              📥 Download CSV
+            </button>
+            <label className="action-btn" style={{ cursor: 'pointer' }}>
+              📤 Upload CSV
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleUploadCSV}
+                style={{ display: 'none' }}
+              />
+            </label>
+            <button className="add-btn" onClick={() => setShowAddModal(true)}>
+              <span className="plus-icon">+</span>
+              Add Retailer
+            </button>
+          </div>
         </div>
       </div>
       {!filteredRetailers ? (

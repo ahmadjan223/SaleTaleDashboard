@@ -24,6 +24,7 @@ const SalesPage = ({ onCellMouseEnter, onCellMouseLeave }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSaleDetailsModal, setShowSaleDetailsModal] = useState(false);
   const [selectedSale, setSelectedSale] = useState(null);
+  const [sortBy, setSortBy] = useState('date_desc');
 
   
 
@@ -41,9 +42,24 @@ const SalesPage = ({ onCellMouseEnter, onCellMouseLeave }) => {
   }, [filter]);
 
   // Filtered and searched sales
-  const displaySales = searchQuery.trim()
+  let displaySales = searchQuery.trim()
     ? filteredSales.filter(sale => searchSale(sale, searchQuery))
     : filteredSales;
+
+  // Sort logic
+  if (sortBy === 'date_desc') {
+    displaySales = [...displaySales].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  } else if (sortBy === 'date_asc') {
+    displaySales = [...displaySales].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  } else if (sortBy === 'amount_desc') {
+    displaySales = [...displaySales].sort((a, b) => b.amount - a.amount);
+  } else if (sortBy === 'amount_asc') {
+    displaySales = [...displaySales].sort((a, b) => a.amount - b.amount);
+  } else if (sortBy === 'retailer_az') {
+    displaySales = [...displaySales].sort((a, b) => (a.retailer?.retailerName || '').localeCompare(b.retailer?.retailerName || ''));
+  } else if (sortBy === 'retailer_za') {
+    displaySales = [...displaySales].sort((a, b) => (b.retailer?.retailerName || '').localeCompare(a.retailer?.retailerName || ''));
+  }
 
   const formatProducts = (products) => {
     if (!products) return 'N/A';
@@ -68,7 +84,7 @@ const SalesPage = ({ onCellMouseEnter, onCellMouseLeave }) => {
   return (
     <section>
       <SaleFilterSearch filters={filter} setFilter={setFilter} />
-      <div className="section-header">
+      <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div className="search-container">
           <input
             type="text"
@@ -79,6 +95,30 @@ const SalesPage = ({ onCellMouseEnter, onCellMouseLeave }) => {
             style={{ paddingLeft: '35px' }}
           />
           <span className="search-icon">🔍</span>
+        </div>
+        <div style={{ minWidth: 180 }}>
+          <select
+            value={sortBy}
+            onChange={e => setSortBy(e.target.value)}
+            style={{
+              padding: '0.6rem 0.8rem',
+              borderRadius: '6px',
+              background: 'var(--card-bg)',
+              color: 'var(--text-light)',
+              border: '1px solid var(--border-color)',
+              fontSize: '0.95rem',
+              minWidth: '180px',
+              outline: 'none',
+              transition: 'border 0.2s',
+            }}
+          >
+            <option value="date_desc">Date: Newest First</option>
+            <option value="date_asc">Date: Oldest First</option>
+            <option value="amount_desc">Amount: High to Low</option>
+            <option value="amount_asc">Amount: Low to High</option>
+            <option value="retailer_az">Retailer: A-Z</option>
+            <option value="retailer_za">Retailer: Z-A</option>
+          </select>
         </div>
       </div>
       {loading ? (

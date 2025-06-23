@@ -79,7 +79,7 @@ const SalesDashboard = () => {
   return (
     <div >
       <div className="dashboard-header section-header">
-        <h2>📊 Sales Dashboard</h2>
+        <h2>Statistics</h2>
         <div className="section-header-actions">
           <div className="date-picker-group">
             <label>Start Date</label>
@@ -148,7 +148,8 @@ const SalesDashboard = () => {
 
       {stats && (
         <div className="content-area" style={{ marginTop: '30px' }}>
-          <h3>📈 Total Sales: <span style={{ color: 'var(--accent-green)' }}>Rs. {stats.totalAmount?.toLocaleString()}</span></h3>
+          <h3>📈 Total Sales Amount: <span style={{ color: 'var(--accent-green)' }}>Rs. {stats.totalAmount?.toFixed(2)}</span></h3>
+          <h3> Total Sales Count # <span style={{ color: 'var(--accent-green)' }}>{stats.totalCount?.toFixed(0)}</span></h3>
 
           <div className="stats-section">
             <h4>Product-wise Sales</h4>
@@ -170,7 +171,7 @@ const SalesDashboard = () => {
             <h4>Franchise-wise Sales</h4>
             {stats.franchises?.map(fr => (
               <div key={fr.franchise} className="franchise-card">
-                <div className="franchise-title">{fr.franchise} — <span>Rs. {fr.totalSaleAmount?.toLocaleString()}</span></div>
+                <div className="franchise-title">{fr.franchise} — <span>Rs. {fr.totalSaleAmount?.toFixed(2)} / Total Count # {fr?.totalCount} </span></div>
                 <table className="stats-table">
                   <thead><tr><th>Product</th><th>Qty</th><th>Amount</th></tr></thead>
                   <tbody>

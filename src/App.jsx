@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
-import axios from 'axios'
 import { adminLogout } from './utils/api'
 import { validateAdminToken } from './utils/api'
 
@@ -16,8 +15,9 @@ import RetailersPage from './components/pages/retailersPage'
 import SalesmenPage from './components/pages/salesmenPage'
 import FranchisePage from './components/pages/franchisePage'
 import HomePage from './components/pages/homePage'
-import AdminLogin from './components/AdminLogin'
+import AdminLogin from './components/pages/AdminLogin'
 import AdminProfilePage from './components/pages/AdminProfilePage'
+import LandingPage from './components/pages/LandingPage'
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -143,7 +143,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/" element={<Navigate to="/admin" replace />} />
+        <Route path="/" element={<LandingPage />} />
       </Routes>
       {toast.show && <Toast message={toast.message} type={toast.type} onClose={closeToast} />}
       

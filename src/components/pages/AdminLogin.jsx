@@ -2,7 +2,7 @@
 import './AdminLogin.css'; // Added import for styles (changed)
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginAdmin, validateAdminToken } from '../utils/api';
+import { loginAdmin, validateAdminToken } from '../../utils/api';
 
 const AdminLogin = () => {
   const [formData, setFormData] = useState({
@@ -19,7 +19,7 @@ const AdminLogin = () => {
       if (token) {
         try {
           await validateAdminToken(token);
-          navigate('/');
+          navigate('/admin');
         } catch (error) {
           localStorage.removeItem('adminToken');
           localStorage.removeItem('adminData');
@@ -35,7 +35,7 @@ const AdminLogin = () => {
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value 
     });
   };
 
@@ -57,9 +57,27 @@ const AdminLogin = () => {
   };
 
   return (
+    
     <div className="admin-login-wrapper"> {/* Updated wrapper for full-screen centered flexbox (changed) */}
-      <h1 className="page-title">SaleTaleDashboard</h1> {/* Page title styling applied in CSS (changed) */}
-      <div className="login-card"> {/* Card background and border radius applied (changed) */}
+        <div className="login-card"> {/* Card background and border radius applied (changed) */}
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          style={{
+            marginBottom: '1rem',
+            background: 'none',
+            border: 'none',
+            color: 'var(--accent-green)',
+            fontSize: '1rem',
+            cursor: 'pointer',
+            textAlign: 'left',
+            padding: 0,
+            display: 'block',
+          }}
+          aria-label="Back to landing page"
+        >
+          ← Back
+        </button>
         <h2 className="form-heading">Admin Login</h2> {/* Added class for heading style (changed) */}
         {error && (
           <div className="error-message">

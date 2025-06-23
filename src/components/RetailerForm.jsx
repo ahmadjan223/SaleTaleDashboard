@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import useSalesmanStore from '../store/salesmenStore';
+import useRetailerStore from '../store/retailerStore';
 
 const RetailerForm = ({ onSubmit, onCancel, submitButtonText = 'Add Retailer', title = 'Add New Retailer', initialData = null }) => {
   const { salesmen, fetchSalesmen } = useSalesmanStore();
+  const { loading } = useRetailerStore();
   const [formData, setFormData] = useState({
     retailerName: '',
     shopName: '',
@@ -89,6 +91,68 @@ const RetailerForm = ({ onSubmit, onCancel, submitButtonText = 'Add Retailer', t
   return (
     <form className="add-form" onSubmit={handleSubmit} style={{ maxWidth: '800px', padding:'20px', margin: '0 auto' }}>
       <h3 style={{ color: 'var(--accent-green)', marginBottom: 20 }}>{title}</h3>
+      <div className="form-group" style={{ marginTop: '20px' }}>
+        <label htmlFor="assignedSalesman">Assigned Salesman</label>
+        <div className="filter-group-modern" style={{ position: 'relative', width: "80%" }}>
+          <input
+            type="text"
+            placeholder="Select Salesman"
+            value={isSalesmanDropdownOpen ? salesmanSearchTerm : selectedSalesman}
+            onChange={(e) => {
+              setSalesmanSearchTerm(e.target.value);
+              setIsSalesmanDropdownOpen(true);
+            }}
+            onFocus={() => {
+              setIsSalesmanDropdownOpen(true);
+              setSalesmanSearchTerm('');
+            }}
+            onBlur={() => setTimeout(() => setIsSalesmanDropdownOpen(false), 100)}
+            style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
+            required
+          />
+          {isSalesmanDropdownOpen && (
+            <div className="dropdown-options" style={{
+              position: 'absolute',
+              top: '100%',
+              left: '0',
+              right: '0',
+              zIndex: 1000,
+              background: 'var(--card-bg)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '5px',
+              boxShadow: '0 2px 5px rgba(0,0,0,.1)',
+              maxHeight: '200px',
+              overflowY: 'auto',
+              marginTop: '5px'
+            }}>
+              {salesmen
+                .filter(salesman => 
+                  (salesman.name.toLowerCase().includes(salesmanSearchTerm.toLowerCase()) ||
+                   salesman._id.toLowerCase().includes(salesmanSearchTerm.toLowerCase())) &&
+                  salesman.active
+                )
+                .map(salesman => (
+                  <div
+                    key={salesman._id}
+                    onMouseDown={() => handleSalesmanSelect(salesman)}
+                    style={{ ...dropdownOptionStyle, color: 'var(--text-light)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--table-row-hover)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
+                  >
+                    {salesman.name}
+                  </div>
+                ))}
+              {salesmen.filter(salesman => 
+                (salesman.name.toLowerCase().includes(salesmanSearchTerm.toLowerCase()) ||
+                 salesman._id.toLowerCase().includes(salesmanSearchTerm.toLowerCase())) &&
+                salesman.active
+              ).length === 0 && (
+                <div style={{ ...dropdownOptionStyle, cursor: 'default', color: 'var(--text-light)', background: 'var(--card-bg)' }}>No active salesmen found</div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
       <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
         <div className="form-group" style={{ flex: '1', minWidth: 0 }}>
           <label htmlFor="retailerName">Retailer Name</label>
@@ -159,77 +223,19 @@ const RetailerForm = ({ onSubmit, onCancel, submitButtonText = 'Add Retailer', t
         />
       </div>
 
-      <div className="form-group" style={{ marginTop: '20px' }}>
-        <label htmlFor="assignedSalesman">Assigned Salesman</label>
-        <div className="filter-group-modern" style={{ position: 'relative', width: "80%" }}>
-          <input
-            type="text"
-            placeholder="Select Salesman"
-            value={isSalesmanDropdownOpen ? salesmanSearchTerm : selectedSalesman}
-            onChange={(e) => {
-              setSalesmanSearchTerm(e.target.value);
-              setIsSalesmanDropdownOpen(true);
-            }}
-            onFocus={() => {
-              setIsSalesmanDropdownOpen(true);
-              setSalesmanSearchTerm('');
-            }}
-            onBlur={() => setTimeout(() => setIsSalesmanDropdownOpen(false), 100)}
-            style={{ ...inputStyle, backgroundColor: 'var(--card-bg)', color: 'var(--text-light)' }}
-            required
-          />
-          {isSalesmanDropdownOpen && (
-            <div className="dropdown-options" style={{
-              position: 'absolute',
-              top: '100%',
-              left: '0',
-              right: '0',
-              zIndex: 1000,
-              background: 'var(--card-bg)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '5px',
-              boxShadow: '0 2px 5px rgba(0,0,0,.1)',
-              maxHeight: '200px',
-              overflowY: 'auto',
-              marginTop: '5px'
-            }}>
-              {salesmen
-                .filter(salesman => 
-                  (salesman.name.toLowerCase().includes(salesmanSearchTerm.toLowerCase()) ||
-                   salesman._id.toLowerCase().includes(salesmanSearchTerm.toLowerCase())) &&
-                  salesman.active
-                )
-                .map(salesman => (
-                  <div
-                    key={salesman._id}
-                    onMouseDown={() => handleSalesmanSelect(salesman)}
-                    style={{ ...dropdownOptionStyle, color: 'var(--text-light)' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--table-row-hover)'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
-                  >
-                    {salesman.name}
-                  </div>
-                ))}
-              {salesmen.filter(salesman => 
-                (salesman.name.toLowerCase().includes(salesmanSearchTerm.toLowerCase()) ||
-                 salesman._id.toLowerCase().includes(salesmanSearchTerm.toLowerCase())) &&
-                salesman.active
-              ).length === 0 && (
-                <div style={{ ...dropdownOptionStyle, cursor: 'default', color: 'var(--text-light)', background: 'var(--card-bg)' }}>No active salesmen found</div>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
 
-      <div className="form-actions" style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-        <button type="button" className="cancel-btn" onClick={onCancel}>
-          Cancel
-        </button>
-        <button type="submit" className="confirm-btn">
-          {submitButtonText}
-        </button>
-      </div>
+      {loading ? (
+        <div style={{marginTop:20, fontWeight:'bold', color:'var(--accent-color)'}}>processing...</div>
+      ) : (
+        <div className="form-actions" style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+          <button type="button" className="cancel-btn" onClick={onCancel}>
+            Cancel
+          </button>
+          <button type="submit" className="confirm-btn">
+            {submitButtonText}
+          </button>
+        </div>
+      )}
     </form>
   );
 };

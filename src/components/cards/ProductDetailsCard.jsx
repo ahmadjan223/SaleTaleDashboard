@@ -1,98 +1,88 @@
-// File: src/components/ProductDetailsCard.jsx
-
 import React from 'react';
-import '../app.css'; // ensure theme variables are defined here
+import '../app.css';
 
-const ProductDetailsCard = ({ product }) => {
+const ProductDetailsCard = ({ product, onClose }) => {
   if (!product) return null;
 
   const formatDate = (dateString) => new Date(dateString).toLocaleString();
 
-  // Card and typography styles using theme variables
-  const cardStyle = {
-    backgroundColor: 'var(--card-bg)',
-    color: 'var(--text-light)',
-    border: '1px solid var(--border-color)',
-    borderRadius: '8px',
-    padding: '1.5rem',
-    maxWidth: '600px',
-    margin: '1rem auto',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-    fontFamily: 'Arial, sans-serif'
-  };
-  const headerStyle = {
-    textAlign: 'center',
-    marginBottom: '1.5rem',
-  };
-  const titleStyle = {
-    margin: '0 0 0.5rem 0',
-    color: 'var(--accent-green)',
-    fontSize: '1.75rem'
-  };
-  const subtitleStyle = {
-    margin: '0',
-    color: 'var(--text-light)',
-    opacity: 0.8
-  };
-  const sectionGrid = {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '1.5rem',
-    marginBottom: '1.5rem'
-  };
-  const infoSection = {
-    backgroundColor: 'var(--background-dark)',
-    borderRadius: '6px',
-    padding: '1rem'
-  };
-  const sectionHeader = {
-    margin: '0 0 0.75rem 0',
-    borderBottom: '1px solid var(--border-color)',
-    paddingBottom: '0.5rem',
-    color: 'var(--accent-green)',
-    fontSize: '1.25rem'
-  };
-  const rowStyle = {
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginBottom: '0.5rem'
-  };
-  const labelStyle = {
-    fontWeight: 'bold'
-  };
-  const statusStyle = {
-    color: product.active ? 'var(--accent-green)' : 'var(--danger-red)',
-    fontWeight: 'bold'
-  };
-
   return (
-    <div style={cardStyle}>
-      <div style={headerStyle}>
-        <h2 style={titleStyle}>Product Details</h2>
-        <p style={subtitleStyle}>Added on {formatDate(product.createdAt)}</p>
-      </div>
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1000
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          backgroundColor: 'var(--card-bg)',
+          color: 'var(--text-light)',
+          borderRadius: '8px',
+          padding: '24px',
+          maxWidth: '600px',
+          width: '90%',
+          margin: '1rem',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Heading */}
+        <h2 style={{
+          color: 'var(--accent-green)',
+          fontSize: '1.75rem',
+          margin: '0 0 16px 0',
+          textAlign: 'center'
+        }}>
+          Product Details
+        </h2>
 
-      <div style={sectionGrid}>
-        {/* Basic Information */}
-        <div style={infoSection}>
-          <h3 style={sectionHeader}>Basic Information</h3>
-          <div style={rowStyle}><span style={labelStyle}>Name:</span><span>{product.name || 'N/A'}</span></div>
-          <div style={rowStyle}><span style={labelStyle}>Description:</span><span>{product.description || 'N/A'}</span></div>
-          <div style={rowStyle}><span style={labelStyle}>Status:</span><span style={statusStyle}>{product.active ? 'Active' : 'Inactive'}</span></div>
+        {/* Details Grid */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+        <div style={{ flex: '1 1 45%' }}>
+          <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-light)', opacity: 0.7 }}>ID</p>
+          <p style={{ margin: '4px 0 0', fontSize: '16px', color: 'var(--text-light)', fontWeight: 'bold' }}>
+            {product._id}
+          </p>
         </div>
-
-        {/* Pricing Information */}
-        <div style={infoSection}>
-          <h3 style={sectionHeader}>Pricing Information</h3>
-          <div style={rowStyle}><span style={labelStyle}>Price:</span><span>Rs. {product.price?.toFixed(4) || 'N/A'}</span></div>
-          <div style={rowStyle}><span style={labelStyle}>ID:</span><span>{product._id || 'N/A'}</span></div>
+        <div style={{ flex: '1 1 45%' }}>
+          <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-light)', opacity: 0.7 }}>Added On</p>
+          <p style={{ margin: '4px 0 0', fontSize: '16px', color: 'var(--text-light)', fontWeight: 'bold' }}>
+            {formatDate(product.createdAt)}
+          </p>
         </div>
-      </div>
-
-      {/* Additional Information */}
-      <div style={{ ...infoSection, marginTop: '1rem' }}>
-        <h3 style={sectionHeader}>Additional Information</h3>
-        <div style={rowStyle}><span style={labelStyle}>Version:</span><span>{product.__v ?? '0'}</span></div>
+          <div style={{ flex: '1 1 45%' }}>
+            <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-light)', opacity: 0.7 }}>Name</p>
+            <p style={{ margin: '4px 0 0', fontSize: '16px', color: 'var(--text-light)', fontWeight: 'bold' }}>
+              {product.name || 'N/A'}
+            </p>
+          </div>
+          <div style={{ flex: '1 1 45%' }}>
+            <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-light)', opacity: 0.7 }}>Description</p>
+            <p style={{ margin: '4px 0 0', fontSize: '16px', color: 'var(--text-light)', fontWeight: 'bold' }}>
+              {product.description || 'N/A'}
+            </p>
+          </div>
+          <div style={{ flex: '1 1 45%' }}>
+            <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-light)', opacity: 0.7 }}>Status</p>
+            <p style={{ margin: '4px 0 0', fontSize: '16px', color: product.active ? 'var(--accent-green)' : 'var(--danger-red)', fontWeight: 'bold' }}>
+              {product.active ? 'Active' : 'Inactive'}
+            </p>
+          </div>
+          <div style={{ flex: '1 1 45%' }}>
+            <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-light)', opacity: 0.7 }}>Price</p>
+            <p style={{ margin: '4px 0 0', fontSize: '16px', color: 'var(--text-light)', fontWeight: 'bold' }}>
+              Rs. {product.price?.toFixed(2) || 'N/A'}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -2,22 +2,9 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import useSalesmenStore from '../store/salesmenStore';
 import useRetailerStore from '../store/retailerStore';
 import useProductStore from '../store/productStore';
-
+import {format, subDays } from 'date-fns';
 // Helper functions to get start of week and today in yyyy-mm-dd format
-function getStartOfWeek(date = new Date()) {
-  const d = new Date(date);
-  const day = d.getDay(); // 0 (Sun) - 6 (Sat)
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is Sunday
-  d.setDate(diff);
-  d.setHours(0, 0, 0, 0);
-  return d.toISOString().slice(0, 10);
-}
 
-function getToday() {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return d.toISOString().slice(0, 10);
-}
 
 const SaleFilterSearch = ({ filters, setFilter }) => {
   const [saleId, setSaleId] = useState('');
@@ -37,10 +24,20 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
   const { products, fetchProducts } = useProductStore();
   const { retailers, fetchRetailers } = useRetailerStore();
 
+  const today = format(new Date(), 'yyyy-MM-dd');
+  const weekAgo = format(subDays(new Date(), 6), 'yyyy-MM-dd');
+
   useEffect(() => {
     fetchSalesmen();
     fetchProducts();
     fetchRetailers();
+  }, []);
+
+  useEffect(() => {
+    setFilter({
+      startDate: weekAgo,
+      endDate: today
+    });
   }, []);
 
   const uniqueSalesmen = useMemo(() =>
@@ -62,8 +59,8 @@ const SaleFilterSearch = ({ filters, setFilter }) => {
 
   const handleClear = useCallback(() => {
     setFilter({
-      startDate: getStartOfWeek(),
-      endDate: getToday()
+      startDate: weekAgo,
+      endDate: today
     });
     setSaleId('');
     setSelectedSalesman(''); setSalesmanSearchTerm('');

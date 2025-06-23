@@ -316,12 +316,8 @@ const RetailersPage = () => {
       {showDetailsModal && selectedRetailer && (
         <div className="modal-overlay">
           <div className="modal-content" style={{ zIndex: 1001 }}>
-            <div className="modal-header">
-              <h3>Retailer Details</h3>
-              <button className="modal-close-btn" onClick={() => setShowDetailsModal(false)}>×</button>
-            </div>
             <div className="modal-body">
-              <RetailerDetailsCard retailer={selectedRetailer} />
+              <RetailerDetailsCard retailer={selectedRetailer} onClose={() => setShowDetailsModal(false)} />
             </div>
           </div>
         </div>

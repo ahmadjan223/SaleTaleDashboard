@@ -224,7 +224,7 @@ const SalesmenPage = () => {
           </button>
         </div>
       </div>
-      {!(filteredSalesmen ) ? (
+      {!(filteredSalesmen) ? (
         <div className="table-container">
           <div className="loading-message">Loading salesmen data...</div>
         </div>
@@ -247,7 +247,7 @@ const SalesmenPage = () => {
                 {(Object.keys(filter).length > 0 ? filteredSalesmen : localFilteredSalesmen).map((s, index) => (
                   <tr key={s._id} onClick={() => handleRowClick(s)} style={{ cursor: 'pointer' }}>
                     <td>{index + 1}</td>
-                    <td>{`${s.firstName} ${s.lastName}`}</td>
+                    <td>{s.name}</td>
                     <td>{s.email}</td>
                     <td>{s.contactNo}</td>
                     <td>{s.franchise?.name || 'N/A'}</td>
@@ -291,18 +291,8 @@ const SalesmenPage = () => {
       )}
 
       {/* Details Modal */}
-      {showDetailsModal && selectedSalesman && (
-        <div className="modal-overlay" onClick={() => setShowDetailsModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Salesman Details</h3>
-              <button className="close-btn" onClick={() => setShowDetailsModal(false)}>×</button>
-            </div>
-            <div className="modal-body">
-              <SalesmanDetailsCard salesman={selectedSalesman} />
-            </div>
-          </div>
-        </div>
+      {showDetailsModal && (
+        <SalesmanDetailsCard salesman={selectedSalesman} onClose={() => setShowDetailsModal(false)} />
       )}
 
       {/* Add Modal */}
@@ -324,17 +314,17 @@ const SalesmenPage = () => {
       {showEditModal && selectedSalesman && (
         <div className="modal-overlay">
           <div className="modal">
-              <SalesmanForm
-                onSubmit={handleEditSalesman}
-                onCancel={() => {
-                  setShowEditModal(false);  
-                  setSelectedSalesman(null);
-                }}
-                submitButtonText="Update Salesman"
-                title="Edit Salesman"
-                initialData={selectedSalesman}
-              />
-            </div>
+            <SalesmanForm
+              onSubmit={handleEditSalesman}
+              onCancel={() => {
+                setShowEditModal(false);  
+                setSelectedSalesman(null);
+              }}
+              submitButtonText="Update Salesman"
+              title="Edit Salesman"
+              initialData={selectedSalesman}
+            />
+          </div>
         </div>
       )}
 

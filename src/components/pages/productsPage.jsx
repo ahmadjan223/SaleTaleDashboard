@@ -232,12 +232,8 @@ const ProductsPage = () => {
       {showDetailsModal && selectedProduct && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <div className="modal-header">
-              <h3>Product Details</h3>
-              <button className="modal-close-btn" onClick={handleCloseModal}>×</button>
-            </div>
             <div className="modal-body">
-              <ProductDetailsCard product={selectedProduct} />
+              <ProductDetailsCard product={selectedProduct} onClose={handleCloseModal} />
             </div>
           </div>
         </div>

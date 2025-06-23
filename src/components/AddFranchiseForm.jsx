@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import useFranchiseStore from '../store/franchiseStore';
 
 const AddFranchiseForm = ({ franchise, onClose }) => {
-  const { addFranchise, updateFranchise } = useFranchiseStore();
+  const { addFranchise, updateFranchise,loading } = useFranchiseStore();
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -95,7 +95,9 @@ const AddFranchiseForm = ({ franchise, onClose }) => {
         />
       </div>
 
+        {loading ? "processing...": 
       <div className="form-actions">
+        
         <button type="submit" className="submit-btn">
           {franchise ? 'Update Franchise' : 'Add Franchise'}
         </button>
@@ -103,6 +105,7 @@ const AddFranchiseForm = ({ franchise, onClose }) => {
           Cancel
         </button>
       </div>
+}
 
       <style jsx>{`
         .form {

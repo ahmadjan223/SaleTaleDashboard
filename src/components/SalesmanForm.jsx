@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import useFranchiseStore from '../store/franchiseStore';
+import useSalesmanStore from '../store/salesmenStore';
 
 const SalesmanForm = ({ onSubmit, onCancel, submitButtonText = 'Add Salesman', title = 'Add New Salesman', initialData = null }) => {
   const { franchises, fetchFranchises } = useFranchiseStore();
+  const { loading } = useSalesmanStore();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -235,14 +237,18 @@ const SalesmanForm = ({ onSubmit, onCancel, submitButtonText = 'Add Salesman', t
         </div>
       </div>
 
-      <div className="form-actions" style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-        <button type="button" className="cancel-btn" onClick={onCancel}>
-          Cancel
-        </button>
-        <button type="submit" className="confirm-btn">
-          {submitButtonText}
-        </button>
-      </div>
+      {loading ? (
+        <div style={{marginTop:20, fontWeight:'bold', color:'var(--accent-color)'}}>processing...</div>
+      ) : (
+        <div className="form-actions" style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+          <button type="button" className="cancel-btn" onClick={onCancel}>
+            Cancel
+          </button>
+          <button type="submit" className="confirm-btn">
+            {submitButtonText}
+          </button>
+        </div>
+      )}
     </form>
   );
 };

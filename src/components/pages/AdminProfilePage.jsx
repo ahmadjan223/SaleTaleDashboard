@@ -60,16 +60,22 @@ const AdminProfilePage = () => {
         const res = await updateAdminEmail(forms.email);
         setAdminData(res.admin);
         showSuccess('Email updated');
+        setTimeout(() => handleLogout(), 1000);
+        return;
       } else if (field === 'phone') {
         const res = await updateAdminPhone(forms.phone);
         setAdminData(res.admin);
         showSuccess('Phone updated');
+        setTimeout(() => handleLogout(), 1000);
+        return;
       } else if (field === 'password') {
         const { newPassword, confirmPassword } = forms.password;
         if (newPassword !== confirmPassword) return showError('Passwords do not match');
         if (newPassword.length < 6) return showError('Minimum 6 characters required');
         await updateAdminPassword(forms.password);
         showSuccess('Password updated');
+        setTimeout(() => handleLogout(), 1000);
+        return;
       }
       setActiveEdit(null);
     } catch (err) {
@@ -174,7 +180,7 @@ const AdminProfilePage = () => {
       <div className="profile-header custom-admin-header">
       </div>
 
-      {error && <div className="error-message">{error}</div>}
+      {error && <div className="error-message">Password is incorrect or the format is not valid</div>}
       {success && <div className="success-message">{success}</div>}
 
       <div className="profile-card">

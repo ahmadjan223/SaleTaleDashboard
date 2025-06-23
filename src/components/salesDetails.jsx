@@ -1,103 +1,146 @@
-// File: src/pages/SaleDetails.js
+  import React from 'react';
+  import './app.css';
 
-import React from 'react';
-import './app.css';
+  const SaleDetails = ({ sale, onClose }) => {
+    if (!sale) return null;
 
-const SaleDetails = ({ sale, onClose }) => {
-  if (!sale) return null;
+    const formatDate = (dateString) => new Date(dateString).toLocaleString();
 
-  const formatDate = (dateString) => new Date(dateString).toLocaleString();
-
-  const formatProducts = (products) => Object.entries(products).map(([name, details]) => (
-    <div key={name} style={{ marginBottom: '15px' }}>
-      <p style={{ margin: '0 0 5px 0', fontWeight: 'bold' }}>{name}</p>
-      <p style={{ margin: '2px 0', paddingLeft: '20px' }}>Quantity: {details.quantity.toLocaleString()}</p>
-      <p style={{ margin: '2px 0', paddingLeft: '20px' }}>Price: Rs. {details.price.toFixed(4)}</p>
-      <p style={{ margin: '2px 0', paddingLeft: '20px' }}>Total: Rs. {details.total.toLocaleString()}</p>
-    </div>
-  ));
-
-  return (
-    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-        <h2 style={{ margin: '0 0 5px 0' }}>Sale Invoice</h2>
-        <p style={{ margin: '0', color: '#666' }}>{formatDate(sale.createdAt)}</p>
-      </div>
-
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: '1fr 1fr', 
-        gap: '30px',
-        marginBottom: '20px',
-        border: '1px solid #ddd',
-        borderRadius: '4px',
-        padding: '20px'
-      }}>
-        <div>
-          <h3 style={{ margin: '0 0 10px 0', borderBottom: '1px solid #ddd', paddingBottom: '5px' }}>Retailer Details</h3>
-          <p style={{ margin: '5px 0' }}><strong>Name:</strong> {sale.retailer?.retailerName || 'N/A'}</p>
-          <p style={{ margin: '5px 0' }}><strong>Contact:</strong> {sale.retailer?.contactNo || 'N/A'}</p>
-        </div>
-
-        <div>
-          <h3 style={{ margin: '0 0 10px 0', borderBottom: '1px solid #ddd', paddingBottom: '5px' }}>Salesman Details</h3>
-          <p style={{ margin: '5px 0' }}><strong>Name:</strong> {sale.addedBy?.name || 'N/A'}</p>
-          <p style={{ margin: '5px 0' }}><strong>Contact:</strong> {sale.addedBy?.contactNo || 'N/A'}</p>
-        </div>
-      </div>
-
-      <div style={{ 
-        marginBottom: '20px',
-        border: '1px solid #ddd',
-        borderRadius: '4px',
-        padding: '20px'
-      }}>
-        <h3 style={{ margin: '0 0 10px 0', borderBottom: '1px solid #ddd', paddingBottom: '5px' }}>Products</h3>
-        {formatProducts(sale.products)}
-        <div style={{ 
-          marginTop: '15px', 
-          borderTop: '1px solid #ddd',
-          paddingTop: '10px'
-        }}>
-          <p style={{ margin: '5px 0', fontWeight: 'bold' }}>Total Amount: Rs. {sale.amount.toLocaleString()}</p>
-        </div>
-      </div>
-
-      {sale.coordinates?.coordinates && (
-        <div style={{ 
-          marginTop: '20px', 
-          textAlign: 'center',
-          border: '1px solid #ddd',
-          borderRadius: '4px',
-          padding: '20px'
-        }}>
-          <a
-            href={`https://www.google.com/maps?q=${sale.coordinates.coordinates[1].toFixed(4)},${sale.coordinates.coordinates[0].toFixed(4)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: '#0066cc', textDecoration: 'underline' }}
-          >
-            View Location on Map
-          </a>
-        </div>
-      )}
-
-      <div style={{ textAlign: 'center', marginTop: '20px' }}>
-        <button 
-          onClick={onClose}
+    return (
+      // Overlay backdrop: click outside closes modal
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000,
+        }}
+        onClick={onClose}
+      >
+        <div
           style={{
-            background: 'none',
-            border: 'none',
-            color: '#666',
-            cursor: 'pointer',
-            textDecoration: 'underline'
+            position: 'relative',
+            backgroundColor: '#1e1e1e',
+            borderRadius: '8px',
+            maxHeight: '80vh',
+            width: '90%',
+            maxWidth: '600px',
+            overflowY: 'auto',
+            padding: '24px',
+            boxSizing: 'border-box',
+            color: '#fff',
           }}
+          onClick={(e) => e.stopPropagation()}
         >
-          Close
-        </button>
-      </div>
-    </div>
-  );
-};
+          {/* Heading */}
+          <h2 style={{
+            color: '#31C58D',
+            fontSize: '24px',
+            fontWeight: 'bold',
+            margin: 0,
+            marginBottom: '16px',
+          }}>
+            Sale Details
+          </h2>
 
-export default SaleDetails;
+          {/* Header details */}
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '16px',
+              marginBottom: '24px',
+            }}
+          >
+            {[
+              { label: 'Sale ID', value: sale._id },
+              { label: 'Date', value: formatDate(sale.createdAt) },
+              { label: 'Retailer Name', value: sale.retailer?.retailerName },
+              { label: 'Retailer Contact', value: sale.retailer?.contactNo },
+              { label: 'Salesman Name', value: sale.addedBy?.name },
+              { label: 'Salesman Contact', value: sale.addedBy?.contactNo },
+            ].map(({ label, value }) => (
+              <div key={label} style={{ flex: '1 1 45%' }}>
+                <p style={{ margin: 0, fontSize: '14px', color: '#aaa' }}>
+                  {label}
+                </p>
+                <p style={{ margin: '4px 0 0', fontSize: '16px', color: '#fff', fontWeight: 'bold' }}>
+                  {value || 'N/A'}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Products table */}
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '16px' }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: 'left', padding: '8px 4px', color: '#fff' }}>Product</th>
+                <th style={{ textAlign: 'right', padding: '8px 4px', color: '#fff' }}>Qty</th>
+                <th style={{ textAlign: 'right', padding: '8px 4px', color: '#fff' }}>Price</th>
+                <th style={{ textAlign: 'right', padding: '8px 4px', color: '#fff' }}>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(sale.products).map(([name, details]) => (
+                <tr key={name}>
+                  <td style={{ padding: '8px 4px', color: '#fff', fontSize: '16px' }}>{name}</td>
+                  <td style={{ padding: '8px 4px', textAlign: 'right', color: '#fff', fontSize: '16px' }}>
+                    {details.quantity.toLocaleString()}
+                  </td>
+                  <td style={{ padding: '8px 4px', textAlign: 'right', color: '#fff', fontSize: '16px' }}>
+                    Rs. {details.price.toFixed(4)}
+                  </td>
+                  <td style={{ padding: '8px 4px', textAlign: 'right', color: '#fff', fontSize: '16px' }}>
+                    Rs. {details.total.toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colSpan="3" style={{ padding: '8px 4px', textAlign: 'right', fontWeight: 'bold', color: '#fff', fontSize: '16px' }}>
+                  Total Amount
+                </td>
+                <td style={{ padding: '8px 4px', textAlign: 'right', fontWeight: 'bold', color: '#fff', fontSize: '16px' }}>
+                  Rs. {sale.amount.toLocaleString()}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+
+          {/* View Location button */}
+          {sale.coordinates?.coordinates && (
+            <button
+              onClick={() => window.open(
+                `https://www.google.com/maps?q=${sale.coordinates.coordinates[1].toFixed(4)},${sale.coordinates.coordinates[0].toFixed(4)}`,
+                '_blank'
+              )}
+              style={{
+                position: 'absolute',
+                top: '24px',
+                right: '24px',
+                backgroundColor: '#31C58D',
+                border: 'none',
+                borderRadius: '4px',
+                padding: '8px 12px',
+                color: '#fff',
+                fontSize: '14px',
+                cursor: 'pointer',
+              }}
+            >
+              View Location
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  export default SaleDetails;

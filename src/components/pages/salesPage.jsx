@@ -3,24 +3,13 @@ import useSalesStore from '../../store/salesStore';
 import SaleFilterSearch from '../SaleFilterSearch';
 import SaleDetails from '../salesDetails';
 import { searchSale } from '../../utils/searchUtils';
+import {format, subDays } from 'date-fns';
 
-// Helper functions to get start of week and today in yyyy-mm-dd format
-function getStartOfWeek(date = new Date()) {
-  const d = new Date(date);
-  const day = d.getDay(); // 0 (Sun) - 6 (Sat)
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is Sunday
-  d.setDate(diff);
-  d.setHours(0, 0, 0, 0);
-  return d.toISOString().slice(0, 10);
-}
-
-function getToday() {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return d.toISOString().slice(0, 10);
-}
 
 const SalesPage = ({ onCellMouseEnter, onCellMouseLeave }) => {
+
+  const today = format(new Date(), 'yyyy-MM-dd');
+  const weekAgo = format(subDays(new Date(), 6), 'yyyy-MM-dd');
   const { 
     filteredSales,
     loading, 
@@ -29,12 +18,14 @@ const SalesPage = ({ onCellMouseEnter, onCellMouseLeave }) => {
     deleteSale
   } = useSalesStore();
   const [filter, setFilter] = useState({
-    startDate: getStartOfWeek(),
-    endDate: getToday()
+    startDate: weekAgo,
+    endDate: today
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [showSaleDetailsModal, setShowSaleDetailsModal] = useState(false);
   const [selectedSale, setSelectedSale] = useState(null);
+
+  
 
   useEffect(() => {
     // Only fetch filtered sales on mount (with default filter)

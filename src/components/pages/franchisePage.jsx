@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import useFranchiseStore from '../../store/franchiseStore';
-import { deleteFranchise } from '../../utils/api';
 import AddFranchiseForm from '../AddFranchiseForm';
 import FranchiseDetailsCard from '../cards/FranchiseDetailsCard';
 import { searchFranchise } from '../../utils/searchUtils';
+import PasswordConfirmModal from '../PasswordConfirmModal';
 
 const FranchisePage = () => {
-  const { franchises, fetchFranchises, loading, error, addFranchise, updateFranchise, toggleFranchiseStatus } = useFranchiseStore();
+  const store = useFranchiseStore();
+  const { franchises, fetchFranchises } = store;
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredFranchises, setFilteredFranchises] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedFranchise, setSelectedFranchise] = useState(null);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [franchiseToDelete, setFranchiseToDelete] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     fetchFranchises();
@@ -25,15 +28,35 @@ const FranchisePage = () => {
     }
   }, [searchQuery, franchises]);
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this franchise?')) {
-      await deleteFranchise(id);
+  const handleDelete = (id) => {
+    const franchise = franchises.find(f => f._id === id);
+    setFranchiseToDelete(franchise);
+    setShowPasswordModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (franchiseToDelete) {
+      try {
+        await store.deleteFranchise(franchiseToDelete._id);
+        setFranchiseToDelete(null);
+        setShowPasswordModal(false);
+        fetchFranchises(); // Refresh the list
+      } catch (err) {
+        alert(err.message || 'Failed to delete franchise. Please try again.');
+        setFranchiseToDelete(null);
+        setShowPasswordModal(false);
+      }
     }
+  };
+
+  const handleCancelDelete = () => {
+    setFranchiseToDelete(null);
+    setShowPasswordModal(false);
   };
 
   const handleEdit = (franchise) => {
     setSelectedFranchise(franchise);
-    setShowDetailsModal(true);
+    setShowEditModal(true);
   };
 
   const handleRowClick = (franchise) => {
@@ -43,6 +66,11 @@ const FranchisePage = () => {
 
   const handleCloseModal = () => {
     setShowDetailsModal(false);
+    setSelectedFranchise(null);
+  };
+
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
     setSelectedFranchise(null);
   };
 
@@ -75,9 +103,6 @@ const FranchisePage = () => {
     );
   }
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
 
   return (
     <section>
@@ -109,7 +134,7 @@ const FranchisePage = () => {
                 <th>Name</th>
                 <th>Address</th>
                 <th>Master SIM No</th>
-                <th>Active</th>
+                {/* <th>Active</th> */}
                 <th>Actions</th>
               </tr>
             </thead>
@@ -120,7 +145,7 @@ const FranchisePage = () => {
                   <td>{f.name || 'N/A'}</td>
                   <td>{f.address || 'N/A'}</td>
                   <td>{f.masterSimNo || 'N/A'}</td>
-                  <td>
+                  {/* <td>
                     <span className={`status-badge ${f.active ? 'active' : 'inactive'}`}>
                       <button
                         onClick={(e) => {
@@ -144,7 +169,7 @@ const FranchisePage = () => {
                         {f.active ? 'Active' : 'Inactive'}
                       </button>
                     </span>
-                  </td>
+                  </td> */}
                   <td>
                   <div className="action-buttons">
                     <button onClick={(e) => { e.stopPropagation(); handleEdit(f); }} className="action-btn icon-btn edit-btn">🖊️</button>
@@ -179,16 +204,34 @@ const FranchisePage = () => {
       {showDetailsModal && selectedFranchise && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <div className="modal-header">
-              <h3>Franchise Details</h3>
-              <button className="modal-close-btn" onClick={handleCloseModal}>×</button>
-            </div>
             <div className="modal-body">
-              <FranchiseDetailsCard franchise={selectedFranchise} />
+              <FranchiseDetailsCard franchise={selectedFranchise} onClose={handleCloseModal} />
             </div>
           </div>
         </div>
       )}
+
+      {showEditModal && selectedFranchise && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Edit Franchise</h3>
+              <button className="modal-close-btn" onClick={handleCloseEditModal}>×</button>
+            </div>
+            <div className="modal-body">
+              <AddFranchiseForm franchise={selectedFranchise} onClose={handleCloseEditModal} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <PasswordConfirmModal
+        visible={showPasswordModal}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        title="Confirm Delete"
+        message="For this action, enter your password to confirm deletion."
+      />
     </section>
   );
 };

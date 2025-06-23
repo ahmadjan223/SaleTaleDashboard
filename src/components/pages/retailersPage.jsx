@@ -26,6 +26,7 @@ const RetailersPage = () => {
   const [selectedRetailer, setSelectedRetailer] = useState(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [retailerToDelete, setRetailerToDelete] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     fetchRetailers();
@@ -96,7 +97,7 @@ const RetailersPage = () => {
       fetchRetailers(); // Refresh the list
     } catch (error) {
       console.error('Error adding retailer:', error);
-      alert('Failed to add retailer. Please try again.');
+      alert('Failed to add retailer. Check form values');
     }
   };
 
@@ -134,6 +135,7 @@ const RetailersPage = () => {
     const file = event.target.files[0];
     if (!file) return;
 
+    setIsUploading(true);
     try {
       const response = await uploadRetailersCSV(file);
       if (response.success) {
@@ -145,6 +147,8 @@ const RetailersPage = () => {
     } catch (error) {
       console.error('CSV Upload Error:', error);
       alert('Error uploading CSV: ' + (error.response?.data?.message || error.message || 'Something went wrong'));
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -192,6 +196,14 @@ const RetailersPage = () => {
 
   return (
     <section>
+      {isUploading && (
+        <div className="modal-overlay" style={{ zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div style={{ color: 'white', fontSize: '1.5rem', textAlign: 'center' }}>
+            <p>Uploading and processing CSV...</p>
+            <p>This may take a moment. Please wait.</p>
+          </div>
+        </div>
+      )}
       <RetailerFilterSearch filters={filter} setFilter={setFilter} />
       <div className="section-header">
         <div className="search-container">

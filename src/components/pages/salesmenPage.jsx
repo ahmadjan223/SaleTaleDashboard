@@ -5,6 +5,7 @@ import SalesmanForm from '../SalesmanForm';
 import SalesmanDetailsCard from '../cards/SalesmanDetailsCard';
 import SalesmanFilterSearch from '../SalesmanFilterSearch';
 import { searchSalesman } from '../../utils/searchUtils';
+import PasswordConfirmModal from '../PasswordConfirmModal';
 
 const SalesmenPage = () => {
   const { 
@@ -23,6 +24,9 @@ const SalesmenPage = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedSalesman, setSelectedSalesman] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [salesmanToDelete, setSalesmanToDelete] = useState(null);
 
   useEffect(() => {
     fetchSalesmen();
@@ -41,25 +45,45 @@ const SalesmenPage = () => {
     }
   }, [searchQuery, salesmen]);
 
-  const handleDelete = async (id) => {
+  const handleDelete = (id) => {
+    const salesman = salesmen.find(s => s._id === id);
+    setSalesmanToDelete(salesman);
+    setShowPasswordModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (salesmanToDelete) {
       try {
-        await deleteSalesman(id);
-        // Refresh the salesmen list after successful deletion
-        fetchSalesmen();
+        await deleteSalesman(salesmanToDelete._id);
+        fetchSalesmen(); // Refresh the list
       } catch (error) {
         console.error('Error deleting salesman:', error);
         alert('Failed to delete salesman. Please try again.');
+      } finally {
+        setSalesmanToDelete(null);
+        setShowPasswordModal(false);
       }
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setSalesmanToDelete(null);
+    setShowPasswordModal(false);
   };
 
   const handleToggleStatus = async (id, currentStatus) => {
-    try {
-      await toggleSalesmanStatus(id, !currentStatus);
-      // Refresh the salesmen list after successful status change
-      fetchSalesmen();
-    } catch (error) {
-      console.error('Error toggling salesman status:', error);
-      alert('Failed to update salesman status. Please try again.');
+    const actionText = currentStatus ? 'deactivate' : 'activate';
+    const warningText = currentStatus ? ' An inactive salesman cannot have any sales recorded.' : '';
+    
+    if (window.confirm(`Are you sure you want to ${actionText} this salesman?${warningText}`)) {
+      try {
+        await toggleSalesmanStatus(id, !currentStatus);
+        // The store handles the state update, so we just need to re-fetch
+        fetchSalesmen();
+      } catch (error) {
+        console.error('Error toggling salesman status:', error);
+        alert('Failed to update salesman status. Please try again.');
+      }
     }
   };
 
@@ -89,7 +113,7 @@ const SalesmenPage = () => {
         alert(response.message || 'Failed to update salesman. Please try again.');
       }
     } catch (error) {
-      console.error('Error updating salesman:', error);
+      console.error('Error updating salesman check form:', error);
       alert(error.message || 'Failed to update salesman. Please try again.');
     }
   };
@@ -108,6 +132,7 @@ const SalesmenPage = () => {
     const file = event.target.files[0];
     if (!file) return;
 
+    setIsUploading(true);
     try {
       const response = await uploadSalesmenCSV(file);
       if (response.success) {
@@ -119,6 +144,8 @@ const SalesmenPage = () => {
     } catch (error) {
       console.error('Error uploading CSV:', error);
       alert(error.message || 'Failed to upload CSV. Please try again.');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -157,6 +184,14 @@ const SalesmenPage = () => {
 
   return (
     <section>
+      {isUploading && (
+        <div className="modal-overlay" style={{ zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div style={{ color: 'white', fontSize: '1.5rem', textAlign: 'center' }}>
+            <p>Uploading and processing CSV...</p>
+            <p>This may take a moment. Please wait.</p>
+          </div>
+        </div>
+      )}
       <SalesmanFilterSearch filters={filter} setFilter={setFilter} />
       <div className="section-header">
         <div className="search-container">
@@ -203,6 +238,7 @@ const SalesmenPage = () => {
                   <th>Name</th>
                   <th>Email</th>
                   <th>Contact No</th>
+                  <th>Franchise</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
@@ -214,6 +250,7 @@ const SalesmenPage = () => {
                     <td>{`${s.firstName} ${s.lastName}`}</td>
                     <td>{s.email}</td>
                     <td>{s.contactNo}</td>
+                    <td>{s.franchise?.name || 'N/A'}</td>
                     <td>
                       <span className={`status-badge ${s.active ? 'active' : 'inactive'}`}>
                       <button
@@ -272,18 +309,13 @@ const SalesmenPage = () => {
       {showAddModal && (
         <div className="modal-overlay">
           <div className="modal">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h3>Add New Salesman</h3>
-                <button className="close-btn" onClick={() => setShowAddModal(false)}>×</button>
-              </div>
+            
               <SalesmanForm
                 onSubmit={handleAddSalesman}
                 onCancel={() => setShowAddModal(false)}
                 submitButtonText="Add Salesman"
                 title="Add New Salesman"
               />
-            </div>
           </div>
         </div>
       )}
@@ -292,18 +324,10 @@ const SalesmenPage = () => {
       {showEditModal && selectedSalesman && (
         <div className="modal-overlay">
           <div className="modal">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h3>Edit Salesman</h3>
-                <button className="close-btn" onClick={() => {
-                  setShowEditModal(false);
-                  setSelectedSalesman(null);
-                }}>×</button>
-              </div>
               <SalesmanForm
                 onSubmit={handleEditSalesman}
                 onCancel={() => {
-                  setShowEditModal(false);
+                  setShowEditModal(false);  
                   setSelectedSalesman(null);
                 }}
                 submitButtonText="Update Salesman"
@@ -311,86 +335,17 @@ const SalesmenPage = () => {
                 initialData={selectedSalesman}
               />
             </div>
-          </div>
         </div>
       )}
 
-      {/* <style jsx>{`
-        .modal-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: rgba(0, 0, 0, 0.5);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          z-index: 1000;
-          padding: 20px;
-        }
-
-        .modal-content {
-          background: white;
-          border-radius: 8px;
-          width: 100%;
-          max-width: 800px;
-          max-height: 90vh;
-          overflow-y: auto;
-          position: relative;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .modal-header {
-          padding: 16px 24px;
-          border-bottom: 1px solid #e0e0e0;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          position: sticky;
-          top: 0;
-          background: white;
-          z-index: 1;
-        }
-
-        .modal-header h3 {
-          margin: 0;
-          color: var(--accent-green);
-          font-size: 1.2rem;
-          font-weight: 500;
-        }
-
-        .close-btn {
-          background: none;
-          border: none;
-          font-size: 24px;
-          cursor: pointer;
-          color: #666;
-          padding: 0;
-          width: 32px;
-          height: 32px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 4px;
-          transition: all 0.3s ease;
-        }
-
-        .close-btn:hover {
-          background-color: #f5f5f5;
-          color: #333;
-        }
-
-        .modal-body {
-          padding: 24px;
-        }
-
-        @media (max-width: 768px) {
-          .modal-content {
-            max-height: 95vh;
-          }
-        }
-      `}</style> */}
+      <PasswordConfirmModal
+        visible={showPasswordModal}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        title="Confirm Deletion"
+        message={`Are you sure you want to delete salesman "${salesmanToDelete?.firstName} ${salesmanToDelete?.lastName}"? Deleting this salesman will also delete their relevant sales. A better option is to simply set their status to Inactive.`}
+      />
+    
     </section>
   );
 };

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const APK_URL = 'https://example.com/your-app.apk'; // TODO: Replace with actual APK link
+const APK_URL = '/SaleTale.apk'; // Updated to local APK path
 
 const LandingPage = () => {
   const navigate = useNavigate();

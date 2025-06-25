@@ -33,58 +33,52 @@ const SalesDashboard = () => {
 
   useEffect(() => {
     const today = format(new Date(), 'yyyy-MM-dd');
-    const weekAgo = format(subDays(new Date(), 6), 'yyyy-MM-dd');
+  const weekAgo = format(subDays(new Date(), 6), 'yyyy-MM-dd');
     setEndDate(today);
     setStartDate(weekAgo);
   }, []);
 
   useEffect(() => {
     if (!startDate || !endDate) return;
-    const fetchGraphData = async () => {
+
+    const fetchDashboardData = async () => {
       try {
         const start = parse(startDate, 'yyyy-MM-dd', new Date());
         const end = endOfDay(parse(endDate, 'yyyy-MM-dd', new Date()));
-        console.log("start", start.toISOString(), "end", end.toISOString());
-        const data = await getGraphDataStatistics(
-          start.toISOString(),
-          end.toISOString()
-        );
-        if (!data.length) return setWeekLabels([]);
+        console.log('Sending to API:', { start, end });
 
-        const allDates = eachDayOfInterval({
-          start: parseISO(data[0].date),
-          end: parseISO(data[data.length - 1].date),
-        }).map(d => format(d, 'yyyy-MM-dd'));
+        const [graphData, statsData] = await Promise.all([
+          getGraphDataStatistics(start.toISOString(), end.toISOString()),
+          getSalesStatistics(start.toISOString(), end.toISOString()),
+        ]);
 
-        const dataMap = Object.fromEntries(data.map(d => [d.date, d.totalAmount]));
-        const filledSales = allDates.map(date => dataMap[date] || 0);
+        if (graphData && graphData.length > 0) {
+          const allDates = eachDayOfInterval({
+            start: parseISO(graphData[0].date),
+            end: parseISO(graphData[graphData.length - 1].date),
+          }).map((d) => format(d, 'yyyy-MM-dd'));
 
-        setWeekLabels(allDates);
-        setWeekSales(filledSales);
+          const dataMap = Object.fromEntries(
+            graphData.map((d) => [d.date, d.totalAmount])
+          );
+          const filledSales = allDates.map((date) => dataMap[date] || 0);
+
+          setWeekLabels(allDates);
+          setWeekSales(filledSales);
+        } else {
+          setWeekLabels([]);
+          setWeekSales([]);
+        }
+
+        setStats(statsData);
       } catch {
         setWeekLabels([]);
         setWeekSales([]);
-      }
-    };
-    fetchGraphData();
-  }, [startDate, endDate]);
-
-  useEffect(() => {
-    if (!startDate || !endDate) return;
-    const fetchStats = async () => {
-      try {
-        const start = parse(startDate, 'yyyy-MM-dd', new Date());
-        const end = endOfDay(parse(endDate, 'yyyy-MM-dd', new Date()));
-        const data = await getSalesStatistics(
-          start.toISOString(),
-          end.toISOString()
-        );
-        setStats(data);
-      } catch {
         setStats(null);
       }
     };
-    fetchStats();
+
+    fetchDashboardData();
   }, [startDate, endDate]);
 
   return (
@@ -186,7 +180,7 @@ const SalesDashboard = () => {
                 <table className="stats-table">
                   <thead><tr><th>Product</th><th>Qty</th><th>Amount</th></tr></thead>
                   <tbody>
-                    {fr.productwiseSales.map(p => (
+                    {fr.productwiseSales.map((p) => (
                       <tr key={p.product}>
                         <td>{p.product}</td>
                         <td>{p.quantity}</td>

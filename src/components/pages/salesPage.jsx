@@ -3,7 +3,7 @@ import useSalesStore from '../../store/salesStore';
 import SaleFilterSearch from '../SaleFilterSearch';
 import SaleDetails from '../salesDetails';
 import { searchSale } from '../../utils/searchUtils';
-import {format, subDays } from 'date-fns';
+import {format, subDays, parse, endOfDay } from 'date-fns';
 
 
 const SalesPage = ({ onCellMouseEnter, onCellMouseLeave }) => {
@@ -36,7 +36,17 @@ const SalesPage = ({ onCellMouseEnter, onCellMouseLeave }) => {
 
   useEffect(() => {
     if (Object.keys(filter).length > 0) {
-      fetchFilteredSales(filter);
+      const { startDate, endDate, ...restFilters } = filter;
+      const filtersWithIsoDates = { ...restFilters };
+
+      if (startDate) {
+        filtersWithIsoDates.startDate = parse(startDate, 'yyyy-MM-dd', new Date()).toISOString();
+      }
+      if (endDate) {
+        filtersWithIsoDates.endDate = endOfDay(parse(endDate, 'yyyy-MM-dd', new Date())).toISOString();
+      }
+
+      fetchFilteredSales(filtersWithIsoDates);
     }
     // eslint-disable-next-line
   }, [filter]);

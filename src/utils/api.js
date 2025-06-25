@@ -1,6 +1,6 @@
-const API_BASE_URL = 'https://saletale.duckdns.org/api';
+// const API_BASE_URL = 'https://saletale.duckdns.org/api';
 // const API_BASE_URL = '/api';
-// const API_BASE_URL = 'http://52.62.47.249:5000/api';
+const API_BASE_URL = 'http://10.7.33.209:5000/api';
 // Helper function to get auth header
 const getAuthHeader = () => {
   const token = localStorage.getItem('adminToken');

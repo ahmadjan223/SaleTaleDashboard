@@ -11,7 +11,7 @@ import {
   Filler,
 } from 'chart.js';
 import { getGraphDataStatistics, getSalesStatistics } from '../../utils/api';
-import { eachDayOfInterval, format, parseISO, subDays } from 'date-fns';
+import { eachDayOfInterval, format, parse, parseISO, subDays, endOfDay } from 'date-fns';
 import '../../App.css';
 
 ChartJS.register(
@@ -42,7 +42,13 @@ const SalesDashboard = () => {
     if (!startDate || !endDate) return;
     const fetchGraphData = async () => {
       try {
-        const data = await getGraphDataStatistics(startDate, endDate);
+        const start = parse(startDate, 'yyyy-MM-dd', new Date());
+        const end = endOfDay(parse(endDate, 'yyyy-MM-dd', new Date()));
+        console.log("start", start.toISOString(), "end", end.toISOString());
+        const data = await getGraphDataStatistics(
+          start.toISOString(),
+          end.toISOString()
+        );
         if (!data.length) return setWeekLabels([]);
 
         const allDates = eachDayOfInterval({
@@ -67,7 +73,12 @@ const SalesDashboard = () => {
     if (!startDate || !endDate) return;
     const fetchStats = async () => {
       try {
-        const data = await getSalesStatistics(startDate, endDate);
+        const start = parse(startDate, 'yyyy-MM-dd', new Date());
+        const end = endOfDay(parse(endDate, 'yyyy-MM-dd', new Date()));
+        const data = await getSalesStatistics(
+          start.toISOString(),
+          end.toISOString()
+        );
         setStats(data);
       } catch {
         setStats(null);
@@ -158,7 +169,7 @@ const SalesDashboard = () => {
                 <tr><th>Product</th><th>Qty</th><th>Amount</th></tr>
               </thead>
               <tbody>
-                {Object.entries(stats.products || {}).map(([product, d], i) => (
+                {Object.entries(stats.products || {}).map(([product, d]) => (
                   <tr key={product}>
                     <td>{product}</td>
                     <td>{d.quantity}</td>
@@ -175,7 +186,7 @@ const SalesDashboard = () => {
                 <table className="stats-table">
                   <thead><tr><th>Product</th><th>Qty</th><th>Amount</th></tr></thead>
                   <tbody>
-                    {fr.productwiseSales.map((p, i) => (
+                    {fr.productwiseSales.map(p => (
                       <tr key={p.product}>
                         <td>{p.product}</td>
                         <td>{p.quantity}</td>

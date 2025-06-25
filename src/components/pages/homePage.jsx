@@ -51,6 +51,7 @@ const SalesDashboard = () => {
           getGraphDataStatistics(start.toISOString(), end.toISOString()),
           getSalesStatistics(start.toISOString(), end.toISOString()),
         ]);
+        console.log('Graph Data:', graphData);
 
         if (graphData && graphData.length > 0) {
           const allDates = eachDayOfInterval({
@@ -59,7 +60,7 @@ const SalesDashboard = () => {
           }).map((d) => format(d, 'yyyy-MM-dd'));
 
           const dataMap = Object.fromEntries(
-            graphData.map((d) => [d.date, d.totalAmount])
+            graphData.map((d) => [format(parseISO(d.date), 'yyyy-MM-dd'), d.totalAmount])
           );
           const filledSales = allDates.map((date) => dataMap[date] || 0);
 
